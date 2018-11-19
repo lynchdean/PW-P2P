@@ -1,8 +1,7 @@
 # Password Manager with Peer-to-Peer Synchronization
 
 ## Requirements
-* npm 3.5.2
-* node v8.10.0
+* Java version 10
 
 
 ## Additional Resources
