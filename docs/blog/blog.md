@@ -1,72 +1,55 @@
-# Blog: MY-PROJECT-TITLE
+# Blog: Password Manager
 
-**MY-NAME**
+**Dean Lynch**
 
-## My First Blog Entry
+## Blog Entry 1 - Fri 11 October:
 
-This is my first blog entry.
+Last week I organised a meeting with Brian Stone to have a talk about my proposed project idea. 
+Brian liked the idea and agreed to be my project supervisor. 
 
-The blog is written in [markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet).
-Markdown is a simple text-based mark-up language.
+Brian confirmed himself as my project supervisor and completed my project proposal ahead of the deadline today.
 
-## My Second Blog Entry
+## Blog Entry 2 - Wed 18 October:
 
-This week, I learned how to include
-[images](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet#images)
-in my blog.
+This week I had my first official meeting with Brian. 
+We have organised to meet up every Wednesday at 12 with the other students that Brian is supervising.
 
-![cat](https://gitlab.computing.dcu.ie/sblott/2018-ca400-XXXX/raw/master/docs/blog/images/cat.jpg)
+Tom was also present at the meeting. 
+It was very interesting to hear about Toms project which involves comparing images and determining how similar they are.
 
-Here are the instructions:
+The main point that I took from the meeting with Brian was that my project had plenty of breadth, but said I needed to ensure that I had good depth in one area such as the encryption or synchronisation. 
+I will meet again with Brian next week.
 
-- Add the image to your repo (probably using the `images` sub-directory here).
-  The cat example above is in `./images/cat.jpg`.
+## Blog Entry 3 - Wed 24 October:
+Today I had my proposal presentation. 
+My two assesors were Andrew McCarren and Liam Tuohey.
+Neither Liam or Andrew use a passward manager, so it was a little harder to explain to them why my password manager was different from the ones available on the market currently.
+Both assessors seemed to be stisfied with my proposal and it was approved.
 
-- Commit that and push it to your repo.
+The one area Andrew was worried about was access to the database. 
+He wasn't comfortable with only a single password protecting the entire database.
+He would like if some sort of two-factor authenticatioon is enforced by the application.
 
-- On Gitlab, navigate to your new image and click *Raw*.  You get the raw URL of your image.  Copy that URL.
+## Blog Entry 4 - Wed 31 October:
+This week I started working on my functional specification. 
+I have another 3 assignments ongoing at the moment, so it's quite difficult to find time for the project.
 
-- Add your image to this document using the following format:
+## Blog Entry 5 - Wed 07 November:
+This week I contiued to work on other assignments and made good progress in particular on the Compiler construction assignment.
+I was able to find some time to make a little more progress on the functional specification.
 
-    <pre>![alternative text](URL)</pre>
+I also spent some time researching how other password managers handle the concern that Andrew McCarren had in my project proposal.
+After speaking with Brain at my weekly supervision meeting, we decided that enforcing two factor authentication for every user would be a good solution to this problem.
 
-See the example [here](https://gitlab.computing.dcu.ie/sblott/2018-ca400-XXXX/raw/master/docs/blog/blog.md).
+## Blog Entry 6 - Wed 14 November:
+This week I continued working on my functional specification. 
+In the process of working on this I discovered research papers about password database formats and usage of passowrd managers in enterprise.
 
-You can also mention other users (like me: @sblott).
+Brian was worried that that I hadn't been working on writing code on the project, as he feels that this would keep the project fresh in my mind. 
+So next week I hope to get started on implemnting the project as well as making more progress on the functional specification.
 
-## Including Code
+## Blog Entry 7 - Wed 21 November:
+Our functional specification deadline was pushed back due to overlapping of assignment deadlines from other modules. 
+I was quite happy about this as it would give more time for me to work on implementing the project alongside working on the functional specification.
 
-Raw text:
-```
-Mary had a little lamb,
-it's fleece was white as snow.
-```
-
-Syntax highlighting is also possible; for example...
-
-Python:
-```python
-i = 0
-while i < len(s):
-   # So something.
-   i = i + 1
-```
-
-Java:
-```java
-for (i=0; i<s.length(); i+=1) {
-   // Do something.
-}
-```
-
-Coffeescript:
-```coffeescript
-i = 0
-while i < s.length
-   # So something.
-   i = i + 1
-```
-
-## Instructions
-
-Once you've understood this sample, replace it with your own blog.
+...

@@ -8,3 +8,9 @@
 
 # Ignore everything in the build directory.
 build/
+
+# IntelliJ
+.idea/
+
+# Proposal Markdown
+/docs/Proposal/Project_Proposal.md
