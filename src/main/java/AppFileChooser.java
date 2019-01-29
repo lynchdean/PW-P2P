@@ -52,13 +52,14 @@ public class AppFileChooser extends Application {
         selectedFileText = new Text("None");
         selectedFileHb.getChildren().addAll(selectedFileLabel, selectedFileText);
 
+        // Row 3 - Open File
         Button openFileBtn = new Button("Open selected file");
         openFileBtn.setOnAction(event -> openFile());
         HBox buttonHb2 = new HBox(10);
         buttonHb2.setAlignment(Pos.CENTER);
         buttonHb2.getChildren().addAll(openFileBtn);
 
-        // Row 3 - Status message
+        // Row 4 - Status message
         actionStatus = new Text();
         actionStatus.setFill(Color.FIREBRICK);
 
@@ -82,23 +83,23 @@ public class AppFileChooser extends Application {
         }
     }
 
-    private void openFile() {
-        if (selectedFile != null) {
-            actionStatus.setText("Opened file successfully.");
-        } else {
-            actionStatus.setText("No file selected!");
-        }
-    }
-
     private void showSingleFileChooser() {
         FileChooser fileChooser = new FileChooser();
         selectedFile = fileChooser.showOpenDialog(null);
 
         if (selectedFile != null) {
-            actionStatus.setText("File selected: " + selectedFile.getName());
+            actionStatus.setText(String.format("File selected: %s", selectedFile.getPath()));
             selectedFileText.setText(selectedFile.getName());
         } else {
             actionStatus.setText("File selection cancelled.");
+        }
+    }
+
+    private void openFile() {
+        if (selectedFile != null) {
+            actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
+        } else {
+            actionStatus.setText("Failed to open: No file selected.");
         }
     }
 }
