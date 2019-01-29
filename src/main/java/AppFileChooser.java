@@ -23,7 +23,7 @@ public class AppFileChooser extends Application {
     private Text selectedFileText;
     private Text actionStatus;
     private Stage savedStage;
-    private static final String titleTxt = "SyncSafe";
+    private static final String titleText = "SyncSafe";
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -31,7 +31,7 @@ public class AppFileChooser extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle(titleTxt);
+        primaryStage.setTitle(titleText);
 
         // Row 0 - Scene header
         Label headerLabel = new Label("Please select .KDBX file");
