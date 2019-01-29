@@ -54,7 +54,7 @@ public class AppFileChooser extends Application {
 
         // Row 3 - Open File
         Button openFileBtn = new Button("Open selected file");
-        openFileBtn.setOnAction(event -> openFile());
+        openFileBtn.setOnAction(event -> openFile(primaryStage));
         HBox buttonHb2 = new HBox(10);
         buttonHb2.setAlignment(Pos.CENTER);
         buttonHb2.getChildren().addAll(openFileBtn);
@@ -95,9 +95,14 @@ public class AppFileChooser extends Application {
         }
     }
 
-    private void openFile() {
+    private void openFile(Stage primaryStage) {
         if (selectedFile != null) {
             actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
+
+
+            VBox vbox = new VBox(30);
+            Scene scene = new Scene(vbox, 800, 400);
+            primaryStage.setScene(scene);
         } else {
             actionStatus.setText("Failed to open: No file selected.");
         }
