@@ -19,11 +19,21 @@ import java.io.File;
 
 public class AppFileChooser extends Application {
 
+    private static final String titleText = "SyncSafe";
+    private Text actionStatus;
+
+    // Window & Scenes
+    private Stage window;
+    private Scene fileChooserScene;
+    private Scene credentialsScene;
+
+    // File
     private File selectedFile;
     private Text selectedFileText;
-    private Text actionStatus;
-    private Stage savedStage;
-    private static final String titleText = "SyncSafe";
+
+    // Buttons
+    private Button selectFileBtn;
+    private Button openFileBtn;
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -31,7 +41,9 @@ public class AppFileChooser extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle(titleText);
+        window = primaryStage;
+        window.setTitle(titleText);
+        window.setAlwaysOnTop(true);
 
         // Row 0 - Scene header
         Label headerLabel = new Label("Please select .KDBX file");
@@ -41,8 +53,8 @@ public class AppFileChooser extends Application {
         headerHb.getChildren().add(headerLabel);
 
         // Row 1 - Choose file actions
-        Button selectFileBtn = new Button("Choose a file...");
-        selectFileBtn.setOnAction(new buttonListener());
+        selectFileBtn = new Button("Choose a file...");
+        selectFileBtn.setOnAction(e -> showFileChooser());
         HBox selectFileActionHb = new HBox(10);
         selectFileActionHb.getChildren().add(selectFileBtn);
 
@@ -53,8 +65,8 @@ public class AppFileChooser extends Application {
         selectedFileHb.getChildren().addAll(selectedFileLabel, selectedFileText);
 
         // Row 3 - Open File
-        Button openFileBtn = new Button("Open selected file");
-        openFileBtn.setOnAction(event -> openFile(primaryStage));
+        openFileBtn = new Button("Open selected file");
+        openFileBtn.setOnAction(e -> openFile());
         HBox buttonHb2 = new HBox(10);
         buttonHb2.setAlignment(Pos.CENTER);
         buttonHb2.getChildren().addAll(openFileBtn);
@@ -69,25 +81,19 @@ public class AppFileChooser extends Application {
         vbox.getChildren().addAll(headerHb, selectFileActionHb, selectedFileHb, buttonHb2, actionStatus);
 
         // Scene
-        Scene scene = new Scene(vbox, 800, 400);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-        savedStage = primaryStage;
+        fileChooserScene = new Scene(vbox, 800, 400);
+        window.setScene(fileChooserScene);
+        window.show();
     }
 
-    private class buttonListener implements EventHandler<ActionEvent> {
-        @Override
-        public void handle(ActionEvent e) {
-            showSingleFileChooser();
-        }
-    }
-
-    private void showSingleFileChooser() {
+    private void showFileChooser() {
         FileChooser fileChooser = new FileChooser();
-        selectedFile = fileChooser.showOpenDialog(null);
+        FileChooser.ExtensionFilter fileExtensions = new FileChooser.ExtensionFilter("KDBX (*.kdbx)", "*.kdbx");
+        fileChooser.getExtensionFilters().add(fileExtensions);
+        File chosenFile = fileChooser.showOpenDialog(null);
 
-        if (selectedFile != null) {
+        if (chosenFile != null) {
+            selectedFile = chosenFile;
             actionStatus.setText(String.format("File selected: %s", selectedFile.getPath()));
             selectedFileText.setText(selectedFile.getName());
         } else {
@@ -95,16 +101,13 @@ public class AppFileChooser extends Application {
         }
     }
 
-    private void openFile(Stage primaryStage) {
+    private void openFile() {
         if (selectedFile != null) {
             actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
-
-
-            VBox vbox = new VBox(30);
-            Scene scene = new Scene(vbox, 800, 400);
-            primaryStage.setScene(scene);
+            window.setScene(credentialsScene);
         } else {
             actionStatus.setText("Failed to open: No file selected.");
+            AlertBox.display(window, "Error: No file selected", "Please select a file first!");
         }
     }
 }
