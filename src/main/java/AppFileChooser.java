@@ -19,19 +19,11 @@ public class AppFileChooser extends Application {
 
     private static final String titleText = "SyncSafe";
     private Text actionStatus;
-
-    // Window & Scenes
     private Stage window;
-    private Scene fileChooserScene;
-    private Scene credentialsScene;
 
     // File
     private File selectedFile;
     private Text selectedFileText;
-
-    // Buttons
-    private Button selectFileBtn;
-    private Button openFileBtn;
 
     public static void main(String[] args) {
         Application.launch(args);
@@ -51,22 +43,24 @@ public class AppFileChooser extends Application {
         headerHb.getChildren().add(headerLabel);
 
         // Row 1 - Choose file actions
-        selectFileBtn = new Button("Choose a file...");
+        Button selectFileBtn = new Button("Choose a file...");
         selectFileBtn.setOnAction(e -> showFileChooser());
         HBox selectFileActionHb = new HBox(10);
+        selectFileActionHb.setAlignment(Pos.CENTER);
         selectFileActionHb.getChildren().add(selectFileBtn);
 
         // Row 2 - Selected file
         Label selectedFileLabel = new Label("Selected File:");
         HBox selectedFileHb = new HBox(10);
+        selectedFileHb.setAlignment(Pos.CENTER);
         selectedFileText = new Text("None");
         selectedFileHb.getChildren().addAll(selectedFileLabel, selectedFileText);
 
         // Row 3 - Open File
-        openFileBtn = new Button("Open selected file");
+        Button openFileBtn = new Button("Open");
         openFileBtn.setOnAction(e -> openFile());
         HBox buttonHb2 = new HBox(10);
-        buttonHb2.setAlignment(Pos.CENTER);
+        buttonHb2.setAlignment(Pos.BOTTOM_RIGHT);
         buttonHb2.getChildren().addAll(openFileBtn);
 
         // Row 4 - Status message
@@ -79,7 +73,7 @@ public class AppFileChooser extends Application {
         vbox.getChildren().addAll(headerHb, selectFileActionHb, selectedFileHb, buttonHb2, actionStatus);
 
         // Scene
-        fileChooserScene = new Scene(vbox, 800, 400);
+        Scene fileChooserScene = new Scene(vbox, 800, 400);
         window.setScene(fileChooserScene);
         window.show();
     }
@@ -102,7 +96,7 @@ public class AppFileChooser extends Application {
     private void openFile() {
         if (selectedFile != null) {
             actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
-            credentialsScene = AppCredentialsInput.getScene();
+            Scene credentialsScene = AppCredentialsInput.getScene(window);
             window.setScene(credentialsScene);
         } else {
             actionStatus.setText("Failed to open: No file selected.");
