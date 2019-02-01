@@ -1,6 +1,4 @@
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -76,7 +74,7 @@ public class AppFileChooser extends Application {
         actionStatus.setFill(Color.FIREBRICK);
 
         // Vbox
-        VBox vbox = new VBox(30);
+        VBox vbox = new VBox(20);
         vbox.setPadding(new Insets(25, 50, 25, 50));
         vbox.getChildren().addAll(headerHb, selectFileActionHb, selectedFileHb, buttonHb2, actionStatus);
 
@@ -104,6 +102,7 @@ public class AppFileChooser extends Application {
     private void openFile() {
         if (selectedFile != null) {
             actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
+            credentialsScene = AppCredentialsInput.getScene();
             window.setScene(credentialsScene);
         } else {
             actionStatus.setText("Failed to open: No file selected.");
