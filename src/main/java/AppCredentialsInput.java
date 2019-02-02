@@ -21,8 +21,6 @@ class AppCredentialsInput {
     private static Scene prevScene;
 
     static Scene getScene(Stage stage) {
-        setWindow(stage);
-
         // Row 0 - Scene Header
         Label headerLabel = new Label("Please enter your credentials");
         headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
@@ -52,17 +50,12 @@ class AppCredentialsInput {
         actionStatus = new Text("");
         actionStatus.setFill(Color.FIREBRICK);
 
-        // Vbox
+        // VBox
         VBox vbox = new VBox(20);
         vbox.setPadding(new Insets(25, 50, 25, 50));
         vbox.getChildren().addAll(headerHb, pwHb, openBtnHb, actionStatus);
 
         return new Scene(vbox, 800, 400);
-    }
-
-    private static void setWindow(Stage stage) {
-        window = stage;
-        prevScene = window.getScene();
     }
 
     private static void checkCredentials(String pwInput) {
@@ -74,7 +67,6 @@ class AppCredentialsInput {
             actionStatus.setFill(Color.FIREBRICK);
         }
     }
-
 
     private static void returnToPrevScene() {
         window.setScene(prevScene);

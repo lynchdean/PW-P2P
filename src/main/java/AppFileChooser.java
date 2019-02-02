@@ -1,4 +1,3 @@
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,25 +14,19 @@ import javafx.stage.Stage;
 
 import java.io.File;
 
-public class AppFileChooser extends Application {
+class AppFileChooser {
 
-    private static final String titleText = "SyncSafe";
-    private Text actionStatus;
-    private Stage window;
+    private static Text actionStatus;
+
+    // Window & Scenes
+    private static Stage window;
 
     // File
-    private File selectedFile;
-    private Text selectedFileText;
+    private static File selectedFile;
+    private static Text selectedFileText;
 
-    public static void main(String[] args) {
-        Application.launch(args);
-    }
-
-    @Override
-    public void start(Stage primaryStage) {
-        window = primaryStage;
-        window.setTitle(titleText);
-        window.setAlwaysOnTop(true);
+    static Scene getScene(Stage stage) {
+        window = stage;
 
         // Row 0 - Scene header
         Label headerLabel = new Label("Please select .KDBX file");
@@ -67,18 +60,19 @@ public class AppFileChooser extends Application {
         actionStatus = new Text();
         actionStatus.setFill(Color.FIREBRICK);
 
-        // Vbox
+        // VBox
         VBox vbox = new VBox(20);
         vbox.setPadding(new Insets(25, 50, 25, 50));
         vbox.getChildren().addAll(headerHb, selectFileActionHb, selectedFileHb, buttonHb2, actionStatus);
 
-        // Scene
-        Scene fileChooserScene = new Scene(vbox, 800, 400);
-        window.setScene(fileChooserScene);
-        window.show();
+        return new Scene(vbox, 800, 400);
     }
 
-    private void showFileChooser() {
+    private static void setWindow(Stage stage) {
+        window = stage;
+    }
+
+    private static void showFileChooser() {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter fileExtensions = new FileChooser.ExtensionFilter("KDBX (*.kdbx)", "*.kdbx");
         fileChooser.getExtensionFilters().add(fileExtensions);
@@ -93,7 +87,7 @@ public class AppFileChooser extends Application {
         }
     }
 
-    private void openFile() {
+    private static void openFile() {
         if (selectedFile != null) {
             actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
             Scene credentialsScene = AppCredentialsInput.getScene(window);
