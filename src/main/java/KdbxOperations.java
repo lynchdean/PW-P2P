@@ -17,4 +17,17 @@ public abstract class KdbxOperations {
         Database database = SimpleDatabase.load(credentials, inputStream);
         database.visit(new Visitor.Print());
     }
+
+    public boolean isCreds(String path, String creds) {
+        KdbxCreds credentials = new KdbxCreds(creds.getBytes());
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
+        Database database;
+        try {
+            database = SimpleDatabase.load(credentials, inputStream);
+        } catch (Exception e) {
+            return false;
+        }
+        database.visit(new Visitor.Print());
+        return true;
+    }
 }

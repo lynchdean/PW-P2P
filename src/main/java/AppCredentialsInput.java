@@ -21,6 +21,9 @@ class AppCredentialsInput {
     private static Scene prevScene;
 
     static Scene getScene(Stage stage) {
+        window = stage;
+        prevScene = window.getScene();
+
         // Row 0 - Scene Header
         Label headerLabel = new Label("Please enter your credentials");
         headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
