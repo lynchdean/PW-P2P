@@ -56,6 +56,30 @@ I also discovered a Java library called KeePassJava2 that should allow me to use
 This could potentially save me time that would be spent trying to create my own sort of implementation of a password database file.
 More importantly, this could save me the potential security pitfalls I might introduce trying to implement my own database format.
 
-## Blog Entry 8 - Wed 28 Novermber:
+## Blog Entry 8 - Wed 28 November:
 This week I finished my functional specification ahead of the deadline this coming Friday. 
-In the little time I had to work on my implementation, I used it to continue work on the reading and writing of the database files, as well as writing unit tests to cover it. 
+In the little time I had to work on my implementation, I used it to continue work on the reading and writing of the database files, as well as writing unit tests to cover it.
+
+## Blog entry 8 - Wed 05 December:
+This week I started working on the GUI for my project.
+I stated in my functional specification that I would be using The Swing library for my GUI, but after using both Swing and JavaFX, I have to decided to use JavaFX instead, as I found it more modern and full featured.
+
+## Blog entry 9 - Wed 13th December:
+No meeting with Brian this week, as there would not be much progress made within a week with three assessment deadlines upcoming in week 12.
+I'm continuing to work on the GUI for my project.
+As I've never used JavaFX before, I have dedicated a any of my time towards practicing and learning the framework.
+
+## Blog Entry 10 - Mon 21st January:
+Since the last blog I have had my Christmas Exams, which means most of my time was dedicated to studying for them.
+Whenever I needed a short break from studying, I continued working away at the GUI for my application.
+
+## Blog Entry 11 - Mon 28th January:
+This week I decided to rewrite most of the code for my GUI, as the tutorial that I first followed did not anticipate that I would be implementing file input.
+While the application seemed to work fine after implementing the file chooser, the application always threw a "ConcurrentModificationError".
+I tried using some of the fixes found online for this error, but I had no success.
+After spending a considerable amount of time trying to fix this, I made the decision to rewrite most of my GUI code, using a tutorial that takes the file chooser into account.
+This was a success and I no longer get the "ConcurrentModificationError".
+
+## Blog Entry 12 - Mon 4th February:
+Last week I finished writing a basic GUI for the file selection and credentials input sections of my application.
+I now plan on working on the functionality of reading in a .KDBX file and displaying it in a GUI.
