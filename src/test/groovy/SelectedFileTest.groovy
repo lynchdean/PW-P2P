@@ -5,8 +5,9 @@ import spock.lang.Unroll
 class SelectedFileTest extends Specification {
 
     // Files
-    static File file1 = new File("test1.kdbx") // pw = test1
-    static File file2 = new File("test2.kdbx") // pw = test2
+    // Passwords for test files are the same as the name fo the file, i.e. the password for "test1.kdbx" is "test1"
+    static File file1 = new File("test1.kdbx")
+    static File file2 = new File("test2.kdbx")
 
     // Selected files
     static SelectedFile sf1 = new SelectedFile(file1)
