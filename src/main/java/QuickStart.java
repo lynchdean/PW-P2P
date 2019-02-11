@@ -16,12 +16,8 @@
 
 import org.junit.BeforeClass;
 import org.linguafranca.pwdb.*;
-import org.linguafranca.pwdb.kdb.KdbCredentials;
-import org.linguafranca.pwdb.kdb.KdbDatabase;
-import org.linguafranca.pwdb.Credentials;
 import org.linguafranca.pwdb.kdbx.KdbxCreds;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -59,32 +55,32 @@ public abstract class QuickStart<D extends Database<D, G, E, I>, G extends Group
         }
     }
 
-    /**
-     * Save KDBX
-     */
-
-    private E entryFactory(D database, String s, int e) {
-        return database.newEntry(String.format("Group %s Entry %d", s, e));
-    }
-
-    public void saveKdbx() throws IOException {
-        // create an empty database
-        D database = getDatabase();
-
-        // add some groups and entries
-        for (int g = 0; g < 5; g++) {
-            G group = database.getRootGroup().addGroup(database.newGroup(Integer.toString(g)));
-            for (int e = 0; e <= g; e++) {
-                // entry factory is a local helper to populate an entry
-                group.addEntry(entryFactory(database, Integer.toString(g), e));
-            }
-        }
-
-        // save to a file with password "123"
-        try (FileOutputStream outputStream = new FileOutputStream("testOutput/test.kdbx")) {
-            database.save(new KdbxCreds("123".getBytes()), outputStream);
-        }
-    }
+//    /**
+//     * Save KDBX
+//     */
+//
+//    private E entryFactory(D database, String s, int e) {
+//        return database.newEntry(String.format("Group %s Entry %d", s, e));
+//    }
+//
+//    public void saveKdbx() throws IOException {
+//        // create an empty database
+//        D database = getDatabase();
+//
+//        // add some groups and entries
+//        for (int g = 0; g < 5; g++) {
+//            G group = database.getRootGroup().addGroup(database.newGroup(Integer.toString(g)));
+//            for (int e = 0; e <= g; e++) {
+//                // entry factory is a local helper to populate an entry
+//                group.addEntry(entryFactory(database, Integer.toString(g), e));
+//            }
+//        }
+//
+//        // save to a file with password "123"
+//        try (FileOutputStream outputStream = new FileOutputStream("testOutput/test.kdbx")) {
+//            database.save(new KdbxCreds("123".getBytes()), outputStream);
+//        }
+//    }
 
     /**
      * Splice - add a group from one database to a parent from another (or copy from the same db)
@@ -109,29 +105,5 @@ public abstract class QuickStart<D extends Database<D, G, E, I>, G extends Group
             newParent.addEntry(copy);
         }
         return newParent;
-    }
-
-    /**
-     * Load KDB and save as KDBX
-     */
-    public void loadKdb() throws IOException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("test123.kdb");
-        // password credentials
-        Credentials credentials = new KdbCredentials.Password("123".getBytes());
-        // load KdbDatabase
-        KdbDatabase database = KdbDatabase.load(credentials, inputStream);
-        // visit all groups and entries and list them to console
-        database.visit(new Visitor.Print());
-
-        // create a KDBX (database
-        D kdbxDatabse = getDatabase();
-        kdbxDatabse.setName("New Database");
-        kdbxDatabse.setDescription("Migration of KDB Database to KDBX Database");
-        // deep copy from group (not including source group, KDB database has simulated root)
-        kdbxDatabse.getRootGroup().copy(database.getRootGroup());
-        // save it
-        try (FileOutputStream f = new FileOutputStream("testOutput/migration.kdbx")) {
-            kdbxDatabse.save(new KdbxCreds("123".getBytes()), f);
-        }
     }
 }
