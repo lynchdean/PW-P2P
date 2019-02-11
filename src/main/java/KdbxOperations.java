@@ -5,7 +5,7 @@ import org.linguafranca.pwdb.kdbx.simple.SimpleDatabase;
 import java.io.InputStream;
 
 
-public abstract class KdbxOperations {
+public class KdbxOperations {
 
     /*
      * Load .kdbx file
@@ -18,9 +18,9 @@ public abstract class KdbxOperations {
         database.visit(new Visitor.Print());
     }
 
-    public boolean isCreds(String path, String creds) {
+    public static boolean testCreds(String path, String creds) {
         KdbxCreds credentials = new KdbxCreds(creds.getBytes());
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(path);
+        InputStream inputStream = KdbxOperations.class.getClassLoader().getResourceAsStream(path);
         Database database;
         try {
             database = SimpleDatabase.load(credentials, inputStream);
