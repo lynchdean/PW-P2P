@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 public class KdbxOperations {
 
-    private SimpleDatabase getDatabase() {
+    private static SimpleDatabase getDatabase() {
         return new SimpleDatabase();
     }
 
@@ -38,24 +38,22 @@ public class KdbxOperations {
      * Save Operations
      */
 
-    private Entry entryFactory(Database database, String s, int e) {
+    private static Entry entryFactory(Database database, String s, int e) {
         return database.newEntry(String.format("Group %s Entry %d", s, e));
     }
 
-    public void saveKdbx() throws IOException {
-        // create an empty database
+    public static void saveKdbx(String path, String creds) throws IOException {
         Database database = getDatabase();
-        // add some groups and entries
         for (int g = 0; g < 5; g++) {
             Group group = database.getRootGroup().addGroup(database.newGroup(Integer.toString(g)));
             for (int e = 0; e <= g; e++) {
                 // entry factory is a local helper to populate an entry
                 group.addEntry(entryFactory(database, Integer.toString(g), e));
             }
+
         }
-        // save to a file with password "123"
-        try (FileOutputStream outputStream = new FileOutputStream("testOutput/test.kdbx")) {
-            database.save(new KdbxCreds("123".getBytes()), outputStream);
+        try (FileOutputStream outputStream = new FileOutputStream(path)) {
+            database.save(new KdbxCreds(creds.getBytes()), outputStream);
         }
     }
 }
