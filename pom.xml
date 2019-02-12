@@ -17,6 +17,7 @@
                     <release>11</release>
                 </configuration>
             </plugin>
+            <!--Plugin for JavaFX-->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -32,9 +33,32 @@
                     <mainClass>AppMain</mainClass>
                 </configuration>
             </plugin>
+            <!-- Plugins needed for running Spock tests -->
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.6.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compileTests</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M3</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
     <dependencies>
         <!-- Java FX -->
         <dependency>
@@ -42,15 +66,13 @@
             <artifactId>javafx-controls</artifactId>
             <version>11.0.2</version>
         </dependency>
-
         <!-- KeePass2 Java Support-->
         <dependency>
             <groupId>org.linguafranca.pwdb</groupId>
             <artifactId>KeePassJava2</artifactId>
             <version>2.1.4</version>
         </dependency>
-
-        <!-- Testing -->
+        <!-- Spock -->
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
