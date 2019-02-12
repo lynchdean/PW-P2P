@@ -25,12 +25,14 @@ public class KdbxOperations {
      * Load Operations
      */
 
-    public static Database loadKdbx(String path, String creds) {
+    public static Database loadKdbx(String path, String creds) throws IOException {
         try (InputStream inputStream = KdbxOperations.class.getClassLoader().getResourceAsStream(path)) {
             Credentials credentials = new KdbxCreds(creds.getBytes());
             return loadDatabase(credentials, inputStream);
-        } catch (Exception e) {
-            throw new IllegalStateException("Invalid credentials.");
+        } catch (IllegalStateException e) {
+            throw new IllegalStateException("Incorrect credentials or invalid file.");
+        } catch (NullPointerException e) {
+            throw new NullPointerException("File path or credentials are null.");
         }
     }
 
