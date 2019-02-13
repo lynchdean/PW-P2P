@@ -1,5 +1,6 @@
 import spock.lang.Specification
 import spock.lang.Unroll
+import com.lynchd49.syncsafe.utils.KdbxOperations
 
 @Unroll
 class KdbxOperationsTest extends Specification {
@@ -12,6 +13,10 @@ class KdbxOperationsTest extends Specification {
 
     final static String wrongPath = "fake.kdbx"
     final static String wrongPw = "wrong password"
+
+    def Before() {
+        
+    }
 
     /**
      * Load Operation Tests

@@ -1,5 +1,6 @@
 import spock.lang.Specification
 import spock.lang.Unroll
+import com.lynchd49.syncsafe.utils.SelectedFile
 
 @Unroll
 class SelectedFileTest extends Specification {

@@ -1,3 +1,5 @@
+package com.lynchd49.syncsafe.utils;
+
 import java.io.File;
 
 public class SelectedFile {

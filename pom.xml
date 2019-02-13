@@ -30,7 +30,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>AppMain</mainClass>
+                    <mainClass>com.lynchd49.syncsafe.gui.AppMain</mainClass>
                 </configuration>
             </plugin>
             <!-- Plugins needed for running Spock tests -->

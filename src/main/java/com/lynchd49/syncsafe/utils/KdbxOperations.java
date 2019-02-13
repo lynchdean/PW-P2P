@@ -1,3 +1,5 @@
+package com.lynchd49.syncsafe.utils;
+
 import org.linguafranca.pwdb.*;
 import org.linguafranca.pwdb.kdbx.KdbxCreds;
 import org.linguafranca.pwdb.kdbx.simple.SimpleDatabase;

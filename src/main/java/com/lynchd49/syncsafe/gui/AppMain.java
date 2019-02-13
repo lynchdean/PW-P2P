@@ -1,3 +1,5 @@
+package com.lynchd49.syncsafe.gui;
+
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
