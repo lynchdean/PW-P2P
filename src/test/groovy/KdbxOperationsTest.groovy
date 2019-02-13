@@ -60,7 +60,7 @@ class KdbxOperationsTest extends Specification {
      * Save Operation Tests
      */
 
-    def "Should save to a new database"() {
+    def "Should save to a new database: #path"() {
         when:
         KdbxOperations.saveKdbx(path, creds)
 
