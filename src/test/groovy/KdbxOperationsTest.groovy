@@ -1,6 +1,6 @@
 import spock.lang.Specification
 import spock.lang.Unroll
-import com.lynchd49.syncsafe.utils.KdbxOperations
+import com.lynchd49.syncsafe.utils.KdbxOps
 
 @Unroll
 class KdbxOperationsTest extends Specification {
@@ -24,7 +24,7 @@ class KdbxOperationsTest extends Specification {
 
     def "Should load #path with credentials: #creds"() {
         when:
-        KdbxOperations.loadKdbx(path, creds)
+        KdbxOps.loadKdbx(path, creds)
 
         then:
         notThrown(IllegalStateException)
@@ -37,7 +37,7 @@ class KdbxOperationsTest extends Specification {
 
     def "Should not load #path with credentials: #creds"() {
         when:
-        KdbxOperations.loadKdbx(path, creds)
+        KdbxOps.loadKdbx(path, creds)
 
         then:
         def ex = thrown(expectedException)
@@ -62,7 +62,7 @@ class KdbxOperationsTest extends Specification {
 
     def "Should save to a new database: #path"() {
         when:
-        KdbxOperations.saveKdbx(path, creds)
+        KdbxOps.saveKdbx(path, creds)
 
         then:
         def file = new File(path)

@@ -70,10 +70,6 @@ class AppFileChooser {
         return new Scene(vbox, 800, 400);
     }
 
-    private static void setWindow(Stage stage) {
-        window = stage;
-    }
-
     private static void showFileChooser() {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter fileExtensions = new FileChooser.ExtensionFilter("KDBX (*.kdbx)", "*.kdbx");

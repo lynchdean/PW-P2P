@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-public class KdbxOperations {
+public class KdbxOps {
 
     private static SimpleDatabase getDatabase() {
         return new SimpleDatabase();
@@ -28,7 +28,7 @@ public class KdbxOperations {
      */
 
     public static Database loadKdbx(String path, String creds) throws IOException {
-        try (InputStream inputStream = KdbxOperations.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream inputStream = KdbxOps.class.getClassLoader().getResourceAsStream(path)) {
             Credentials credentials = new KdbxCreds(creds.getBytes());
             return loadDatabase(credentials, inputStream);
         } catch (IllegalStateException e) {
