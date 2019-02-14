@@ -1,9 +1,7 @@
 image: maven:latest
 
 before_script:
-  - apt-get install haveged
-  - update-rc.d haveged defaults
-  - service haveged start
+  - ln -s /dev/urandom /dev/random
 
 build:
   stage: build
