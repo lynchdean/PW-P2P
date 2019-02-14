@@ -1,6 +1,7 @@
 image: maven:latest
 
 before_script:
+  - mv /dev/random /dev/chaos
   - ln -s /dev/urandom /dev/random
 
 build:
