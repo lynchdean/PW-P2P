@@ -1,5 +1,10 @@
 image: maven:latest
 
+before_script:
+  - apt-get install haveged
+  - update-rc.d haveged defaults
+  - service haveged start
+
 build:
   stage: build
   script:
