@@ -83,3 +83,13 @@ This was a success and I no longer get the "ConcurrentModificationError".
 ## Blog Entry 13 - Mon 4th February:
 Last week I finished writing a basic GUI for the file selection and credentials input sections of my application.
 I now plan on working on the functionality of reading in a .KDBX file and displaying it in a GUI.
+
+## Blog Entry 14 - Thurs 14th February:
+I have now implemented some very basic functions such as loading and saving the .kdbx file, and have written Spock tests to cover these operations.
+I have also set up a GitLab CI pipeline to automatically run the unit tests every time I push code to the repo.
+One problem I had with implementing the loading and saving operations was that they were inconsistently taking a long time to execute.
+After searching online for a solution, I found an open issue in the KeepassJava2 library that I'm using describing the exact same issue.
+It turns out that some UNIX systems use /dev/random for random number generation, which ["can potentially block the WebLogic SIP Server process because on some operating systems /dev/random waits for a certain amount of "noise" to be generated on the host machine before returning a result".](https://docs.oracle.com/cd/E13209_01/wlcp/wlss30/configwlss/jvmrand.html)
+It was quite straightforward to fix this issue on my own machine, but was also causing problems in my CI pipeline.
+Since the execution time was long and inconsistent, this issue would sometimes cause the pipeline to run over the 10 minute timeout.
+I explored a couple of different ways to solve this, like a specialised docker container, but found a simple solution to the problem by creating a symbolic link from /dev/random to /dev/urandom when the pipeline in the setup script for the pipeline.
