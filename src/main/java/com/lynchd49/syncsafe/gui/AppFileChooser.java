@@ -27,7 +27,7 @@ class AppFileChooser {
     private static File selectedFile;
     private static Text selectedFileText;
 
-    static Scene getScene(Stage stage) {
+    static Scene loadScene(Stage stage) {
         window = stage;
 
         // Row 0 - Scene header
@@ -88,7 +88,7 @@ class AppFileChooser {
     private static void openFile() {
         if (selectedFile != null) {
             actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
-            Scene credentialsScene = AppCredentialsInput.getScene(window);
+            Scene credentialsScene = AppCredentialsInput.loadScene(window, selectedFile);
             window.setScene(credentialsScene);
         } else {
             actionStatus.setText("Failed to open: No file selected.");

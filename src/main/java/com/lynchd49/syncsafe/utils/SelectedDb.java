@@ -2,11 +2,11 @@ package com.lynchd49.syncsafe.utils;
 
 import java.io.File;
 
-public class SelectedFile {
+public class SelectedDb {
 
     private File file;
 
-    SelectedFile(File selectedFile) {
+    SelectedDb(File selectedFile) {
         setFile(selectedFile);
     }
 

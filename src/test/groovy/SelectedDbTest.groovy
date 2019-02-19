@@ -1,9 +1,9 @@
-import com.lynchd49.syncsafe.utils.SelectedFile
+import com.lynchd49.syncsafe.utils.SelectedDb
 import spock.lang.Specification
 import spock.lang.Unroll
 
 @Unroll
-class SelectedFileTest extends Specification {
+class SelectedDbTest extends Specification {
 
     // Files
     // Passwords for test files are the same as the name fo the file, i.e. the password for "test1.kdbx" is "test1"
@@ -11,8 +11,8 @@ class SelectedFileTest extends Specification {
     static File file2 = new File("test2.kdbx")
 
     // Selected files
-    static SelectedFile sf1 = new SelectedFile(file1)
-    static SelectedFile sf2 = new SelectedFile(file2)
+    static SelectedDb sf1 = new SelectedDb(file1)
+    static SelectedDb sf2 = new SelectedDb(file2)
 
 
     def "Should set a new .kdbx file"() {

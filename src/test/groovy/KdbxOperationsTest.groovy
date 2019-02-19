@@ -5,18 +5,16 @@ import com.lynchd49.syncsafe.utils.KdbxOps
 @Unroll
 class KdbxOperationsTest extends Specification {
 
-    final static String dbPath1 = "test1.kdbx"
+    final static String dir = System.getProperty("user.dir") + "/src/test/resources/"
+
+    final static String dbPath1 = dir + "test1.kdbx"
     final static String dbPw1 = "test1"
 
-    final static String dbPath2 = "test2.kdbx"
+    final static String dbPath2 = dir + "test2.kdbx"
     final static String dbPw2 = "test2"
 
-    final static String wrongPath = "fake.kdbx"
+    final static String wrongPath = dir + "fake.kdbx"
     final static String wrongPw = "wrong password"
-
-    def Before() {
-        
-    }
 
     /**
      * Load Operation Tests
@@ -50,9 +48,9 @@ class KdbxOperationsTest extends Specification {
         null        || wrongPw || NullPointerException  || "File path or credentials are null."
         dbPath1     || null    || NullPointerException  || "File path or credentials are null."
         null        || null    || NullPointerException  || "File path or credentials are null."
-        wrongPath   || dbPw1   || IllegalStateException || "Incorrect credentials or invalid file."
-        wrongPath   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        wrongPath   || null    || NullPointerException  || "File path or credentials are null."
+        wrongPath   || dbPw1   || FileNotFoundException || "File is missing or has been deleted."
+        wrongPath   || wrongPw || FileNotFoundException || "File is missing or has been deleted."
+        wrongPath   || null    || FileNotFoundException || "File is missing or has been deleted."
 
     }
 

@@ -1,12 +1,13 @@
 package com.lynchd49.syncsafe.utils;
 
-import org.linguafranca.pwdb.*;
+import org.linguafranca.pwdb.Credentials;
+import org.linguafranca.pwdb.Database;
+import org.linguafranca.pwdb.Entry;
+import org.linguafranca.pwdb.Group;
 import org.linguafranca.pwdb.kdbx.KdbxCreds;
 import org.linguafranca.pwdb.kdbx.simple.SimpleDatabase;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 
 public class KdbxOps {
@@ -28,13 +29,15 @@ public class KdbxOps {
      */
 
     public static Database loadKdbx(String path, String creds) throws IOException {
-        try (InputStream inputStream = KdbxOps.class.getClassLoader().getResourceAsStream(path)) {
+        try (InputStream inputStream = new FileInputStream(path)) {
             Credentials credentials = new KdbxCreds(creds.getBytes());
             return loadDatabase(credentials, inputStream);
         } catch (IllegalStateException e) {
             throw new IllegalStateException("Incorrect credentials or invalid file.");
         } catch (NullPointerException e) {
             throw new NullPointerException("File path or credentials are null.");
+        } catch (FileNotFoundException e) {
+            throw new FileNotFoundException("File is missing or has been deleted.");
         }
     }
 
@@ -54,7 +57,6 @@ public class KdbxOps {
                 // entry factory is a local helper to populate an entry
                 group.addEntry(entryFactory(database, Integer.toString(g), e));
             }
-
         }
         try (FileOutputStream outputStream = new FileOutputStream(path)) {
             database.save(new KdbxCreds(creds.getBytes()), outputStream);

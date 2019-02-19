@@ -1,5 +1,6 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,6 +14,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.linguafranca.pwdb.Database;
+
+import java.io.File;
+import java.io.IOException;
 
 class AppCredentialsInput {
 
@@ -22,9 +27,13 @@ class AppCredentialsInput {
     private static Stage window;
     private static Scene prevScene;
 
-    static Scene getScene(Stage stage) {
+    // File
+    private static File selectedFile;
+
+    static Scene loadScene(Stage stage, File file) {
         window = stage;
         prevScene = window.getScene();
+        selectedFile = file;
 
         // Row 0 - Scene Header
         Label headerLabel = new Label("Please enter your credentials");
@@ -64,11 +73,15 @@ class AppCredentialsInput {
     }
 
     private static void checkCredentials(String pwInput) {
-        if (pwInput.equals("123")) {
+        try {
+            Database db = KdbxOps.loadKdbx(selectedFile.getAbsolutePath(), pwInput);
             actionStatus.setText("Correct credentials!");
             actionStatus.setFill(Color.GREEN);
-        } else {
-            actionStatus.setText("Incorrect credentials!");
+        } catch (IOException e) {
+            actionStatus.setText("Error accessing file");
+            actionStatus.setFill(Color.FIREBRICK);
+        } catch (IllegalStateException e) {
+            actionStatus.setText("Incorrect credentials");
             actionStatus.setFill(Color.FIREBRICK);
         }
     }
