@@ -1,32 +1,16 @@
 package com.lynchd49.syncsafe.utils;
 
-import java.io.File;
+import org.linguafranca.pwdb.Database;
+import org.linguafranca.pwdb.Group;
 
 public class SelectedDb {
+    private Database db;
 
-    private File file;
-
-    SelectedDb(File selectedFile) {
-        setFile(selectedFile);
+    SelectedDb(Database database) {
+        this.db = database;
     }
 
-    // Set file
-    public void setFile(File file) {
-        this.file = file;
-    }
-
-    // Return file object
-    public File getFile() {
-        return file;
-    }
-
-    // Return file name string
-    public String getFileName() {
-        return file.getName();
-    }
-
-
-    public String getFilePath() {
-        return file.getPath();
+    public Group getRootGroup() {
+        return db.getRootGroup();
     }
 }

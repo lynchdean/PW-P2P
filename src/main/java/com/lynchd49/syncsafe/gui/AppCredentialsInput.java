@@ -77,6 +77,8 @@ class AppCredentialsInput {
             Database db = KdbxOps.loadKdbx(selectedFile.getAbsolutePath(), pwInput);
             actionStatus.setText("Correct credentials!");
             actionStatus.setFill(Color.GREEN);
+            Scene homeScene = AppHome.loadScene(window, db);
+            window.setScene(homeScene);
         } catch (IOException e) {
             actionStatus.setText("Error accessing file");
             actionStatus.setFill(Color.FIREBRICK);
