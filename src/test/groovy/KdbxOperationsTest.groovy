@@ -1,16 +1,19 @@
 import spock.lang.Specification
 import spock.lang.Unroll
+import com.lynchd49.syncsafe.utils.KdbxOps
 
 @Unroll
 class KdbxOperationsTest extends Specification {
 
-    final static String dbPath1 = "test1.kdbx"
+    final static String dir = System.getProperty("user.dir") + "/src/test/resources/"
+
+    final static String dbPath1 = dir + "test1.kdbx"
     final static String dbPw1 = "test1"
 
-    final static String dbPath2 = "test2.kdbx"
+    final static String dbPath2 = dir + "test2.kdbx"
     final static String dbPw2 = "test2"
 
-    final static String wrongPath = "fake.kdbx"
+    final static String wrongPath = dir + "fake.kdbx"
     final static String wrongPw = "wrong password"
 
     /**
@@ -19,7 +22,7 @@ class KdbxOperationsTest extends Specification {
 
     def "Should load #path with credentials: #creds"() {
         when:
-        KdbxOperations.loadKdbx(path, creds)
+        KdbxOps.loadKdbx(path, creds)
 
         then:
         notThrown(IllegalStateException)
@@ -32,7 +35,7 @@ class KdbxOperationsTest extends Specification {
 
     def "Should not load #path with credentials: #creds"() {
         when:
-        KdbxOperations.loadKdbx(path, creds)
+        KdbxOps.loadKdbx(path, creds)
 
         then:
         def ex = thrown(expectedException)
@@ -45,9 +48,9 @@ class KdbxOperationsTest extends Specification {
         null        || wrongPw || NullPointerException  || "File path or credentials are null."
         dbPath1     || null    || NullPointerException  || "File path or credentials are null."
         null        || null    || NullPointerException  || "File path or credentials are null."
-        wrongPath   || dbPw1   || IllegalStateException || "Incorrect credentials or invalid file."
-        wrongPath   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        wrongPath   || null    || NullPointerException  || "File path or credentials are null."
+        wrongPath   || dbPw1   || FileNotFoundException || "File is missing or has been deleted."
+        wrongPath   || wrongPw || FileNotFoundException || "File is missing or has been deleted."
+        wrongPath   || null    || FileNotFoundException || "File is missing or has been deleted."
 
     }
 
@@ -55,9 +58,9 @@ class KdbxOperationsTest extends Specification {
      * Save Operation Tests
      */
 
-    def "Should save to a new database"() {
+    def "Should save to a new database: #path"() {
         when:
-        KdbxOperations.saveKdbx(path, creds)
+        KdbxOps.saveKdbx(path, creds)
 
         then:
         def file = new File(path)

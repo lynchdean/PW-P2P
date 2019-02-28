@@ -1,3 +1,5 @@
+package com.lynchd49.syncsafe.utils;
+
 import java.io.File;
 
 public class SelectedFile {
@@ -5,7 +7,7 @@ public class SelectedFile {
     private File file;
 
     SelectedFile(File selectedFile) {
-        file = selectedFile;
+        setFile(selectedFile);
     }
 
     // Set file
@@ -23,8 +25,7 @@ public class SelectedFile {
         return file.getName();
     }
 
-    // Return full file path string
-    public String getPath() {
+    public String getFilePath() {
         return file.getPath();
     }
 }

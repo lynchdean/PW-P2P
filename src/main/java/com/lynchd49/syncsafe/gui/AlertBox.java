@@ -1,3 +1,5 @@
+package com.lynchd49.syncsafe.gui;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -7,8 +9,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-public class AlertBox {
-    public static void display(Stage ownerWindow, String title, String msg) {
+class AlertBox {
+    static void display(Stage ownerWindow, String title, String msg) {
         Stage alertWindow = new Stage();
         alertWindow.initOwner(ownerWindow);
         alertWindow.initModality(Modality.APPLICATION_MODAL);

@@ -1,5 +1,11 @@
 image: maven:latest
 
+before_script:
+  #  The following is to fix the delays in the JVM caused by the issue described here:
+  #  https://docs.oracle.com/cd/E13209_01/wlcp/wlss30/configwlss/jvmrand.html
+  - mv /dev/random /dev/chaos
+  - ln -s /dev/urandom /dev/random
+
 build:
   stage: build
   script:
