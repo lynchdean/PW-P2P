@@ -1,10 +1,9 @@
 package com.lynchd49.syncsafe.gui;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.lynchd49.syncsafe.utils.KdbxTreeUtils;
 import javafx.scene.Scene;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.StackPane;
+import javafx.scene.control.TreeView;
+import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.linguafranca.pwdb.Database;
@@ -19,13 +18,11 @@ class AppHome {
     static Scene loadScene(Stage stage, Database db) {
         window = stage;
 
-        ListView<String> listView = new ListView<>();
-        ObservableList<String> items = FXCollections.observableArrayList ("A", "B", "C", "D");
-        listView.setItems(items);
+        TreeView treeView = KdbxTreeUtils.getTreeView(db);
 
-        StackPane root = new StackPane();
-        root.getChildren().add(listView);
+        HBox panesHb = new HBox();
+        panesHb.getChildren().addAll(treeView);
 
-        return new Scene(root, 800, 400);
+        return new Scene(panesHb, 800, 400);
     }
 }
