@@ -32,6 +32,8 @@ class AppHome {
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     System.out.println("Selected Text : " + newValue.getValue());
+                    String path = KdbxTreeUtils.getTreeItemPath(newValue);
+                    System.out.println(path);
                 });
 
         TableView<EntryView> table = new TableView<>();

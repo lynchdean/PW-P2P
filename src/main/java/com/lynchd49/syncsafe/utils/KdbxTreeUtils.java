@@ -23,4 +23,16 @@ public class KdbxTreeUtils {
         }
         return groupLeaf;
     }
+
+    public static String getTreeItemPath(TreeItem ti) {
+        String path = ti.getValue().toString();
+        TreeItem parent = ti.getParent();
+        System.out.print(path);
+        System.out.print(parent.getValue());
+        if (parent.equals(null)) {
+            return path;
+        } else {
+            return getTreeItemPath(ti.getParent()) + "/" + path;
+        }
+    }
 }

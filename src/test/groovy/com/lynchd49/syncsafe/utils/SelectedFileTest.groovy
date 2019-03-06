@@ -1,3 +1,5 @@
+package com.lynchd49.syncsafe.utils
+
 import com.lynchd49.syncsafe.utils.SelectedFile
 import spock.lang.Specification
 import spock.lang.Unroll

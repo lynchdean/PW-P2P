@@ -6,6 +6,9 @@ before_script:
   - mv /dev/random /dev/chaos
   - ln -s /dev/urandom /dev/random
 
+  # This is to allow JavaFX tests to run in headless mode
+  - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw"
+
 build:
   stage: build
   script:

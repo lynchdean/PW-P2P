@@ -1,9 +1,10 @@
+package com.lynchd49.syncsafe.utils
+
 import spock.lang.Specification
 import spock.lang.Unroll
-import com.lynchd49.syncsafe.utils.KdbxOps
 
 @Unroll
-class KdbxOperationsTest extends Specification {
+class KdbxOpsTest extends Specification {
 
     final static String dir = System.getProperty("user.dir") + "/src/test/resources/"
 
@@ -42,15 +43,15 @@ class KdbxOperationsTest extends Specification {
         ex.message == expectedMsg
 
         where:
-        path        || creds   || expectedException     || expectedMsg
-        dbPath1     || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        dbPath2     || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        null        || wrongPw || NullPointerException  || "File path or credentials are null."
-        dbPath1     || null    || NullPointerException  || "File path or credentials are null."
-        null        || null    || NullPointerException  || "File path or credentials are null."
-        wrongPath   || dbPw1   || FileNotFoundException || "File is missing or has been deleted."
-        wrongPath   || wrongPw || FileNotFoundException || "File is missing or has been deleted."
-        wrongPath   || null    || FileNotFoundException || "File is missing or has been deleted."
+        path      || creds   || expectedException     || expectedMsg
+        dbPath1   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
+        dbPath2   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
+        null      || wrongPw || NullPointerException  || "File path or credentials are null."
+        dbPath1   || null    || NullPointerException  || "File path or credentials are null."
+        null      || null    || NullPointerException  || "File path or credentials are null."
+        wrongPath || dbPw1   || FileNotFoundException || "File is missing or has been deleted."
+        wrongPath || wrongPw || FileNotFoundException || "File is missing or has been deleted."
+        wrongPath || null    || FileNotFoundException || "File is missing or has been deleted."
 
     }
 
