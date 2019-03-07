@@ -15,6 +15,8 @@ import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
 
+import java.util.List;
+
 class AppHome {
 
     // Window & Scenes
@@ -31,9 +33,9 @@ class AppHome {
         treeView.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    System.out.println("Selected Text : " + newValue.getValue());
-                    String path = KdbxTreeUtils.getTreeItemPath(newValue);
-                    System.out.println(path);
+                    List<String> treeItemPath = KdbxTreeUtils.getTreeItemPath(newValue);
+                    Group g = KdbxTreeUtils.getGroupFromPath(db, treeItemPath);
+                    updateTableData(g);
                 });
 
         TableView<EntryView> table = new TableView<>();
@@ -60,6 +62,11 @@ class AppHome {
     }
 
     private static void setTableData(Group g) {
+        ObservableList<EntryView> entryViewList = getObsList(g);
+        tableData = entryViewList;
+    }
+
+    private static ObservableList<EntryView> getObsList(Group g) {
         ObservableList<EntryView> entryViewList = FXCollections.observableArrayList();
         if (g.getEntriesCount() > 0) {
             for (Object entryObj : g.getEntries()) {
@@ -68,8 +75,12 @@ class AppHome {
                 entryViewList.add(entryView);
             }
         }
-        tableData = entryViewList;
+        return entryViewList;
     }
 
-
+    private static void updateTableData(Group g) {
+        ObservableList<EntryView> entryViewList = getObsList(g);
+        tableData.removeAll(tableData);
+        tableData.addAll(entryViewList);
+    }
 }
