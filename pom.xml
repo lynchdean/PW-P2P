@@ -104,6 +104,11 @@
             <version>jdk-11+26</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>11.1.0</version>
+        </dependency>
         <!-- Spock -->
         <dependency>
             <groupId>org.spockframework</groupId>

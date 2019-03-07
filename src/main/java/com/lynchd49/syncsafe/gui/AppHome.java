@@ -29,6 +29,7 @@ class AppHome {
 
         setTableData(db.getRootGroup());
         TreeView<String> treeView = KdbxTreeUtils.getTreeView(db);
+        treeView.setMaxWidth(200);
 
         treeView.getSelectionModel()
                 .selectedItemProperty()
@@ -39,21 +40,46 @@ class AppHome {
                 });
 
         TableView<EntryView> table = new TableView<>();
+        table.setMaxWidth(600);
 
         TableColumn<EntryView, String> titleCol = new TableColumn<>("Title");
-        titleCol.setMinWidth(160);
+        titleCol.setMinWidth(100);
         titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
 
         TableColumn<EntryView, String> usernameCol = new TableColumn<>("Username");
-        usernameCol.setMinWidth(160);
+        usernameCol.setMinWidth(100);
         usernameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
 
         TableColumn<EntryView, String> passwordCol = new TableColumn<>("Password");
-        passwordCol.setMinWidth(160);
+        passwordCol.setMinWidth(100);
         passwordCol.setCellValueFactory(new PropertyValueFactory<>("password"));
 
+        TableColumn<EntryView, String> urlCol = new TableColumn<>("URL");
+        urlCol.setMinWidth(100);
+        urlCol.setCellValueFactory(new PropertyValueFactory<>("url"));
+
+        TableColumn<EntryView, String> notesCol = new TableColumn<>("Notes");
+        notesCol.setMinWidth(100);
+        notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
+
+        TableColumn<EntryView, String> expiresCol = new TableColumn<>("Expires");
+        expiresCol.setMinWidth(100);
+        expiresCol.setCellValueFactory(new PropertyValueFactory<>("expires"));
+
+        TableColumn<EntryView, String> createdCol = new TableColumn<>("Created");
+        createdCol.setMinWidth(100);
+        createdCol.setCellValueFactory(new PropertyValueFactory<>("created"));
+
+        TableColumn<EntryView, String> modifiedCol = new TableColumn<>("Modified");
+        modifiedCol.setMinWidth(100);
+        modifiedCol.setCellValueFactory(new PropertyValueFactory<>("modified"));
+
+        TableColumn<EntryView, String> accessedCol = new TableColumn<>("Accessed");
+        accessedCol.setMinWidth(100);
+        accessedCol.setCellValueFactory(new PropertyValueFactory<>("accessed"));
+
         table.setItems(tableData);
-        table.getColumns().addAll(titleCol, usernameCol, passwordCol);
+        table.getColumns().addAll(titleCol, usernameCol, passwordCol, urlCol, notesCol, expiresCol, createdCol, modifiedCol, accessedCol);
 
         HBox panesHb = new HBox();
         panesHb.getChildren().addAll(treeView, table);
