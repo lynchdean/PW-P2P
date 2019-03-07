@@ -88,8 +88,12 @@ class AppHome {
     }
 
     private static void setTableData(Group g) {
-        ObservableList<EntryView> entryViewList = getObsList(g);
-        tableData = entryViewList;
+        tableData = getObsList(g);
+    }
+
+    private static void updateTableData(Group g) {
+        tableData.clear();
+        tableData.addAll(getObsList(g));
     }
 
     private static ObservableList<EntryView> getObsList(Group g) {
@@ -102,11 +106,5 @@ class AppHome {
             }
         }
         return entryViewList;
-    }
-
-    private static void updateTableData(Group g) {
-        ObservableList<EntryView> entryViewList = getObsList(g);
-        tableData.removeAll(tableData);
-        tableData.addAll(entryViewList);
     }
 }

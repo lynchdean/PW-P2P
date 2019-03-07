@@ -109,6 +109,11 @@
             <artifactId>ikonli-javafx</artifactId>
             <version>11.1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome-pack</artifactId>
+            <version>11.1.0</version>
+        </dependency>
         <!-- Spock -->
         <dependency>
             <groupId>org.spockframework</groupId>

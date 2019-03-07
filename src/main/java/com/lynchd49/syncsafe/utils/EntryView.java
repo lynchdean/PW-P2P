@@ -7,7 +7,7 @@ public class EntryView {
 
     private final SimpleStringProperty title;
     private final SimpleStringProperty username;
-    private final SimpleStringProperty password;
+    private final SimpleStringProperty password = new SimpleStringProperty("\u2022".repeat(5));
     private final SimpleStringProperty url;
     private final SimpleStringProperty notes;
     private final SimpleStringProperty expires;
@@ -18,7 +18,7 @@ public class EntryView {
     public EntryView(Entry e) {
         this.title = new SimpleStringProperty(e.getTitle());
         this.username = new SimpleStringProperty(e.getUsername());
-        this.password = new SimpleStringProperty(e.getPassword());
+//        this.password = new SimpleStringProperty(e.getPassword());
         this.url = new SimpleStringProperty(e.getUrl());
         this.notes = new SimpleStringProperty(e.getNotes());
         this.expires = new SimpleStringProperty(Boolean.toString(e.getExpires()));

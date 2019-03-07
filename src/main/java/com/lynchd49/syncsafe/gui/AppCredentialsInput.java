@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -46,6 +47,11 @@ class AppCredentialsInput {
         Label pwLabel = new Label("Password:");
         PasswordField pwField = new PasswordField();
         pwField.setPrefWidth(200);
+        pwField.setOnKeyPressed((event) -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                checkCredentials(pwField.getText());
+            }
+        });
         HBox pwHb = new HBox(10);
         pwHb.setAlignment(Pos.CENTER);
         pwHb.getChildren().addAll(pwLabel, pwField);

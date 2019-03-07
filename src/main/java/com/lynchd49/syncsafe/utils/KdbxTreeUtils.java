@@ -2,6 +2,8 @@ package com.lynchd49.syncsafe.utils;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.paint.Color;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Group;
 
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class KdbxTreeUtils {
+
     public static TreeView<String> getTreeView(Database db) {
         Group rootGroup = db.getRootGroup();
         TreeItem<String> rootItem = getChildrenLeavesRecursive(rootGroup);
@@ -17,7 +20,9 @@ public class KdbxTreeUtils {
     }
 
     private static TreeItem<String> getChildrenLeavesRecursive(Group g){
-        TreeItem<String> groupLeaf = new TreeItem<>(g.getName());
+        FontIcon folderIcon = new FontIcon("fa-folder");
+        folderIcon.setIconColor(Color.CORNFLOWERBLUE);
+        TreeItem<String> groupLeaf = new TreeItem<>(g.getName(), folderIcon);
         if (g.getGroupsCount() > 0) {
             for (Object childObj : g.getGroups()) {
                 Group child = (Group) childObj;
