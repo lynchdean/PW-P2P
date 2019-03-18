@@ -9,25 +9,43 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Entry;
+
+import java.io.IOException;
 
 class AppEntryView {
 
     private static Stage window;
     private static Scene prevScene;
 
-    static Scene loadScene(Stage stage, Entry entry) {
+    private static String filePath;
+    private static String credentials;
+
+    private static TextField titleField;
+    private static TextField usernameField;
+    private static TextField passwordField;
+    private static TextField urlField;
+    private static TextField expiresField;
+    private static TextArea notesArea;
+
+
+    static Scene loadScene(Stage stage, Entry entry, String filePth, String creds) {
         window = stage;
+        filePath = filePth;
+        credentials = creds;
         prevScene = window.getScene();
 
         int minLabelWidth = 130;
         int minFieldWidth = 570;
 
+        // Entry Items
         Label titleLabel = new Label("Title:");
         titleLabel.setMinWidth(minLabelWidth);
         titleLabel.setAlignment(Pos.CENTER_RIGHT);
-        TextField titleField = new TextField(entry.getTitle());
+        titleField = new TextField(entry.getTitle());
         titleField.setMinWidth(minFieldWidth);
         HBox titleHbox = new HBox(10);
         titleHbox.getChildren().addAll(titleLabel, titleField);
@@ -36,7 +54,7 @@ class AppEntryView {
         Label usernameLabel = new Label("Username:");
         usernameLabel.setMinWidth(minLabelWidth);
         usernameLabel.setAlignment(Pos.CENTER_RIGHT);
-        TextField usernameField = new TextField(entry.getUsername());
+        usernameField = new TextField(entry.getUsername());
         usernameField.setMinWidth(minFieldWidth);
         HBox usernameHbox = new HBox(10);
         usernameHbox.getChildren().addAll(usernameLabel, usernameField);
@@ -45,7 +63,7 @@ class AppEntryView {
         Label passwordLabel = new Label("Password:");
         passwordLabel.setAlignment(Pos.CENTER_RIGHT);
         passwordLabel.setMinWidth(minLabelWidth);
-        TextField passwordField = new TextField(entry.getPassword());
+        passwordField = new TextField(entry.getPassword());
         passwordField.setMinWidth(minFieldWidth);
         HBox passwordHbox = new HBox(10);
         passwordHbox.getChildren().addAll(passwordLabel, passwordField);
@@ -54,7 +72,7 @@ class AppEntryView {
         Label urlLabel = new Label("URL:");
         urlLabel.setAlignment(Pos.CENTER_RIGHT);
         urlLabel.setMinWidth(minLabelWidth);
-        TextField urlField = new TextField(entry.getUrl());
+        urlField = new TextField(entry.getUrl());
         urlField.setMinWidth(minFieldWidth);
         HBox urlHbox = new HBox(10);
         urlHbox.getChildren().addAll(urlLabel, urlField);
@@ -63,7 +81,7 @@ class AppEntryView {
         Label expiresLabel = new Label("Expires:");
         expiresLabel.setAlignment(Pos.CENTER_RIGHT);
         expiresLabel.setMinWidth(minLabelWidth);
-        TextField expiresField = new TextField(entry.getExpiryTime().toString());
+        expiresField = new TextField(entry.getExpiryTime().toString());
         expiresField.setMinWidth(minFieldWidth);
         expiresField.setDisable(true);
         HBox expiresHbox = new HBox(10);
@@ -73,16 +91,29 @@ class AppEntryView {
         Label notesLabel = new Label("Notes:");
         notesLabel.setAlignment(Pos.CENTER_RIGHT);
         notesLabel.setMinWidth(minLabelWidth);
-        TextArea notesArea = new TextArea(entry.getNotes());
+        notesArea = new TextArea(entry.getNotes());
         notesArea.setMinWidth(minFieldWidth);
         HBox notesHbox = new HBox(10);
         notesHbox.getChildren().addAll(notesLabel, notesArea);
         notesHbox.setAlignment(Pos.CENTER_LEFT);
 
-        Button saveBtn = new Button("Save");
-//        saveBtn.setOnAction();
-        Button cancelBtn = new Button("Cancel");
+        // Buttons and Organisation
+        FontIcon saveIcon = new FontIcon("fa-check");
+        saveIcon.setIconColor(Color.GREEN);
+        Button saveBtn = new Button("Save", saveIcon);
+        saveBtn.setOnAction(e -> {
+            try {
+                saveEntry(entry);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        FontIcon cancelIcon = new FontIcon("fa-close");
+        cancelIcon.setIconColor(Color.RED);
+        Button cancelBtn = new Button("Cancel", cancelIcon);
         cancelBtn.setOnAction(e -> returnToTableScene());
+
         HBox btnHbox = new HBox(10);
         btnHbox.getChildren().addAll(saveBtn, cancelBtn);
         btnHbox.setAlignment(Pos.CENTER_RIGHT);
@@ -95,8 +126,41 @@ class AppEntryView {
         return new Scene(vbox, 800, 400);
     }
 
-    static void returnToTableScene() {
+    private static void returnToTableScene() {
         window.setScene(prevScene);
+    }
+
+    private static void saveEntry(Entry entry) throws IOException {
+        boolean altered = false;
+        if (!entry.getTitle().equals(titleField.getText())) {
+            entry.setTitle(titleField.getText());
+            altered = true;
+        }
+        if (!entry.getUsername().equals(usernameField.getText())) {
+            entry.setUsername(usernameField.getText());
+            altered = true;
+        }
+        if (!entry.getPassword().equals(passwordField.getText())) {
+            entry.setPassword(passwordField.getText());
+            altered = true;
+        }
+        if (!entry.getUrl().equals(urlField.getText())) {
+            entry.setUrl(urlField.getText());
+            altered = true;
+        }
+
+        // TODO Handle Expiry changes
+
+        if (!entry.getNotes().equals(notesArea.getText())) {
+            entry.setNotes(notesArea.getText());
+            altered = true;
+        }
+
+//        if (altered) {
+//            KdbxOps.saveKdbx(filePath, credentials);
+//        }
+        // Save needs work!!!
+
     }
 
 }

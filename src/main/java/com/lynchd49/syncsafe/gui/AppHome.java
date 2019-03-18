@@ -23,12 +23,17 @@ class AppHome {
     // Window & Scenes
     private static Stage window;
 
-    private static ObservableList<EntryView> tableData;
+    private static String filePath;
+    private static String credentials;
 
+    private static ObservableList<EntryView> tableData;
     private static Group currentGroup;
 
-    static Scene loadScene(Stage stage, Database db) {
+
+    static Scene loadScene(Stage stage, Database db, String filePth, String creds) {
         window = stage;
+        filePath = filePth;
+        credentials = creds;
         currentGroup = db.getRootGroup();
 
         setTableData(db.getRootGroup());
@@ -91,7 +96,7 @@ class AppHome {
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty()) ) {
                     EntryView rowData = row.getItem();
-                    showEntryScene(rowData.getTitle());
+                    showEntryScene(rowData.getTitle(), db);
                 }
             });
             return row;
@@ -124,7 +129,7 @@ class AppHome {
         return entryViewList;
     }
 
-    private static void showEntryScene(String entryTitle) {
+    private static void showEntryScene(String entryTitle, Database db) {
         List entries = currentGroup.getEntries();
         Entry entry = null;
         for (Object entryObj : entries) {
@@ -137,7 +142,7 @@ class AppHome {
             AlertBox.display(window, "Error", "Error retrieving entry.");
         }
         else {
-            Scene entryScene = AppEntryView.loadScene(window, entry);
+            Scene entryScene = AppEntryView.loadScene(window, entry, filePath, credentials);
             window.setScene(entryScene);
         }
     }
