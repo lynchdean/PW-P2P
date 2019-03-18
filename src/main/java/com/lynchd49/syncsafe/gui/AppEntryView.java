@@ -22,7 +22,7 @@ class AppEntryView {
         prevScene = window.getScene();
 
         int minLabelWidth = 130;
-        int minFieldWidth = 600;
+        int minFieldWidth = 570;
 
         Label titleLabel = new Label("Title:");
         titleLabel.setMinWidth(minLabelWidth);
@@ -50,15 +50,6 @@ class AppEntryView {
         HBox passwordHbox = new HBox(10);
         passwordHbox.getChildren().addAll(passwordLabel, passwordField);
         passwordHbox.setAlignment(Pos.CENTER_LEFT);
-
-        Label repeatPasswordLabel = new Label("Repeat password:");
-        repeatPasswordLabel.setAlignment(Pos.CENTER_RIGHT);
-        repeatPasswordLabel.setMinWidth(minLabelWidth);
-        TextField repeatPasswordField = new TextField(entry.getPassword());
-        repeatPasswordField.setMinWidth(minFieldWidth);
-        HBox repeatPasswordHbox = new HBox(10);
-        repeatPasswordHbox.getChildren().addAll(repeatPasswordLabel, repeatPasswordField);
-        repeatPasswordField.setAlignment(Pos.CENTER_LEFT);
 
         Label urlLabel = new Label("URL:");
         urlLabel.setAlignment(Pos.CENTER_RIGHT);
@@ -98,7 +89,7 @@ class AppEntryView {
 
 
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(titleHbox, usernameHbox, passwordHbox, repeatPasswordHbox, urlHbox, expiresHbox, notesHbox, btnHbox);
+        vbox.getChildren().addAll(titleHbox, usernameHbox, passwordHbox, urlHbox, expiresHbox, notesHbox, btnHbox);
         vbox.setPadding(new Insets(10));
 
         return new Scene(vbox, 800, 400);
