@@ -1,8 +1,10 @@
 package com.lynchd49.syncsafe.gui;
 
 import com.lynchd49.syncsafe.utils.KdbxOps;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -79,19 +81,29 @@ class AppCredentialsInput {
     }
 
     private static void checkCredentials(String pwInput) {
-        try {
-            Database db = KdbxOps.loadKdbx(selectedFile.getAbsolutePath(), pwInput);
-            actionStatus.setText("Correct credentials!");
-            actionStatus.setFill(Color.GREEN);
-            Scene homeScene = AppHome.loadScene(window, db);
-            window.setScene(homeScene);
-        } catch (IOException e) {
-            actionStatus.setText("Error accessing file");
-            actionStatus.setFill(Color.FIREBRICK);
-        } catch (IllegalStateException e) {
-            actionStatus.setText("Incorrect credentials");
-            actionStatus.setFill(Color.FIREBRICK);
-        }
+        Scene scene = window.getScene();
+        scene.setCursor(Cursor.WAIT);
+        Task<Void> task = new Task<>() {
+            @Override
+            public Void call() {
+                try {
+                    Database db = KdbxOps.loadKdbx(selectedFile, pwInput);
+                    actionStatus.setText("Correct credentials!");
+                    actionStatus.setFill(Color.GREEN);
+                    Scene homeScene = AppHome.loadScene(window, db);
+                    window.setScene(homeScene);
+                } catch (IOException e) {
+                    actionStatus.setText("Error accessing file");
+                    actionStatus.setFill(Color.FIREBRICK);
+                } catch (IllegalStateException e) {
+                    actionStatus.setText("Incorrect credentials");
+                    actionStatus.setFill(Color.FIREBRICK);
+                }
+                return null;
+            }
+        };
+        task.setOnSucceeded(e -> scene.setCursor(Cursor.DEFAULT));
+        new Thread(task).start();
     }
 
     private static void returnToPrevScene() {

@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -67,7 +68,14 @@ class AppFileChooser {
         vbox.setPadding(new Insets(25, 50, 25, 50));
         vbox.getChildren().addAll(headerHb, selectFileActionHb, selectedFileHb, buttonHb2, actionStatus);
 
-        return new Scene(vbox, 800, 400);
+        Scene fileChooserScene = new Scene(vbox, 800, 400);
+        fileChooserScene.setOnKeyPressed((event) -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                openFile();
+            }
+        });
+
+        return fileChooserScene;
     }
 
     private static void showFileChooser() {
@@ -80,6 +88,7 @@ class AppFileChooser {
             selectedFile = chosenFile;
             actionStatus.setText(String.format("File selected: %s", selectedFile.getPath()));
             selectedFileText.setText(selectedFile.getName());
+            openFile();
         } else {
             actionStatus.setText("File selection cancelled.");
         }

@@ -28,8 +28,8 @@ public class KdbxOps {
      * Load Operations
      */
 
-    public static Database loadKdbx(String path, String creds) throws IOException {
-        try (InputStream inputStream = new FileInputStream(path)) {
+    public static Database loadKdbx(File file, String creds) throws IOException {
+        try (InputStream inputStream = new FileInputStream(file)) {
             Credentials credentials = new KdbxCreds(creds.getBytes());
             return loadDatabase(credentials, inputStream);
         } catch (IllegalStateException e) {

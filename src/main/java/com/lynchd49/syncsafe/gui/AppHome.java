@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -24,8 +25,11 @@ class AppHome {
 
     private static ObservableList<EntryView> tableData;
 
+    private static Group currentGroup;
+
     static Scene loadScene(Stage stage, Database db) {
         window = stage;
+        currentGroup = db.getRootGroup();
 
         setTableData(db.getRootGroup());
         TreeView<String> treeView = KdbxTreeUtils.getTreeView(db);
@@ -36,6 +40,7 @@ class AppHome {
                 .addListener((observable, oldValue, newValue) -> {
                     List<String> treeItemPath = KdbxTreeUtils.getTreeItemPath(newValue);
                     Group g = KdbxTreeUtils.getGroupFromPath(db, treeItemPath);
+                    currentGroup = g;
                     updateTableData(g);
                 });
 
@@ -81,6 +86,17 @@ class AppHome {
         table.setItems(tableData);
         table.getColumns().addAll(titleCol, usernameCol, passwordCol, urlCol, notesCol, expiresCol, createdCol, modifiedCol, accessedCol);
 
+        table.setRowFactory(tv -> {
+            TableRow<EntryView> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty()) ) {
+                    EntryView rowData = row.getItem();
+                    showEntryScene(rowData.getTitle());
+                }
+            });
+            return row;
+        });
+
         HBox panesHb = new HBox();
         panesHb.getChildren().addAll(treeView, table);
 
@@ -106,5 +122,23 @@ class AppHome {
             }
         }
         return entryViewList;
+    }
+
+    private static void showEntryScene(String entryTitle) {
+        List entries = currentGroup.getEntries();
+        Entry entry = null;
+        for (Object entryObj : entries) {
+            Entry e = (Entry) entryObj;
+            if (e.getTitle().equals(entryTitle)) {
+                entry = e;
+            }
+        }
+        if (entry == null) {
+            AlertBox.display(window, "Error", "Error retrieving entry.");
+        }
+        else {
+            Scene entryScene = AppEntryView.loadScene(window, entry);
+            window.setScene(entryScene);
+        }
     }
 }
