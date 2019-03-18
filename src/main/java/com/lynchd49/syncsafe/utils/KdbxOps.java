@@ -35,7 +35,7 @@ public class KdbxOps {
         } catch (IllegalStateException e) {
             throw new IllegalStateException("Incorrect credentials or invalid file.");
         } catch (NullPointerException e) {
-            throw new NullPointerException("File path or credentials are null.");
+            throw new NullPointerException("File or credentials are null.");
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("File is missing or has been deleted.");
         }

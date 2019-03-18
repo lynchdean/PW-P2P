@@ -8,13 +8,13 @@ class KdbxOpsTest extends Specification {
 
     final static String dir = System.getProperty("user.dir") + "/src/test/resources/"
 
-    final static String dbPath1 = dir + "test1.kdbx"
+    final static File dbFile1 = new File(dir + "test1.kdbx")
     final static String dbPw1 = "test1"
 
-    final static String dbPath2 = dir + "test2.kdbx"
+    final static File dbFile2 = new File(dir + "test2.kdbx")
     final static String dbPw2 = "test2"
 
-    final static String wrongPath = dir + "fake.kdbx"
+    final static File wrongFile = new File(dir + "fake.kdbx")
     final static String wrongPw = "wrong password"
 
     /**
@@ -30,28 +30,28 @@ class KdbxOpsTest extends Specification {
 
         where:
         path    || creds
-        dbPath1 || dbPw1
-        dbPath2 || dbPw2
+        dbFile1 || dbPw1
+        dbFile2 || dbPw2
     }
 
     def "Should not load #path with credentials: #creds"() {
         when:
-        KdbxOps.loadKdbx(path, creds)
+        KdbxOps.loadKdbx(file, creds)
 
         then:
         def ex = thrown(expectedException)
         ex.message == expectedMsg
 
         where:
-        path      || creds   || expectedException     || expectedMsg
-        dbPath1   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        dbPath2   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        null      || wrongPw || NullPointerException  || "File path or credentials are null."
-        dbPath1   || null    || NullPointerException  || "File path or credentials are null."
-        null      || null    || NullPointerException  || "File path or credentials are null."
-        wrongPath || dbPw1   || FileNotFoundException || "File is missing or has been deleted."
-        wrongPath || wrongPw || FileNotFoundException || "File is missing or has been deleted."
-        wrongPath || null    || FileNotFoundException || "File is missing or has been deleted."
+        file      || creds   || expectedException     || expectedMsg
+        dbFile1   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
+        dbFile2   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
+        null      || wrongPw || NullPointerException  || "File or credentials are null."
+        dbFile1   || null    || NullPointerException  || "File or credentials are null."
+        null      || null    || NullPointerException  || "File or credentials are null."
+        wrongFile || dbPw1   || FileNotFoundException || "File is missing or has been deleted."
+        wrongFile || wrongPw || FileNotFoundException || "File is missing or has been deleted."
+        wrongFile || null    || FileNotFoundException || "File is missing or has been deleted."
 
     }
 
