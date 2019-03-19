@@ -25,7 +25,7 @@ class KdbxTreeUtilsTest extends ApplicationSpec {
 
     @Override
     void start(Stage stage) {
-        db = KdbxOps.loadKdbx(dbPath1, dbPw1)
+        db = KdbxOps.loadKdbx(new File(dbPath1), dbPw1)
         TreeView treeView = KdbxTreeUtils.getTreeView(db)
         treeView.setId("treeView")
 

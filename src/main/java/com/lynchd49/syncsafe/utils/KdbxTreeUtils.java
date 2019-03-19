@@ -49,8 +49,9 @@ public class KdbxTreeUtils {
         Group group = db.getRootGroup();
         path.remove(0);  // Remove Root from path
         while (!path.isEmpty()) {
-            List<Group> children = group.getGroups();
-            for (Group child : children) {
+            List children = group.getGroups();
+            for (Object childObj : children) {
+                Group child = (Group) childObj;
                 if (child.getName().equals(path.get(0))) {
                     group = child;
                     path.remove(0);

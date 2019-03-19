@@ -4,9 +4,9 @@ import org.linguafranca.pwdb.Database;
 
 public class KdbxObject {
 
-    private Database database;
-    private String path;
-    private String credentials;
+    final private Database database;
+    final private String path;
+    final private String credentials;
 
     public KdbxObject(Database db, String filePath, String creds) {
         this.database = db;

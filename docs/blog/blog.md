@@ -22,7 +22,7 @@ I will meet again with Brian next week.
 
 ## Blog Entry 3 - Wed 24 October:
 Today I had my proposal presentation. 
-My two assesors were Andrew McCarren and Liam Tuohey.
+My two assessors were Andrew McCarren and Liam Tuohey.
 Neither Liam or Andrew use a password manager, so it was a little harder to explain to them why my password manager was different from the ones available on the market currently.
 Both assessors seemed to be satisfied with my proposal and it was approved.
 
