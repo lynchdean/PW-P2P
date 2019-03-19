@@ -1,6 +1,7 @@
 package com.lynchd49.syncsafe.gui;
 
 import com.lynchd49.syncsafe.utils.EntryView;
+import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxTreeUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,22 +19,19 @@ import org.linguafranca.pwdb.Group;
 
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 class AppHome {
 
     // Window & Scenes
     private static Stage window;
 
-    private static String filePath;
-    private static String credentials;
-
     private static ObservableList<EntryView> tableData;
     private static Group currentGroup;
 
 
-    static Scene loadScene(Stage stage, Database db, String filePth, String creds) {
+    static Scene loadScene(Stage stage, KdbxObject kdbxObject) {
         window = stage;
-        filePath = filePth;
-        credentials = creds;
+        Database db = kdbxObject.getDatabase();
         currentGroup = db.getRootGroup();
 
         setTableData(db.getRootGroup());
@@ -94,9 +92,9 @@ class AppHome {
         table.setRowFactory(tv -> {
             TableRow<EntryView> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
-                if (event.getClickCount() == 2 && (!row.isEmpty()) ) {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     EntryView rowData = row.getItem();
-                    showEntryScene(rowData.getTitle(), db);
+                    showEntryScene(rowData.getTitle(), kdbxObject);
                 }
             });
             return row;
@@ -129,7 +127,7 @@ class AppHome {
         return entryViewList;
     }
 
-    private static void showEntryScene(String entryTitle, Database db) {
+    private static void showEntryScene(String entryTitle, KdbxObject kdbxObject) {
         List entries = currentGroup.getEntries();
         Entry entry = null;
         for (Object entryObj : entries) {
@@ -140,9 +138,8 @@ class AppHome {
         }
         if (entry == null) {
             AlertBox.display(window, "Error", "Error retrieving entry.");
-        }
-        else {
-            Scene entryScene = AppEntryView.loadScene(window, entry, filePath, credentials);
+        } else {
+            Scene entryScene = AppEntryView.loadScene(window, entry, kdbxObject);
             window.setScene(entryScene);
         }
     }

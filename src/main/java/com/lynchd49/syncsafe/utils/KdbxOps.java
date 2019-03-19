@@ -2,8 +2,6 @@ package com.lynchd49.syncsafe.utils;
 
 import org.linguafranca.pwdb.Credentials;
 import org.linguafranca.pwdb.Database;
-import org.linguafranca.pwdb.Entry;
-import org.linguafranca.pwdb.Group;
 import org.linguafranca.pwdb.kdbx.KdbxCreds;
 import org.linguafranca.pwdb.kdbx.simple.SimpleDatabase;
 
@@ -11,10 +9,6 @@ import java.io.*;
 
 
 public class KdbxOps {
-
-    private static SimpleDatabase getDatabase() {
-        return new SimpleDatabase();
-    }
 
     private static Database loadDatabase(Credentials credentials, InputStream inputStream) {
         try {
@@ -45,21 +39,9 @@ public class KdbxOps {
      * Save Operations
      */
 
-    private static Entry entryFactory(Database database, String s, int e) {
-        return database.newEntry(String.format("Group %s Entry %d", s, e));
-    }
-
-    public static void saveKdbx(String path, String creds) throws IOException {
-        Database database = getDatabase();
-        for (int g = 0; g < 5; g++) {
-            Group group = database.getRootGroup().addGroup(database.newGroup(Integer.toString(g)));
-            for (int e = 0; e <= g; e++) {
-                // entry factory is a local helper to populate an entry
-                group.addEntry(entryFactory(database, Integer.toString(g), e));
-            }
-        }
-        try (FileOutputStream outputStream = new FileOutputStream(path)) {
-            database.save(new KdbxCreds(creds.getBytes()), outputStream);
+    public static void saveKdbx(KdbxObject kdbxObject) throws IOException {
+        try (FileOutputStream outputStream = new FileOutputStream(kdbxObject.getPath())) {
+            kdbxObject.getDatabase().save(new KdbxCreds(kdbxObject.getCredentials().getBytes()), outputStream);
         }
     }
 }

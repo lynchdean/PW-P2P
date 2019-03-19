@@ -1,5 +1,7 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.utils.KdbxObject;
+import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -21,9 +23,6 @@ class AppEntryView {
     private static Stage window;
     private static Scene prevScene;
 
-    private static String filePath;
-    private static String credentials;
-
     private static TextField titleField;
     private static TextField usernameField;
     private static TextField passwordField;
@@ -32,10 +31,8 @@ class AppEntryView {
     private static TextArea notesArea;
 
 
-    static Scene loadScene(Stage stage, Entry entry, String filePth, String creds) {
+    static Scene loadScene(Stage stage, Entry entry, KdbxObject kdbxObject) {
         window = stage;
-        filePath = filePth;
-        credentials = creds;
         prevScene = window.getScene();
 
         int minLabelWidth = 130;
@@ -103,7 +100,7 @@ class AppEntryView {
         Button saveBtn = new Button("Save", saveIcon);
         saveBtn.setOnAction(e -> {
             try {
-                saveEntry(entry);
+                saveEntry(entry, kdbxObject);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -130,7 +127,7 @@ class AppEntryView {
         window.setScene(prevScene);
     }
 
-    private static void saveEntry(Entry entry) throws IOException {
+    private static void saveEntry(Entry entry, KdbxObject kdbxObject) throws IOException {
         boolean altered = false;
         if (!entry.getTitle().equals(titleField.getText())) {
             entry.setTitle(titleField.getText());
@@ -156,11 +153,9 @@ class AppEntryView {
             altered = true;
         }
 
-//        if (altered) {
-//            KdbxOps.saveKdbx(filePath, credentials);
-//        }
-        // Save needs work!!!
-
+        if (altered) {
+            KdbxOps.saveKdbx(kdbxObject);
+        }
     }
 
 }

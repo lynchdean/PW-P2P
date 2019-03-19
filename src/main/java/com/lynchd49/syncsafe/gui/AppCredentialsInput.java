@@ -1,5 +1,6 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -86,9 +87,10 @@ class AppCredentialsInput {
 //            public Void call() {
         try {
             Database db = KdbxOps.loadKdbx(selectedFile, pwInput);
+            KdbxObject kdbxObject = new KdbxObject(db, selectedFile.getPath(), pwInput);
             actionStatus.setText("Correct credentials!");
             actionStatus.setFill(Color.GREEN);
-            Scene homeScene = AppHome.loadScene(window, db, selectedFile.getPath(), pwInput);
+            Scene homeScene = AppHome.loadScene(window, kdbxObject);
             window.setScene(homeScene);
         } catch (IOException e) {
             actionStatus.setText("Error accessing file");
