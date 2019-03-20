@@ -109,7 +109,7 @@ class AppEntryView {
         FontIcon cancelIcon = new FontIcon("fa-close");
         cancelIcon.setIconColor(Color.RED);
         Button cancelBtn = new Button("Cancel", cancelIcon);
-        cancelBtn.setOnAction(e -> returnToTableScene());
+        cancelBtn.setOnAction(e -> window.setScene(prevScene));
 
         HBox btnHbox = new HBox(10);
         btnHbox.getChildren().addAll(saveBtn, cancelBtn);
@@ -121,10 +121,6 @@ class AppEntryView {
         vbox.setPadding(new Insets(10));
 
         return new Scene(vbox, 800, 400);
-    }
-
-    private static void returnToTableScene() {
-        window.setScene(prevScene);
     }
 
     private static void saveEntry(Entry entry, KdbxObject kdbxObject) throws IOException {

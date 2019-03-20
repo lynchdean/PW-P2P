@@ -19,7 +19,6 @@ import org.linguafranca.pwdb.Group;
 
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 class AppHome {
 
     // Window & Scenes
