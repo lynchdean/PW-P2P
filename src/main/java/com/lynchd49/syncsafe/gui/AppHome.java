@@ -12,6 +12,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Entry;
@@ -102,7 +103,10 @@ class AppHome {
         HBox panesHb = new HBox();
         panesHb.getChildren().addAll(treeView, table);
 
-        return new Scene(panesHb, 800, 400);
+        VBox vbox = new VBox();
+        vbox.getChildren().addAll(AppMenuBar.getMenuBar(), panesHb);
+
+        return new Scene(vbox, 800, 400);
     }
 
     private static void setTableData(Group g) {
