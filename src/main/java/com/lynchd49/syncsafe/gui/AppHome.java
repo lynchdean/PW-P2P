@@ -6,10 +6,7 @@ import com.lynchd49.syncsafe.utils.KdbxTreeUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -19,6 +16,7 @@ import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
 
 import java.util.List;
+import java.util.Optional;
 
 class AppHome {
 
@@ -26,11 +24,13 @@ class AppHome {
     private static Stage window;
 
     private static ObservableList<EntryView> tableData;
+    private static KdbxObject kdbxObject;
     private static Group currentGroup;
 
 
-    static Scene loadScene(Stage stage, KdbxObject kdbxObject) {
+    static Scene loadScene(Stage stage, KdbxObject kdbxObj) {
         window = stage;
+        kdbxObject = kdbxObj;
         Database db = kdbxObject.getDatabase();
         currentGroup = db.getRootGroup();
 
@@ -100,13 +100,13 @@ class AppHome {
             return row;
         });
 
-        HBox panesHb = new HBox();
-        panesHb.getChildren().addAll(treeView, table);
+        HBox mainHbox = new HBox();
+        mainHbox.getChildren().addAll(treeView, table);
+        MenuBar menuBar = getMenuBar();
+        VBox mainVbox = new VBox();
+        mainVbox.getChildren().addAll(menuBar, mainHbox);
 
-        VBox vbox = new VBox();
-        vbox.getChildren().addAll(AppMenuBar.getMenuBar(), panesHb);
-
-        return new Scene(vbox, 800, 400);
+        return new Scene(mainVbox, 800, 400);
     }
 
     private static void setTableData(Group g) {
@@ -145,5 +145,71 @@ class AppHome {
             Scene entryScene = AppEntryView.loadScene(window, entry, kdbxObject);
             window.setScene(entryScene);
         }
+    }
+
+    private static MenuBar getMenuBar() {
+        Menu dbMenu = new Menu("Database");
+        MenuItem openItem = new MenuItem("Open database");
+        openItem.setOnAction(e -> System.out.println("Open"));
+        MenuItem closeItem = new MenuItem("Close database");
+        closeItem.setOnAction(e -> System.out.println("Close"));
+        dbMenu.getItems().addAll(openItem, closeItem);
+
+        Menu groupMenu = new Menu("Groups");
+        MenuItem newGroupItem = new MenuItem("New group");
+        newGroupItem.setOnAction(e -> newGroupDialog());
+        MenuItem deleteGroupItem = new MenuItem("Delete current group");
+        deleteGroupItem.setOnAction(e -> {
+            if (confirmDialog(currentGroup.getName())) {
+                currentGroup.getParent().removeGroup(currentGroup);
+                // TODO stop root delete
+                // TODO reassign currentGroup
+            }
+        });
+        groupMenu.getItems().addAll(newGroupItem, deleteGroupItem);
+
+        Menu entryMenu = new Menu("Entries");
+        MenuItem newEntryItem = new MenuItem("New Entry");
+        newEntryItem.setOnAction(e -> newEntryDialog());
+        entryMenu.getItems().addAll(newEntryItem);
+
+        MenuBar menuBar = new MenuBar();
+        menuBar.getMenus().addAll(dbMenu, groupMenu, entryMenu);
+
+        return menuBar;
+    }
+
+    private static void newGroupDialog() {
+        TextInputDialog dialog = new TextInputDialog("New Group");
+        dialog.setTitle("Create New Group");
+        dialog.setHeaderText("New Group");
+        dialog.setContentText("Please enter a title for the new group:");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(s -> {
+            Group group = kdbxObject.getDatabase().newGroup(s);
+            currentGroup.addGroup(group);
+            updateTableData(currentGroup);
+        });
+    }
+
+    private static void newEntryDialog() {
+        TextInputDialog dialog = new TextInputDialog("New Entry");
+        dialog.setTitle("Create New Entry");
+        dialog.setHeaderText("New Entry");
+        dialog.setContentText("Please enter a title for the new entry:");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(s -> {
+            Entry entry = kdbxObject.getDatabase().newEntry(s);
+            currentGroup.addEntry(entry);
+        });
+    }
+
+    private static boolean confirmDialog(String item) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Action");
+        alert.setHeaderText(String.format("Delete %s?", item));
+        alert.setContentText("Are you sure?");
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.get() == ButtonType.OK;
     }
 }
