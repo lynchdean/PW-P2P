@@ -101,7 +101,7 @@ class AppFileChooser {
             window.setScene(credentialsScene);
         } else {
             actionStatus.setText("Failed to open: No file selected.");
-            AlertBox.display(window, "Error: No file selected", "Please select a file first!");
+            DialogAlert.display(window, "Error: No file selected", "Please select a file first!");
         }
     }
 }

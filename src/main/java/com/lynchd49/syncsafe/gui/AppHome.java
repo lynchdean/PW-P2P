@@ -2,6 +2,7 @@ package com.lynchd49.syncsafe.gui;
 
 import com.lynchd49.syncsafe.utils.EntryView;
 import com.lynchd49.syncsafe.utils.KdbxObject;
+import com.lynchd49.syncsafe.utils.KdbxOps;
 import com.lynchd49.syncsafe.utils.KdbxTreeUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,6 +16,7 @@ import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -140,7 +142,7 @@ class AppHome {
             }
         }
         if (entry == null) {
-            AlertBox.display(window, "Error", "Error retrieving entry.");
+            DialogAlert.display(window, "Error", "Error retrieving entry.");
         } else {
             Scene entryScene = AppEntryView.loadScene(window, entry, kdbxObject);
             window.setScene(entryScene);
@@ -148,68 +150,82 @@ class AppHome {
     }
 
     private static MenuBar getMenuBar() {
+        // Database Items
         Menu dbMenu = new Menu("Database");
         MenuItem openItem = new MenuItem("Open database");
         openItem.setOnAction(e -> System.out.println("Open"));
+        // TODO open AppFileChooser
         MenuItem closeItem = new MenuItem("Close database");
         closeItem.setOnAction(e -> System.out.println("Close"));
+        // TODO close db & return to AppFileChooser
         dbMenu.getItems().addAll(openItem, closeItem);
 
+        // Group Items
         Menu groupMenu = new Menu("Groups");
         MenuItem newGroupItem = new MenuItem("New group");
-        newGroupItem.setOnAction(e -> newGroupDialog());
+        newGroupItem.setOnAction(e -> newGroup());
         MenuItem deleteGroupItem = new MenuItem("Delete current group");
-        deleteGroupItem.setOnAction(e -> {
-            if (confirmDialog(currentGroup.getName())) {
-                currentGroup.getParent().removeGroup(currentGroup);
-                // TODO stop root delete
-                // TODO reassign currentGroup
-            }
-        });
+        deleteGroupItem.setOnAction(e -> deleteCurrentGroup());
         groupMenu.getItems().addAll(newGroupItem, deleteGroupItem);
 
+        // Entry Items
         Menu entryMenu = new Menu("Entries");
         MenuItem newEntryItem = new MenuItem("New Entry");
-        newEntryItem.setOnAction(e -> newEntryDialog());
+        newEntryItem.setOnAction(e -> newEntry());
         entryMenu.getItems().addAll(newEntryItem);
 
         MenuBar menuBar = new MenuBar();
         menuBar.getMenus().addAll(dbMenu, groupMenu, entryMenu);
-
         return menuBar;
     }
 
-    private static void newGroupDialog() {
-        TextInputDialog dialog = new TextInputDialog("New Group");
-        dialog.setTitle("Create New Group");
-        dialog.setHeaderText("New Group");
-        dialog.setContentText("Please enter a title for the new group:");
-        Optional<String> result = dialog.showAndWait();
+    // Create a new group in the currently selected group
+    private static void newGroup() {
+        Optional<String> result = DialogNewTitle.display("Group");
         result.ifPresent(s -> {
             Group group = kdbxObject.getDatabase().newGroup(s);
             currentGroup.addGroup(group);
             updateTableData(currentGroup);
         });
+        try {
+            KdbxOps.saveKdbx(kdbxObject);
+        } catch (IOException e) {
+            e.printStackTrace();
+            DialogAlert.display(window, "Error!", "Error saving change to database!");
+        }
     }
 
-    private static void newEntryDialog() {
-        TextInputDialog dialog = new TextInputDialog("New Entry");
-        dialog.setTitle("Create New Entry");
-        dialog.setHeaderText("New Entry");
-        dialog.setContentText("Please enter a title for the new entry:");
-        Optional<String> result = dialog.showAndWait();
+    // Create a new entry in the currently selected group
+    private static void newEntry() {
+        Optional<String> result = DialogNewTitle.display("Entry");
         result.ifPresent(s -> {
             Entry entry = kdbxObject.getDatabase().newEntry(s);
             currentGroup.addEntry(entry);
         });
+        try {
+            KdbxOps.saveKdbx(kdbxObject);
+        } catch (IOException e) {
+            e.printStackTrace();
+            DialogAlert.display(window, "Error!", "Error saving change to database!");
+        }
     }
 
-    private static boolean confirmDialog(String item) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirm Action");
-        alert.setHeaderText(String.format("Delete %s?", item));
-        alert.setContentText("Are you sure?");
-        Optional<ButtonType> result = alert.showAndWait();
-        return result.get() == ButtonType.OK;
+    // Delete the currently selected group
+    private static void deleteCurrentGroup() {
+        if (!currentGroup.equals(kdbxObject.getDatabase().getRootGroup())) {
+            if (DialogConfirm.display(window, String.format("Delete %s?", currentGroup.getName()))) {
+                Group groupToRemove = currentGroup;
+                currentGroup = currentGroup.getParent();
+                currentGroup.getParent().removeGroup(groupToRemove);
+            }
+        } else {
+            DialogAlert.display(window, "Error: Root group!", "Cannot delete root group!");
+        }
+        try {
+            KdbxOps.saveKdbx(kdbxObject);
+        } catch (IOException e) {
+            e.printStackTrace();
+            DialogAlert.display(window, "Error!", "Error saving change to database!");
+        }
     }
 }
