@@ -3,12 +3,10 @@ package com.lynchd49.syncsafe.gui;
 import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -95,6 +93,23 @@ class AppEntryView {
         notesHbox.setAlignment(Pos.CENTER_LEFT);
 
         // Buttons and Organisation
+        ToolBar toolBar = getToolbar(entry, kdbxObject);
+
+        VBox fieldsVbox = new VBox(10);
+        fieldsVbox.getChildren().addAll(titleHbox, usernameHbox, passwordHbox, urlHbox, expiresHbox, notesHbox);
+        fieldsVbox.setPadding(new Insets(10));
+
+        HBox mainHbox = new HBox(10);
+        mainHbox.getChildren().addAll(toolBar, fieldsVbox);
+
+        return new Scene(mainHbox, 800, 400);
+    }
+
+    private static ToolBar getToolbar(Entry entry, KdbxObject kdbxObject) {
+        ToolBar toolBar = new ToolBar();
+        toolBar.setOrientation(Orientation.VERTICAL);
+
+        // Save
         FontIcon saveIcon = new FontIcon("fa-check");
         saveIcon.setIconColor(Color.GREEN);
         Button saveBtn = new Button("Save", saveIcon);
@@ -103,24 +118,23 @@ class AppEntryView {
                 saveEntry(entry, kdbxObject);
             } catch (IOException e1) {
                 e1.printStackTrace();
+                DialogAlert.display(window, "Error!", "Error saving change to database!");
             }
         });
 
+        // Cancel
         FontIcon cancelIcon = new FontIcon("fa-close");
         cancelIcon.setIconColor(Color.RED);
         Button cancelBtn = new Button("Cancel", cancelIcon);
         cancelBtn.setOnAction(e -> window.setScene(prevScene));
 
-        HBox btnHbox = new HBox(10);
-        btnHbox.getChildren().addAll(saveBtn, cancelBtn);
-        btnHbox.setAlignment(Pos.CENTER_RIGHT);
+        // Delete Entry
+        FontIcon deleteIcon = new FontIcon("fa-trash");
+        Button deleteBtn = new Button("Delete", deleteIcon);
+        deleteBtn.setOnAction(e -> System.out.println("delete"));
 
-
-        VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(titleHbox, usernameHbox, passwordHbox, urlHbox, expiresHbox, notesHbox, btnHbox);
-        vbox.setPadding(new Insets(10));
-
-        return new Scene(vbox, 800, 400);
+        toolBar.getItems().addAll(saveBtn, cancelBtn, deleteBtn);
+        return toolBar;
     }
 
     private static void saveEntry(Entry entry, KdbxObject kdbxObject) throws IOException {
