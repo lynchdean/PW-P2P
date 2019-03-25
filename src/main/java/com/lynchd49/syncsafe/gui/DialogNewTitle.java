@@ -6,7 +6,7 @@ import java.util.Optional;
 
 class DialogNewTitle {
     static Optional<String> display(String itemType) {
-        TextInputDialog dialog = new TextInputDialog("New Entry");
+        TextInputDialog dialog = new TextInputDialog(String.format("New %s", itemType));
         dialog.setTitle(String.format("Create New %s", itemType));
         dialog.setHeaderText("New " + itemType);
         dialog.setContentText(String.format("Please enter a title for the new %s:", itemType));

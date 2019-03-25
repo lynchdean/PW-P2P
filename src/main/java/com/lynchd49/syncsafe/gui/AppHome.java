@@ -25,6 +25,7 @@ class AppHome {
     // Window & Scenes
     private static Stage window;
 
+    private static TreeView<String> treeView;
     private static ObservableList<EntryView> tableData;
     private static KdbxObject kdbxObject;
     private static Group currentGroup;
@@ -37,7 +38,7 @@ class AppHome {
         currentGroup = db.getRootGroup();
 
         setTableData(db.getRootGroup());
-        TreeView<String> treeView = KdbxTreeUtils.getTreeView(db);
+        treeView = KdbxTreeUtils.getTreeView(db);
         treeView.setMaxWidth(200);
 
         treeView.getSelectionModel()
@@ -170,7 +171,7 @@ class AppHome {
 
         // Entry Items
         Menu entryMenu = new Menu("Entries");
-        MenuItem newEntryItem = new MenuItem("New Entry");
+        MenuItem newEntryItem = new MenuItem("New entry");
         newEntryItem.setOnAction(e -> newEntry());
         entryMenu.getItems().addAll(newEntryItem);
 
@@ -193,6 +194,7 @@ class AppHome {
             e.printStackTrace();
             DialogAlert.display(window, "Error!", "Error saving change to database!");
         }
+        treeView = KdbxTreeUtils.getTreeView(kdbxObject.getDatabase());
     }
 
     // Create a new entry in the currently selected group
@@ -208,6 +210,7 @@ class AppHome {
             e.printStackTrace();
             DialogAlert.display(window, "Error!", "Error saving change to database!");
         }
+        updateTableData(currentGroup);
     }
 
     // Delete the currently selected group
