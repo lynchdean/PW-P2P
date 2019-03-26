@@ -35,14 +35,12 @@ class AppFileChooser {
         Label headerLabel = new Label("Please select .KDBX file");
         headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         HBox headerHb = new HBox();
-        headerHb.setAlignment(Pos.CENTER);
         headerHb.getChildren().add(headerLabel);
 
         // Row 1 - Choose file actions
-        Button selectFileBtn = new Button("Choose a file...");
+        Button selectFileBtn = new Button("Choose file...");
         selectFileBtn.setOnAction(e -> showFileChooser());
         HBox selectFileActionHb = new HBox(10);
-        selectFileActionHb.setAlignment(Pos.CENTER);
         selectFileActionHb.getChildren().add(selectFileBtn);
 
         // Row 2 - Selected file
@@ -53,11 +51,8 @@ class AppFileChooser {
         selectedFileHb.getChildren().addAll(selectedFileLabel, selectedFileText);
 
         // Row 3 - Open File
-        Button openFileBtn = new Button("Open");
-        openFileBtn.setOnAction(e -> openFile());
         HBox buttonHb2 = new HBox(10);
         buttonHb2.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonHb2.getChildren().addAll(openFileBtn);
 
         // Row 4 - Status message
         actionStatus = new Text();
@@ -68,12 +63,8 @@ class AppFileChooser {
         vbox.setPadding(new Insets(25, 50, 25, 50));
         vbox.getChildren().addAll(headerHb, selectFileActionHb, selectedFileHb, buttonHb2, actionStatus);
 
-        Scene fileChooserScene = new Scene(vbox, 800, 400);
-        fileChooserScene.setOnKeyPressed((event) -> {
-            if (event.getCode() == KeyCode.ENTER) {
-                openFile();
-            }
-        });
+        Scene fileChooserScene = new Scene(vbox, 400, 180);
+        fileChooserScene.setOnKeyPressed((event) -> {if (event.getCode() == KeyCode.ENTER) openFile();});
 
         return fileChooserScene;
     }

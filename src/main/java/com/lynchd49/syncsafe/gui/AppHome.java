@@ -31,7 +31,6 @@ class AppHome {
     private static KdbxObject kdbxObject;
     static Group currentGroup;
 
-
     static Scene loadScene(Stage stage, KdbxObject kdbxObj) {
         window = stage;
         kdbxObject = kdbxObj;
@@ -93,7 +92,6 @@ class AppHome {
 
         table.setItems(tableData);
         table.getColumns().addAll(titleCol, usernameCol, passwordCol, urlCol, notesCol, expiresCol, createdCol, modifiedCol, accessedCol);
-
         table.setRowFactory(tv -> {
             TableRow<EntryView> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
@@ -155,13 +153,9 @@ class AppHome {
     private static MenuBar getMenuBar() {
         // Database Items
         Menu dbMenu = new Menu("Database");
-        MenuItem openItem = new MenuItem("Open database");
-        openItem.setOnAction(e -> System.out.println("Open"));
-        // TODO open AppFileChooser
-        MenuItem closeItem = new MenuItem("Close database");
-        closeItem.setOnAction(e -> System.out.println("Close"));
-        // TODO close db & return to AppFileChooser
-        dbMenu.getItems().addAll(openItem, closeItem);
+        MenuItem quitItem = new MenuItem("Quit");
+        quitItem.setOnAction(e -> window.close());
+        dbMenu.getItems().addAll(quitItem);
 
         // Group Items
         Menu groupMenu = new Menu("Groups");

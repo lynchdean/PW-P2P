@@ -25,6 +25,5 @@ public class AppMain extends Application {
             Platform.exit();
             System.exit(0);
         });
-
     }
 }
