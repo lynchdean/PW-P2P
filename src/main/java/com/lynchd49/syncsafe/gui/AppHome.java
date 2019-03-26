@@ -24,11 +24,12 @@ class AppHome {
 
     // Window & Scenes
     private static Stage window;
+    private static MultipleSelectionModel<TreeItem<String>> currentSSM;
 
     private static TreeView<String> treeView;
     private static ObservableList<EntryView> tableData;
     private static KdbxObject kdbxObject;
-    private static Group currentGroup;
+    static Group currentGroup;
 
 
     static Scene loadScene(Stage stage, KdbxObject kdbxObj) {
@@ -38,12 +39,13 @@ class AppHome {
         currentGroup = db.getRootGroup();
 
         setTableData(db.getRootGroup());
-        treeView = KdbxTreeUtils.getTreeView(db);
+        treeView = new TreeView<>(KdbxTreeUtils.getTreeRoot(db));
         treeView.setMaxWidth(200);
 
         treeView.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
+                    currentSSM = treeView.getSelectionModel();
                     List<String> treeItemPath = KdbxTreeUtils.getTreeItemPath(newValue);
                     Group g = KdbxTreeUtils.getGroupFromPath(db, treeItemPath);
                     currentGroup = g;
@@ -116,7 +118,7 @@ class AppHome {
         tableData = getObsList(g);
     }
 
-    private static void updateTableData(Group g) {
+    static void updateTableData(Group g) {
         tableData.clear();
         tableData.addAll(getObsList(g));
     }
@@ -185,16 +187,29 @@ class AppHome {
         Optional<String> result = DialogNewTitle.display("Group");
         result.ifPresent(s -> {
             Group group = kdbxObject.getDatabase().newGroup(s);
-            currentGroup.addGroup(group);
-            updateTableData(currentGroup);
+            boolean found = false;
+            for (Object childObj : currentGroup.getGroups()) {
+                Group childGroup = (Group) childObj;
+                if (childGroup.getName().equals(s)) {
+                    found = true;
+                }
+            }
+            if (!found) {
+                currentGroup.addGroup(group);
+                try {
+                    KdbxOps.saveKdbx(kdbxObject);
+                    updateTableData(currentGroup);
+                    updateTreeView();
+                    treeView.setSelectionModel(currentSSM);
+                    treeView.getSelectionModel().selectFirst();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    errorMsgSave();
+                }
+            } else {
+                DialogAlert.display(window, "Error Creating Group!", "A child group with that name already exists!");
+            }
         });
-        try {
-            KdbxOps.saveKdbx(kdbxObject);
-        } catch (IOException e) {
-            e.printStackTrace();
-            DialogAlert.display(window, "Error!", "Error saving change to database!");
-        }
-        treeView = KdbxTreeUtils.getTreeView(kdbxObject.getDatabase());
     }
 
     // Create a new entry in the currently selected group
@@ -208,7 +223,7 @@ class AppHome {
             KdbxOps.saveKdbx(kdbxObject);
         } catch (IOException e) {
             e.printStackTrace();
-            DialogAlert.display(window, "Error!", "Error saving change to database!");
+            errorMsgSave();
         }
         updateTableData(currentGroup);
     }
@@ -219,16 +234,27 @@ class AppHome {
             if (DialogConfirm.display(window, String.format("Delete %s?", currentGroup.getName()))) {
                 Group groupToRemove = currentGroup;
                 currentGroup = currentGroup.getParent();
-                currentGroup.getParent().removeGroup(groupToRemove);
+                currentGroup.removeGroup(groupToRemove);
             }
         } else {
             DialogAlert.display(window, "Error: Root group!", "Cannot delete root group!");
         }
         try {
             KdbxOps.saveKdbx(kdbxObject);
+            updateTreeView();
         } catch (IOException e) {
             e.printStackTrace();
-            DialogAlert.display(window, "Error!", "Error saving change to database!");
+            errorMsgSave();
         }
+    }
+
+    private static void errorMsgSave() {
+        DialogAlert.display(window, "Error!", "Error saving change to database!");
+    }
+
+    private static void updateTreeView() {
+        treeView.getRoot().getChildren().clear();
+        TreeItem<String> root = KdbxTreeUtils.getTreeRoot(kdbxObject.getDatabase());
+        treeView.setRoot(root);
     }
 }

@@ -80,11 +80,6 @@ class AppCredentialsInput {
     }
 
     private static void checkCredentials(String pwInput) {
-//        Scene scene = window.getScene();
-//        scene.setCursor(Cursor.WAIT);
-//        Task<Void> task = new Task<>() {
-//            @Override
-//            public Void call() {
         try {
             Database db = KdbxOps.loadKdbx(selectedFile, pwInput);
             KdbxObject kdbxObject = new KdbxObject(db, selectedFile.getPath(), pwInput);
@@ -99,11 +94,6 @@ class AppCredentialsInput {
             actionStatus.setText("Incorrect credentials");
             actionStatus.setFill(Color.FIREBRICK);
         }
-//                return null;
-//            }
-//        };
-//        task.setOnSucceeded(e -> scene.setCursor(Cursor.DEFAULT));
-//        new Thread(task).start();
     }
 
     private static void returnToPrevScene() {

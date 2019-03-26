@@ -1,7 +1,6 @@
 package com.lynchd49.syncsafe.utils;
 
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Database;
@@ -12,11 +11,11 @@ import java.util.List;
 
 public class KdbxTreeUtils {
 
-    public static TreeView<String> getTreeView(Database db) {
+    public static TreeItem<String> getTreeRoot(Database db) {
         Group rootGroup = db.getRootGroup();
         TreeItem<String> rootItem = getChildrenLeavesRecursive(rootGroup);
         rootItem.setExpanded(true);
-        return new TreeView<>(rootItem);
+        return rootItem;
     }
 
     private static TreeItem<String> getChildrenLeavesRecursive(Group g){
@@ -47,6 +46,9 @@ public class KdbxTreeUtils {
 
     public static Group getGroupFromPath(Database db, List<String> path) {
         Group group = db.getRootGroup();
+        if (path.size() == 0) {
+            return group;
+        }
         path.remove(0);  // Remove Root from path
         while (!path.isEmpty()) {
             List children = group.getGroups();

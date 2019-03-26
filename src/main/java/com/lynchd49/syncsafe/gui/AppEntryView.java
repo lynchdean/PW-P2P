@@ -5,14 +5,19 @@ import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Entry;
+import org.linguafranca.pwdb.Group;
 
 import java.io.IOException;
 
@@ -28,113 +33,139 @@ class AppEntryView {
     private static TextField expiresField;
     private static TextArea notesArea;
 
+    private final static double minWidth = 80;
+
 
     static Scene loadScene(Stage stage, Entry entry, KdbxObject kdbxObject) {
         window = stage;
         prevScene = window.getScene();
 
-        int minLabelWidth = 130;
-        int minFieldWidth = 570;
-
         // Entry Items
         Label titleLabel = new Label("Title:");
-        titleLabel.setMinWidth(minLabelWidth);
-        titleLabel.setAlignment(Pos.CENTER_RIGHT);
+        entryLabelHelper(titleLabel);
         titleField = new TextField(entry.getTitle());
-        titleField.setMinWidth(minFieldWidth);
-        HBox titleHbox = new HBox(10);
-        titleHbox.getChildren().addAll(titleLabel, titleField);
-        titleHbox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(titleField, Priority.ALWAYS);
+        HBox titleHbox = entryHboxHelper(titleLabel, titleField);
 
         Label usernameLabel = new Label("Username:");
-        usernameLabel.setMinWidth(minLabelWidth);
-        usernameLabel.setAlignment(Pos.CENTER_RIGHT);
+        entryLabelHelper(usernameLabel);
         usernameField = new TextField(entry.getUsername());
-        usernameField.setMinWidth(minFieldWidth);
-        HBox usernameHbox = new HBox(10);
-        usernameHbox.getChildren().addAll(usernameLabel, usernameField);
-        usernameHbox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(usernameField, Priority.ALWAYS);
+        HBox usernameHbox = entryHboxHelper(usernameLabel, usernameField);
 
         Label passwordLabel = new Label("Password:");
-        passwordLabel.setAlignment(Pos.CENTER_RIGHT);
-        passwordLabel.setMinWidth(minLabelWidth);
+        entryLabelHelper(passwordLabel);
         passwordField = new TextField(entry.getPassword());
-        passwordField.setMinWidth(minFieldWidth);
-        HBox passwordHbox = new HBox(10);
-        passwordHbox.getChildren().addAll(passwordLabel, passwordField);
-        passwordHbox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(passwordField, Priority.ALWAYS);
+        HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField);
 
         Label urlLabel = new Label("URL:");
-        urlLabel.setAlignment(Pos.CENTER_RIGHT);
-        urlLabel.setMinWidth(minLabelWidth);
+        entryLabelHelper(urlLabel);
         urlField = new TextField(entry.getUrl());
-        urlField.setMinWidth(minFieldWidth);
-        HBox urlHbox = new HBox(10);
-        urlHbox.getChildren().addAll(urlLabel, urlField);
-        urlHbox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(urlField, Priority.ALWAYS);
+        HBox urlHbox = entryHboxHelper(urlLabel, urlField);
 
         Label expiresLabel = new Label("Expires:");
-        expiresLabel.setAlignment(Pos.CENTER_RIGHT);
-        expiresLabel.setMinWidth(minLabelWidth);
+        entryLabelHelper(expiresLabel);
         expiresField = new TextField(entry.getExpiryTime().toString());
-        expiresField.setMinWidth(minFieldWidth);
+        HBox.setHgrow(expiresField, Priority.ALWAYS);
         expiresField.setDisable(true);
-        HBox expiresHbox = new HBox(10);
-        expiresHbox.getChildren().addAll(expiresLabel, expiresField);
-        expiresHbox.setAlignment(Pos.CENTER_LEFT);
+        HBox expiresHbox = entryHboxHelper(expiresLabel, expiresField);
 
         Label notesLabel = new Label("Notes:");
-        notesLabel.setAlignment(Pos.CENTER_RIGHT);
-        notesLabel.setMinWidth(minLabelWidth);
+        entryLabelHelper(notesLabel);
         notesArea = new TextArea(entry.getNotes());
-        notesArea.setMinWidth(minFieldWidth);
-        HBox notesHbox = new HBox(10);
-        notesHbox.getChildren().addAll(notesLabel, notesArea);
-        notesHbox.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(notesArea, Priority.ALWAYS);
+        HBox notesHbox = entryHboxHelper(notesLabel, notesArea);
 
-        // Buttons and Organisation
+        // Toolbar and layout
         ToolBar toolBar = getToolbar(entry, kdbxObject);
 
         VBox fieldsVbox = new VBox(10);
         fieldsVbox.getChildren().addAll(titleHbox, usernameHbox, passwordHbox, urlHbox, expiresHbox, notesHbox);
         fieldsVbox.setPadding(new Insets(10));
+        HBox.setHgrow(fieldsVbox, Priority.ALWAYS);
 
         HBox mainHbox = new HBox(10);
-        mainHbox.getChildren().addAll(toolBar, fieldsVbox);
+        mainHbox.getChildren().addAll(fieldsVbox, toolBar);
 
         return new Scene(mainHbox, 800, 400);
     }
 
+    private static void entryLabelHelper(Label titleLabel) {
+        titleLabel.setMinWidth(minWidth);
+        titleLabel.setAlignment(Pos.CENTER_RIGHT);
+    }
+
+    @NotNull
+    private static HBox entryHboxHelper(Label label, Node field) {
+        HBox hbox = new HBox(10);
+        hbox.getChildren().addAll(label, field);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        return hbox;
+    }
+
     private static ToolBar getToolbar(Entry entry, KdbxObject kdbxObject) {
         ToolBar toolBar = new ToolBar();
+        toolBar.setMinWidth(minWidth + 12);
         toolBar.setOrientation(Orientation.VERTICAL);
 
         // Save
         FontIcon saveIcon = new FontIcon("fa-check");
         saveIcon.setIconColor(Color.GREEN);
         Button saveBtn = new Button("Save", saveIcon);
+        saveBtn.setMinWidth(minWidth);
+        saveBtn.setAlignment(Pos.CENTER);
         saveBtn.setOnAction(e -> {
             try {
                 saveEntry(entry, kdbxObject);
             } catch (IOException e1) {
                 e1.printStackTrace();
-                DialogAlert.display(window, "Error!", "Error saving change to database!");
+                errorMsgSave();
             }
         });
-
-        // Cancel
-        FontIcon cancelIcon = new FontIcon("fa-close");
-        cancelIcon.setIconColor(Color.RED);
-        Button cancelBtn = new Button("Cancel", cancelIcon);
-        cancelBtn.setOnAction(e -> window.setScene(prevScene));
 
         // Delete Entry
         FontIcon deleteIcon = new FontIcon("fa-trash");
         Button deleteBtn = new Button("Delete", deleteIcon);
-        deleteBtn.setOnAction(e -> System.out.println("delete"));
+        deleteBtn.setMinWidth(minWidth);
+        deleteBtn.setOnAction(e -> {
+            deleteEntryAndExit(entry, kdbxObject);
+        });
 
-        toolBar.getItems().addAll(saveBtn, cancelBtn, deleteBtn);
+        // Spacer
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        spacer.setMinWidth(Region.USE_PREF_SIZE);
+
+        // Exit
+        FontIcon exitIcon = new FontIcon("fa-close");
+        exitIcon.setIconColor(Color.RED);
+        Button exitBtn = new Button("Exit", exitIcon);
+        exitBtn.setMinWidth(minWidth);
+        exitBtn.setOnAction(e -> window.setScene(prevScene));
+
+        toolBar.getItems().addAll(saveBtn, deleteBtn, spacer, exitBtn);
         return toolBar;
+    }
+
+    private static void deleteEntryAndExit(Entry entry, KdbxObject kdbxObject) {
+        if (DialogConfirm.display(window, String.format("Delete %s?", entry.getTitle()))) {
+            window.setScene(prevScene);
+            Group parent = entry.getParent();
+            parent.removeEntry(entry);
+            try {
+                KdbxOps.saveKdbx(kdbxObject);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                errorMsgSave();
+            }
+            AppHome.updateTableData(AppHome.currentGroup);
+        }
+    }
+
+    private static void errorMsgSave() {
+        DialogAlert.display(window, "Error!", "Error saving change to database!");
     }
 
     private static void saveEntry(Entry entry, KdbxObject kdbxObject) throws IOException {
