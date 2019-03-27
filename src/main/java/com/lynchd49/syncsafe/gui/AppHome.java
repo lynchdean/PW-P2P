@@ -9,9 +9,12 @@ import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
@@ -22,94 +25,68 @@ import java.util.Optional;
 
 class AppHome {
 
-    // Window & Scenes
-    private static Stage window;
-    private static MultipleSelectionModel<TreeItem<String>> currentSSM;
-
-    private static TreeView<String> treeView;
+    private final static double colMinWidth = 100;
     private static ObservableList<EntryView> tableData;
-    private static KdbxObject kdbxObject;
     static Group currentGroup;
 
-    static Scene loadScene(Stage stage, KdbxObject kdbxObj) {
-        window = stage;
-        kdbxObject = kdbxObj;
+    static Scene loadScene(Stage window, KdbxObject kdbxObject) {
         Database db = kdbxObject.getDatabase();
         currentGroup = db.getRootGroup();
 
-        setTableData(db.getRootGroup());
-        treeView = new TreeView<>(KdbxTreeUtils.getTreeRoot(db));
+        TreeView<String> treeView = new TreeView<>(KdbxTreeUtils.getTreeRoot(db));
         treeView.setMaxWidth(200);
 
         treeView.getSelectionModel()
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
-                    currentSSM = treeView.getSelectionModel();
                     List<String> treeItemPath = KdbxTreeUtils.getTreeItemPath(newValue);
                     Group g = KdbxTreeUtils.getGroupFromPath(db, treeItemPath);
                     currentGroup = g;
                     updateTableData(g);
                 });
 
+        // Table
         TableView<EntryView> table = new TableView<>();
-        table.setMaxWidth(600);
+        HBox.setHgrow(table, Priority.ALWAYS);
 
-        TableColumn<EntryView, String> titleCol = new TableColumn<>("Title");
-        titleCol.setMinWidth(100);
-        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+        addColumn(table,"Title", "title");
+        addColumn(table,"Username", "username");
+        addColumn(table,"Password", "password");
+        addColumn(table,"URL", "url");
+        addColumn(table,"Notes", "notes");
+        addColumn(table,"Expires", "expires");
+        addColumn(table,"Created", "created");
+        addColumn(table,"Modified", "modified");
+        addColumn(table,"Accessed", "accessed");
 
-        TableColumn<EntryView, String> usernameCol = new TableColumn<>("Username");
-        usernameCol.setMinWidth(100);
-        usernameCol.setCellValueFactory(new PropertyValueFactory<>("username"));
-
-        TableColumn<EntryView, String> passwordCol = new TableColumn<>("Password");
-        passwordCol.setMinWidth(100);
-        passwordCol.setCellValueFactory(new PropertyValueFactory<>("password"));
-
-        TableColumn<EntryView, String> urlCol = new TableColumn<>("URL");
-        urlCol.setMinWidth(100);
-        urlCol.setCellValueFactory(new PropertyValueFactory<>("url"));
-
-        TableColumn<EntryView, String> notesCol = new TableColumn<>("Notes");
-        notesCol.setMinWidth(100);
-        notesCol.setCellValueFactory(new PropertyValueFactory<>("notes"));
-
-        TableColumn<EntryView, String> expiresCol = new TableColumn<>("Expires");
-        expiresCol.setMinWidth(100);
-        expiresCol.setCellValueFactory(new PropertyValueFactory<>("expires"));
-
-        TableColumn<EntryView, String> createdCol = new TableColumn<>("Created");
-        createdCol.setMinWidth(100);
-        createdCol.setCellValueFactory(new PropertyValueFactory<>("created"));
-
-        TableColumn<EntryView, String> modifiedCol = new TableColumn<>("Modified");
-        modifiedCol.setMinWidth(100);
-        modifiedCol.setCellValueFactory(new PropertyValueFactory<>("modified"));
-
-        TableColumn<EntryView, String> accessedCol = new TableColumn<>("Accessed");
-        accessedCol.setMinWidth(100);
-        accessedCol.setCellValueFactory(new PropertyValueFactory<>("accessed"));
-
+        setTableData(db.getRootGroup());
         table.setItems(tableData);
-        table.getColumns().addAll(titleCol, usernameCol, passwordCol, urlCol, notesCol, expiresCol, createdCol, modifiedCol, accessedCol);
         table.setRowFactory(tv -> {
             TableRow<EntryView> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     EntryView rowData = row.getItem();
-                    showEntryScene(rowData.getTitle(), kdbxObject);
+                    showEntryScene(window, rowData.getTitle(), kdbxObject);
                 }
             });
             return row;
         });
 
-        HBox mainHbox = new HBox();
-        mainHbox.getChildren().addAll(treeView, table);
-        MenuBar menuBar = getMenuBar();
-        VBox mainVbox = new VBox();
-        mainVbox.getChildren().addAll(menuBar, mainHbox);
+        // Main layout
+        BorderPane mainPane = new BorderPane();
+        mainPane.setCenter(table);
+        MenuBar menuBar = getMenuBar(window, treeView, kdbxObject);
+        mainPane.setTop(menuBar);
+        mainPane.setLeft(treeView);
 
-        return new Scene(mainVbox, 800, 400);
+        return new Scene(mainPane, 800, 400);
+    }
+
+    private static void addColumn(TableView table, String title, String propertyVal) {
+        TableColumn<EntryView, String> col = new TableColumn<>(title);
+        col.setMinWidth(colMinWidth);
+        col.setCellValueFactory(new PropertyValueFactory<>(propertyVal));
+        table.getColumns().add(col);
     }
 
     private static void setTableData(Group g) {
@@ -133,7 +110,7 @@ class AppHome {
         return entryViewList;
     }
 
-    private static void showEntryScene(String entryTitle, KdbxObject kdbxObject) {
+    private static void showEntryScene(Stage window, String entryTitle, KdbxObject kdbxObject) {
         List entries = currentGroup.getEntries();
         Entry entry = null;
         for (Object entryObj : entries) {
@@ -150,25 +127,32 @@ class AppHome {
         }
     }
 
-    private static MenuBar getMenuBar() {
+    private static MenuBar getMenuBar(Stage window, TreeView<String> treeView, KdbxObject kdbxObject) {
+        FontIcon plusIcon = new FontIcon("fa-plus");
+        plusIcon.setIconColor(Color.GREEN);
+        FontIcon minusIcon = new FontIcon("fa-minus");
+        minusIcon.setIconColor(Color.RED);
+        FontIcon closeIcon = new FontIcon("fa-close");
+        closeIcon.setIconColor(Color.RED);
+
         // Database Items
         Menu dbMenu = new Menu("Database");
-        MenuItem quitItem = new MenuItem("Quit");
+        MenuItem quitItem = new MenuItem("Quit", closeIcon);
         quitItem.setOnAction(e -> window.close());
         dbMenu.getItems().addAll(quitItem);
 
         // Group Items
         Menu groupMenu = new Menu("Groups");
-        MenuItem newGroupItem = new MenuItem("New group");
-        newGroupItem.setOnAction(e -> newGroup());
-        MenuItem deleteGroupItem = new MenuItem("Delete current group");
-        deleteGroupItem.setOnAction(e -> deleteCurrentGroup());
+        MenuItem newGroupItem = new MenuItem("New group", plusIcon);
+        newGroupItem.setOnAction(e -> newGroup(window, treeView, kdbxObject));
+        MenuItem deleteGroupItem = new MenuItem("Delete current group", minusIcon);
+        deleteGroupItem.setOnAction(e -> deleteCurrentGroup(window, treeView, kdbxObject));
         groupMenu.getItems().addAll(newGroupItem, deleteGroupItem);
 
         // Entry Items
         Menu entryMenu = new Menu("Entries");
-        MenuItem newEntryItem = new MenuItem("New entry");
-        newEntryItem.setOnAction(e -> newEntry());
+        MenuItem newEntryItem = new MenuItem("New entry", plusIcon);
+        newEntryItem.setOnAction(e -> newEntry(window, kdbxObject));
         entryMenu.getItems().addAll(newEntryItem);
 
         MenuBar menuBar = new MenuBar();
@@ -177,7 +161,7 @@ class AppHome {
     }
 
     // Create a new group in the currently selected group
-    private static void newGroup() {
+    private static void newGroup(Stage window, TreeView<String> treeView, KdbxObject kdbxObject) {
         Optional<String> result = DialogNewTitle.display("Group");
         result.ifPresent(s -> {
             Group group = kdbxObject.getDatabase().newGroup(s);
@@ -193,12 +177,10 @@ class AppHome {
                 try {
                     KdbxOps.saveKdbx(kdbxObject);
                     updateTableData(currentGroup);
-                    updateTreeView();
-                    treeView.setSelectionModel(currentSSM);
-                    treeView.getSelectionModel().selectFirst();
+                    updateTreeView(treeView, kdbxObject);
                 } catch (IOException e) {
                     e.printStackTrace();
-                    errorMsgSave();
+                    errorMsgSave(window);
                 }
             } else {
                 DialogAlert.display(window, "Error Creating Group!", "A child group with that name already exists!");
@@ -207,7 +189,7 @@ class AppHome {
     }
 
     // Create a new entry in the currently selected group
-    private static void newEntry() {
+    private static void newEntry(Stage window, KdbxObject kdbxObject) {
         Optional<String> result = DialogNewTitle.display("Entry");
         result.ifPresent(s -> {
             Entry entry = kdbxObject.getDatabase().newEntry(s);
@@ -217,13 +199,13 @@ class AppHome {
             KdbxOps.saveKdbx(kdbxObject);
         } catch (IOException e) {
             e.printStackTrace();
-            errorMsgSave();
+            errorMsgSave(window);
         }
         updateTableData(currentGroup);
     }
 
     // Delete the currently selected group
-    private static void deleteCurrentGroup() {
+    private static void deleteCurrentGroup(Stage window, TreeView<String> treeView, KdbxObject kdbxObject) {
         if (!currentGroup.equals(kdbxObject.getDatabase().getRootGroup())) {
             if (DialogConfirm.display(window, String.format("Delete %s?", currentGroup.getName()))) {
                 Group groupToRemove = currentGroup;
@@ -235,18 +217,18 @@ class AppHome {
         }
         try {
             KdbxOps.saveKdbx(kdbxObject);
-            updateTreeView();
+            updateTreeView(treeView, kdbxObject);
         } catch (IOException e) {
             e.printStackTrace();
-            errorMsgSave();
+            errorMsgSave(window);
         }
     }
 
-    private static void errorMsgSave() {
+    private static void errorMsgSave(Stage window) {
         DialogAlert.display(window, "Error!", "Error saving change to database!");
     }
 
-    private static void updateTreeView() {
+    private static void updateTreeView(TreeView<String> treeView, KdbxObject kdbxObject) {
         treeView.getRoot().getChildren().clear();
         TreeItem<String> root = KdbxTreeUtils.getTreeRoot(kdbxObject.getDatabase());
         treeView.setRoot(root);
