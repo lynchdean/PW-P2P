@@ -1,14 +1,18 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.gui.Preset.Buttons;
+import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.ToolBar;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -21,63 +25,60 @@ import java.io.IOException;
 
 class AppCredentialsInput {
 
+    private final static double minWidth = 80;
     private static Text actionStatus;
 
-    // Window & Scenes
-    private static Stage window;
-    private static Scene prevScene;
+    static Scene loadScene(Stage window, File file) {
+        Scene prevScene = window.getScene();
 
-    // File
-    private static File selectedFile;
-
-    static Scene loadScene(Stage stage, File file) {
-        window = stage;
-        prevScene = window.getScene();
-        selectedFile = file;
-
-        // Row 0 - Scene Header
         Label headerLabel = new Label("Please enter your credentials");
         headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        HBox headerHb = new HBox(10);
-        headerHb.setAlignment(Pos.CENTER);
-        headerHb.getChildren().add(headerLabel);
 
-        // Row 1 - Password input
+        // Password input
         Label pwLabel = new Label("Password:");
         PasswordField pwField = new PasswordField();
-        pwField.setPrefWidth(200);
-        HBox pwHb = new HBox(10);
-        pwHb.setAlignment(Pos.CENTER);
-        pwHb.getChildren().addAll(pwLabel, pwField);
+        HBox.setHgrow(pwField, Priority.ALWAYS);
+        pwField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) checkCredentials(pwField.getText(), file, window);
+        });
+        HBox pwHbox = new HBox(10);
+        pwHbox.setAlignment(Pos.CENTER_LEFT);
+        pwHbox.getChildren().addAll(pwLabel, pwField);
 
-        // Row 2 - Open password file & Button to return to previous window
-        Button returnBtn = new Button("Cancel");
-        returnBtn.setOnAction(e -> returnToPrevScene());
-        Button openBtn = new Button("Open");
-        openBtn.setOnAction(e -> checkCredentials(pwField.getText()));
-
-        HBox openBtnHb = new HBox(10);
-        openBtnHb.setAlignment(Pos.BOTTOM_RIGHT);
-        openBtnHb.getChildren().addAll(returnBtn, openBtn);
-
-        // Row 3 - Status message
-        actionStatus = new Text("");
-        actionStatus.setFill(Color.FIREBRICK);
-
-        // VBox
+        // Centre VBox
         VBox vbox = new VBox(20);
+        vbox.setAlignment(Pos.CENTER_LEFT);
         vbox.setPadding(new Insets(25, 50, 25, 50));
-        vbox.getChildren().addAll(headerHb, pwHb, openBtnHb, actionStatus);
+        vbox.getChildren().addAll(headerLabel, pwHbox);
 
-        return new Scene(vbox, 800, 400);
+        // Right side button bar
+        Region spacer = Buttons.getSpacerVGrow();
+        Button cancelBtn = Buttons.getCloseBtn("Cancel", minWidth);
+        cancelBtn.setOnAction(e -> returnToPrevScene(window, prevScene));
+        Button openBtn = Buttons.getCheckBtn("Open", minWidth);
+        openBtn.setOnAction(e -> checkCredentials(pwField.getText(), file, window));
+
+        ToolBar buttonBar = new ToolBar();
+        buttonBar.setMinWidth(minWidth + 10);
+        buttonBar.setOrientation(Orientation.VERTICAL);
+        buttonBar.getItems().addAll(spacer, openBtn, cancelBtn);
+
+        // Bottom status bar
+        actionStatus = new Text();
+        actionStatus.setFill(Color.FIREBRICK);
+        ToolBar statusBar = new ToolBar();
+        statusBar.getItems().add(actionStatus);
+
+        return new Scene(new BorderPane(vbox, null, buttonBar, statusBar, null));
     }
 
-    private static void checkCredentials(String pwInput) {
+    private static void checkCredentials(String pwInput, File file, Stage window) {
         try {
-            Database db = KdbxOps.loadKdbx(selectedFile.getAbsolutePath(), pwInput);
+            Database db = KdbxOps.loadKdbx(file, pwInput);
+            KdbxObject kdbxObject = new KdbxObject(db, file.getPath(), pwInput);
             actionStatus.setText("Correct credentials!");
             actionStatus.setFill(Color.GREEN);
-            Scene homeScene = AppHome.loadScene(window, db);
+            Scene homeScene = AppHome.loadScene(window, kdbxObject);
             window.setScene(homeScene);
         } catch (IOException e) {
             actionStatus.setText("Error accessing file");
@@ -88,7 +89,7 @@ class AppCredentialsInput {
         }
     }
 
-    private static void returnToPrevScene() {
+    private static void returnToPrevScene(Stage window, Scene prevScene) {
         window.setScene(prevScene);
     }
 }

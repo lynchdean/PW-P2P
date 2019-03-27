@@ -1,76 +1,72 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.gui.Preset.Buttons;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.ToolBar;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 
 class AppFileChooser {
 
+    private final static double minWidth = 70;
     private static Text actionStatus;
 
-    // Window & Scenes
-    private static Stage window;
-
-    // File
     private static File selectedFile;
     private static Text selectedFileText;
 
-    static Scene loadScene(Stage stage) {
-        window = stage;
+    static Scene loadScene(Stage window) {
+        // File button
+        FontIcon fileIcon = new FontIcon("fa-file");
+        fileIcon.setIconColor(Color.CORNFLOWERBLUE);
+        Button selectFileBtn = new Button("Choose .KDBX file", fileIcon);
+        selectFileBtn.setOnAction(e -> showFileChooser(window));
 
-        // Row 0 - Scene header
-        Label headerLabel = new Label("Please select .KDBX file");
-        headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        HBox headerHb = new HBox();
-        headerHb.setAlignment(Pos.CENTER);
-        headerHb.getChildren().add(headerLabel);
-
-        // Row 1 - Choose file actions
-        Button selectFileBtn = new Button("Choose a file...");
-        selectFileBtn.setOnAction(e -> showFileChooser());
-        HBox selectFileActionHb = new HBox(10);
-        selectFileActionHb.setAlignment(Pos.CENTER);
-        selectFileActionHb.getChildren().add(selectFileBtn);
-
-        // Row 2 - Selected file
+        // File details
         Label selectedFileLabel = new Label("Selected File:");
-        HBox selectedFileHb = new HBox(10);
-        selectedFileHb.setAlignment(Pos.CENTER);
         selectedFileText = new Text("None");
-        selectedFileHb.getChildren().addAll(selectedFileLabel, selectedFileText);
+        HBox fileHbox = new HBox(10);
+        fileHbox.setAlignment(Pos.CENTER_LEFT);
+        fileHbox.getChildren().addAll(selectedFileLabel, selectedFileText);
 
-        // Row 3 - Open File
-        Button openFileBtn = new Button("Open");
-        openFileBtn.setOnAction(e -> openFile());
-        HBox buttonHb2 = new HBox(10);
-        buttonHb2.setAlignment(Pos.BOTTOM_RIGHT);
-        buttonHb2.getChildren().addAll(openFileBtn);
+        // Center VBox
+        VBox vbox = new VBox(20);
+        vbox.setAlignment(Pos.CENTER_LEFT);
+        vbox.setPadding(new Insets(25, 50, 25, 50));
+        vbox.getChildren().addAll(selectFileBtn, fileHbox);
 
-        // Row 4 - Status message
+        // Right side button bar
+        Region spacer = Buttons.getSpacerVGrow();
+        Button openBtn = Buttons.getCheckBtn("Open", minWidth);
+        openBtn.setOnAction(e -> openFile(window));
+        Button quitBtn = Buttons.getCloseBtn("Quit", minWidth);
+        quitBtn.setOnAction(e -> window.close());
+
+        ToolBar buttonBar = new ToolBar();
+        buttonBar.setMinWidth(minWidth + 10);
+        buttonBar.setOrientation(Orientation.VERTICAL);
+        buttonBar.getItems().addAll(spacer, openBtn, quitBtn);
+
+        // Bottom status bar
         actionStatus = new Text();
         actionStatus.setFill(Color.FIREBRICK);
+        ToolBar statusBar = new ToolBar();
+        statusBar.getItems().add(actionStatus);
 
-        // VBox
-        VBox vbox = new VBox(20);
-        vbox.setPadding(new Insets(25, 50, 25, 50));
-        vbox.getChildren().addAll(headerHb, selectFileActionHb, selectedFileHb, buttonHb2, actionStatus);
-
-        return new Scene(vbox, 800, 400);
+        return new Scene(new BorderPane(vbox, null, buttonBar, statusBar, null));
     }
 
-    private static void showFileChooser() {
+    private static void showFileChooser(Stage window) {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter fileExtensions = new FileChooser.ExtensionFilter("KDBX (*.kdbx)", "*.kdbx");
         fileChooser.getExtensionFilters().add(fileExtensions);
@@ -80,19 +76,22 @@ class AppFileChooser {
             selectedFile = chosenFile;
             actionStatus.setText(String.format("File selected: %s", selectedFile.getPath()));
             selectedFileText.setText(selectedFile.getName());
+            openFile(window);
         } else {
             actionStatus.setText("File selection cancelled.");
         }
     }
 
-    private static void openFile() {
+    private static void openFile(Stage window) {
         if (selectedFile != null) {
-            actionStatus.setText(String.format("Opened %s successfully.", selectedFile.getName()));
+            actionStatus.setFill(Color.FORESTGREEN);
+            actionStatus.setText(String.format("Selected %s successfully.", selectedFile.getName()));
             Scene credentialsScene = AppCredentialsInput.loadScene(window, selectedFile);
             window.setScene(credentialsScene);
         } else {
+            actionStatus.setFill(Color.FIREBRICK);
             actionStatus.setText("Failed to open: No file selected.");
-            AlertBox.display(window, "Error: No file selected", "Please select a file first!");
+            DialogAlert.display(window, "Error: No file selected", "Please select a file first!");
         }
     }
 }

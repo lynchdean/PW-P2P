@@ -9,7 +9,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-class AlertBox {
+class DialogAlert {
     static void display(Stage ownerWindow, String title, String msg) {
         Stage alertWindow = new Stage();
         alertWindow.initOwner(ownerWindow);
