@@ -3,19 +3,21 @@ package com.lynchd49.syncsafe.gui;
 import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ToolBar;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Database;
 
 import java.io.File;
@@ -23,6 +25,7 @@ import java.io.IOException;
 
 class AppCredentialsInput {
 
+    private final static double minWidth = 80;
     private static Text actionStatus;
 
     static Scene loadScene(Stage window, File file) {
@@ -31,39 +34,59 @@ class AppCredentialsInput {
         Label headerLabel = new Label("Please enter your credentials");
         headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        // Row 1 - Password input
+        // Password input
         Label pwLabel = new Label("Password:");
         PasswordField pwField = new PasswordField();
-        pwField.setPrefWidth(200);
-        pwField.setOnKeyPressed((event) -> {
-            if (event.getCode() == KeyCode.ENTER) {
-                checkCredentials(pwField.getText(), file, window);
-            }
+        HBox.setHgrow(pwField, Priority.ALWAYS);
+        pwField.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ENTER) checkCredentials(pwField.getText(), file, window);
         });
-        HBox pwHb = new HBox(10);
-        pwHb.setAlignment(Pos.CENTER);
-        pwHb.getChildren().addAll(pwLabel, pwField);
+        HBox pwHbox = new HBox(10);
+        pwHbox.setAlignment(Pos.CENTER_LEFT);
+        pwHbox.getChildren().addAll(pwLabel, pwField);
 
-        // Row 2 - Open password file & Button to return to previous window
-        Button returnBtn = new Button("Cancel");
-        returnBtn.setOnAction(e -> returnToPrevScene(window, prevScene));
-        Button openBtn = new Button("Open");
+        // Centre VBox
+        VBox vbox = new VBox(20);
+        vbox.setAlignment(Pos.CENTER_LEFT);
+        vbox.setPadding(new Insets(25, 50, 25, 50));
+        vbox.getChildren().addAll(headerLabel, pwHbox);
+
+
+        // Right side button bar
+        Region spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        spacer.setMinWidth(Region.USE_PREF_SIZE);
+
+        FontIcon cancelIcon = new FontIcon("fa-close");
+        cancelIcon.setIconColor(Color.RED);
+        Button cancelBtn = new Button("Cancel", cancelIcon);
+        cancelBtn.setMinWidth(minWidth);
+        cancelBtn.setOnAction(e -> returnToPrevScene(window, prevScene));
+
+        FontIcon openIcon = new FontIcon("fa-check");
+        openIcon.setIconColor(Color.GREEN);
+        Button openBtn = new Button("Open", openIcon);
+        openBtn.setMinWidth(minWidth);
         openBtn.setOnAction(e -> checkCredentials(pwField.getText(), file, window));
 
-        HBox openBtnHb = new HBox(10);
-        openBtnHb.setAlignment(Pos.BOTTOM_RIGHT);
-        openBtnHb.getChildren().addAll(returnBtn, openBtn);
+        ToolBar buttonBar = new ToolBar();
+        buttonBar.setMinWidth(minWidth + 10);
+        buttonBar.setOrientation(Orientation.VERTICAL);
+        buttonBar.getItems().addAll(spacer, cancelBtn, openBtn);
 
-        // Row 3 - Status message
-        actionStatus = new Text("");
+        // Bottom status bar
+        actionStatus = new Text();
         actionStatus.setFill(Color.FIREBRICK);
+        ToolBar statusBar = new ToolBar();
+        statusBar.getItems().add(actionStatus);
 
-        // VBox
-        VBox vbox = new VBox(20);
-        vbox.setPadding(new Insets(25, 50, 25, 50));
-        vbox.getChildren().addAll(headerLabel, pwHb, openBtnHb, actionStatus);
+        // Main layout
+        BorderPane mainPane = new BorderPane();
+        mainPane.setCenter(vbox);
+        mainPane.setRight(buttonBar);
+        mainPane.setBottom(statusBar);
 
-        return new Scene(vbox, 800, 400);
+        return new Scene(mainPane);
     }
 
     private static void checkCredentials(String pwInput, File file, Stage window) {

@@ -9,8 +9,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -27,13 +25,10 @@ class AppFileChooser {
     private static Text selectedFileText;
 
     static Scene loadScene(Stage window) {
-        Label headerLabel = new Label("Please select a .KDBX file:");
-        headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-
         // File button
         FontIcon fileIcon = new FontIcon("fa-file");
         fileIcon.setIconColor(Color.CORNFLOWERBLUE);
-        Button selectFileBtn = new Button("Choose file...", fileIcon);
+        Button selectFileBtn = new Button("Choose .KDBX file", fileIcon);
         selectFileBtn.setOnAction(e -> showFileChooser(window));
 
         // File details
@@ -47,7 +42,7 @@ class AppFileChooser {
         VBox vbox = new VBox(20);
         vbox.setAlignment(Pos.CENTER_LEFT);
         vbox.setPadding(new Insets(25, 50, 25, 50));
-        vbox.getChildren().addAll(headerLabel, selectFileBtn, fileHbox);
+        vbox.getChildren().addAll(selectFileBtn, fileHbox);
 
         // Right side button bar
         Region spacer = new Region();
@@ -78,12 +73,12 @@ class AppFileChooser {
         statusBar.getItems().add(actionStatus);
 
         // Main layout
-        BorderPane borderPane = new BorderPane();
-        borderPane.setCenter(vbox);
-        borderPane.setRight(buttonBar);
-        borderPane.setBottom(statusBar);
+        BorderPane mainPane = new BorderPane();
+        mainPane.setCenter(vbox);
+        mainPane.setRight(buttonBar);
+        mainPane.setBottom(statusBar);
 
-        return new Scene(borderPane);
+        return new Scene(mainPane);
     }
 
     private static void showFileChooser(Stage window) {
