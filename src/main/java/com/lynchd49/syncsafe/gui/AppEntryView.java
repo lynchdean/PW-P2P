@@ -79,13 +79,12 @@ class AppEntryView {
         HBox notesHbox = entryHboxHelper(notesLabel, notesArea);
 
         // Toolbar and layout
-        ToolBar toolBar = getToolbar(entry, kdbxObject);
-
         VBox fieldsVbox = new VBox(10);
         fieldsVbox.getChildren().addAll(titleHbox, usernameHbox, passwordHbox, urlHbox, expiresHbox, notesHbox);
         fieldsVbox.setPadding(new Insets(10));
         HBox.setHgrow(fieldsVbox, Priority.ALWAYS);
 
+        ToolBar toolBar = getToolbar(entry, kdbxObject);
         HBox mainHbox = new HBox(10);
         mainHbox.getChildren().addAll(fieldsVbox, toolBar);
 
@@ -129,9 +128,7 @@ class AppEntryView {
         FontIcon deleteIcon = new FontIcon("fa-trash");
         Button deleteBtn = new Button("Delete", deleteIcon);
         deleteBtn.setMinWidth(minWidth);
-        deleteBtn.setOnAction(e -> {
-            deleteEntryAndExit(entry, kdbxObject);
-        });
+        deleteBtn.setOnAction(e -> deleteEntryAndExit(entry, kdbxObject));
 
         // Spacer
         Region spacer = new Region();
