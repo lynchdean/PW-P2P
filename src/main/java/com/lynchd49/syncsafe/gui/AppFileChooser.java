@@ -20,19 +20,13 @@ import java.io.File;
 
 class AppFileChooser {
 
-    private static Text actionStatus;
     private final static double minWidth = 70;
+    private static Text actionStatus;
 
-    // Window & Scenes
-    private static Stage window;
-
-    // File
     private static File selectedFile;
     private static Text selectedFileText;
 
-    static Scene loadScene(Stage stage) {
-        window = stage;
-
+    static Scene loadScene(Stage window) {
         Label headerLabel = new Label("Please select a .KDBX file:");
         headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 16));
 
@@ -40,7 +34,7 @@ class AppFileChooser {
         FontIcon fileIcon = new FontIcon("fa-file");
         fileIcon.setIconColor(Color.CORNFLOWERBLUE);
         Button selectFileBtn = new Button("Choose file...", fileIcon);
-        selectFileBtn.setOnAction(e -> showFileChooser());
+        selectFileBtn.setOnAction(e -> showFileChooser(window));
 
         // File details
         Label selectedFileLabel = new Label("Selected File:");
@@ -64,7 +58,7 @@ class AppFileChooser {
         openIcon.setIconColor(Color.GREEN);
         Button openBtn = new Button("Open", openIcon);
         openBtn.setMinWidth(minWidth);
-        openBtn.setOnAction(e -> openFile());
+        openBtn.setOnAction(e -> openFile(window));
 
         FontIcon quitIcon = new FontIcon("fa-close");
         quitIcon.setIconColor(Color.RED);
@@ -92,7 +86,7 @@ class AppFileChooser {
         return new Scene(borderPane);
     }
 
-    private static void showFileChooser() {
+    private static void showFileChooser(Stage window) {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter fileExtensions = new FileChooser.ExtensionFilter("KDBX (*.kdbx)", "*.kdbx");
         fileChooser.getExtensionFilters().add(fileExtensions);
@@ -102,13 +96,13 @@ class AppFileChooser {
             selectedFile = chosenFile;
             actionStatus.setText(String.format("File selected: %s", selectedFile.getPath()));
             selectedFileText.setText(selectedFile.getName());
-            openFile();
+            openFile(window);
         } else {
             actionStatus.setText("File selection cancelled.");
         }
     }
 
-    private static void openFile() {
+    private static void openFile(Stage window) {
         if (selectedFile != null) {
             actionStatus.setFill(Color.FORESTGREEN);
             actionStatus.setText(String.format("Selected %s successfully.", selectedFile.getName()));

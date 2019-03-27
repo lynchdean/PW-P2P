@@ -25,24 +25,11 @@ class AppCredentialsInput {
 
     private static Text actionStatus;
 
-    // Window & Scenes
-    private static Stage window;
-    private static Scene prevScene;
+    static Scene loadScene(Stage window, File file) {
+        Scene prevScene = window.getScene();
 
-    // File
-    private static File selectedFile;
-
-    static Scene loadScene(Stage stage, File file) {
-        window = stage;
-        prevScene = window.getScene();
-        selectedFile = file;
-
-        // Row 0 - Scene Header
         Label headerLabel = new Label("Please enter your credentials");
         headerLabel.setFont(Font.font("Arial", FontWeight.BOLD, 18));
-        HBox headerHb = new HBox(10);
-        headerHb.setAlignment(Pos.CENTER);
-        headerHb.getChildren().add(headerLabel);
 
         // Row 1 - Password input
         Label pwLabel = new Label("Password:");
@@ -50,7 +37,7 @@ class AppCredentialsInput {
         pwField.setPrefWidth(200);
         pwField.setOnKeyPressed((event) -> {
             if (event.getCode() == KeyCode.ENTER) {
-                checkCredentials(pwField.getText());
+                checkCredentials(pwField.getText(), file, window);
             }
         });
         HBox pwHb = new HBox(10);
@@ -59,9 +46,9 @@ class AppCredentialsInput {
 
         // Row 2 - Open password file & Button to return to previous window
         Button returnBtn = new Button("Cancel");
-        returnBtn.setOnAction(e -> returnToPrevScene());
+        returnBtn.setOnAction(e -> returnToPrevScene(window, prevScene));
         Button openBtn = new Button("Open");
-        openBtn.setOnAction(e -> checkCredentials(pwField.getText()));
+        openBtn.setOnAction(e -> checkCredentials(pwField.getText(), file, window));
 
         HBox openBtnHb = new HBox(10);
         openBtnHb.setAlignment(Pos.BOTTOM_RIGHT);
@@ -74,15 +61,15 @@ class AppCredentialsInput {
         // VBox
         VBox vbox = new VBox(20);
         vbox.setPadding(new Insets(25, 50, 25, 50));
-        vbox.getChildren().addAll(headerHb, pwHb, openBtnHb, actionStatus);
+        vbox.getChildren().addAll(headerLabel, pwHb, openBtnHb, actionStatus);
 
         return new Scene(vbox, 800, 400);
     }
 
-    private static void checkCredentials(String pwInput) {
+    private static void checkCredentials(String pwInput, File file, Stage window) {
         try {
-            Database db = KdbxOps.loadKdbx(selectedFile, pwInput);
-            KdbxObject kdbxObject = new KdbxObject(db, selectedFile.getPath(), pwInput);
+            Database db = KdbxOps.loadKdbx(file, pwInput);
+            KdbxObject kdbxObject = new KdbxObject(db, file.getPath(), pwInput);
             actionStatus.setText("Correct credentials!");
             actionStatus.setFill(Color.GREEN);
             Scene homeScene = AppHome.loadScene(window, kdbxObject);
@@ -96,7 +83,7 @@ class AppCredentialsInput {
         }
     }
 
-    private static void returnToPrevScene() {
+    private static void returnToPrevScene(Stage window, Scene prevScene) {
         window.setScene(prevScene);
     }
 }
