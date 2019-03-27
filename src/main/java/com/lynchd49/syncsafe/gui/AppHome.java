@@ -26,24 +26,12 @@ import java.util.Optional;
 class AppHome {
 
     private final static double colMinWidth = 100;
-    private static ObservableList<EntryView> tableData;
+//    private static ObservableList<EntryView> tableData;
     static Group currentGroup;
 
     static Scene loadScene(Stage window, KdbxObject kdbxObject) {
         Database db = kdbxObject.getDatabase();
         currentGroup = db.getRootGroup();
-
-        TreeView<String> treeView = new TreeView<>(KdbxTreeUtils.getTreeRoot(db));
-        treeView.setMaxWidth(200);
-
-        treeView.getSelectionModel()
-                .selectedItemProperty()
-                .addListener((observable, oldValue, newValue) -> {
-                    List<String> treeItemPath = KdbxTreeUtils.getTreeItemPath(newValue);
-                    Group g = KdbxTreeUtils.getGroupFromPath(db, treeItemPath);
-                    currentGroup = g;
-                    updateTableData(g);
-                });
 
         // Table
         TableView<EntryView> table = new TableView<>();
@@ -59,23 +47,34 @@ class AppHome {
         addColumn(table,"Modified", "modified");
         addColumn(table,"Accessed", "accessed");
 
-        setTableData(db.getRootGroup());
+        ObservableList<EntryView> tableData = getObsList(db.getRootGroup());
         table.setItems(tableData);
         table.setRowFactory(tv -> {
             TableRow<EntryView> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
                     EntryView rowData = row.getItem();
-                    showEntryScene(window, rowData.getTitle(), kdbxObject);
+                    showEntryScene(window, tableData, rowData.getTitle(), kdbxObject);
                 }
             });
             return row;
         });
 
+        TreeView<String> treeView = new TreeView<>(KdbxTreeUtils.getTreeRoot(db));
+        treeView.setMaxWidth(200);
+        treeView.getSelectionModel()
+                .selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> {
+                    List<String> treeItemPath = KdbxTreeUtils.getTreeItemPath(newValue);
+                    Group g = KdbxTreeUtils.getGroupFromPath(db, treeItemPath);
+                    currentGroup = g;
+                    updateTableData(tableData, g);
+                });
+
         // Main layout
         BorderPane mainPane = new BorderPane();
         mainPane.setCenter(table);
-        MenuBar menuBar = getMenuBar(window, treeView, kdbxObject);
+        MenuBar menuBar = getMenuBar(window, treeView, tableData, kdbxObject);
         mainPane.setTop(menuBar);
         mainPane.setLeft(treeView);
 
@@ -89,11 +88,7 @@ class AppHome {
         table.getColumns().add(col);
     }
 
-    private static void setTableData(Group g) {
-        tableData = getObsList(g);
-    }
-
-    static void updateTableData(Group g) {
+    static void updateTableData(ObservableList<EntryView> tableData, Group g) {
         tableData.clear();
         tableData.addAll(getObsList(g));
     }
@@ -110,7 +105,7 @@ class AppHome {
         return entryViewList;
     }
 
-    private static void showEntryScene(Stage window, String entryTitle, KdbxObject kdbxObject) {
+    private static void showEntryScene(Stage window,  ObservableList<EntryView> tableData, String entryTitle, KdbxObject kdbxObject) {
         List entries = currentGroup.getEntries();
         Entry entry = null;
         for (Object entryObj : entries) {
@@ -122,12 +117,12 @@ class AppHome {
         if (entry == null) {
             DialogAlert.display(window, "Error", "Error retrieving entry.");
         } else {
-            Scene entryScene = AppEntryView.loadScene(window, entry, kdbxObject);
+            Scene entryScene = AppEntryView.loadScene(window, tableData, entry, kdbxObject);
             window.setScene(entryScene);
         }
     }
 
-    private static MenuBar getMenuBar(Stage window, TreeView<String> treeView, KdbxObject kdbxObject) {
+    private static MenuBar getMenuBar(Stage window, TreeView<String> treeView, ObservableList<EntryView> tableData, KdbxObject kdbxObject) {
         FontIcon plusIcon = new FontIcon("fa-plus");
         plusIcon.setIconColor(Color.GREEN);
         FontIcon minusIcon = new FontIcon("fa-minus");
@@ -144,7 +139,7 @@ class AppHome {
         // Group Items
         Menu groupMenu = new Menu("Groups");
         MenuItem newGroupItem = new MenuItem("New group", plusIcon);
-        newGroupItem.setOnAction(e -> newGroup(window, treeView, kdbxObject));
+        newGroupItem.setOnAction(e -> newGroup(window, treeView, tableData, kdbxObject));
         MenuItem deleteGroupItem = new MenuItem("Delete current group", minusIcon);
         deleteGroupItem.setOnAction(e -> deleteCurrentGroup(window, treeView, kdbxObject));
         groupMenu.getItems().addAll(newGroupItem, deleteGroupItem);
@@ -152,7 +147,7 @@ class AppHome {
         // Entry Items
         Menu entryMenu = new Menu("Entries");
         MenuItem newEntryItem = new MenuItem("New entry", plusIcon);
-        newEntryItem.setOnAction(e -> newEntry(window, kdbxObject));
+        newEntryItem.setOnAction(e -> newEntry(window, tableData, kdbxObject));
         entryMenu.getItems().addAll(newEntryItem);
 
         MenuBar menuBar = new MenuBar();
@@ -161,7 +156,7 @@ class AppHome {
     }
 
     // Create a new group in the currently selected group
-    private static void newGroup(Stage window, TreeView<String> treeView, KdbxObject kdbxObject) {
+    private static void newGroup(Stage window, TreeView<String> treeView, ObservableList<EntryView> tableData, KdbxObject kdbxObject) {
         Optional<String> result = DialogNewTitle.display("Group");
         result.ifPresent(s -> {
             Group group = kdbxObject.getDatabase().newGroup(s);
@@ -176,7 +171,7 @@ class AppHome {
                 currentGroup.addGroup(group);
                 try {
                     KdbxOps.saveKdbx(kdbxObject);
-                    updateTableData(currentGroup);
+                    updateTableData(tableData, currentGroup);
                     updateTreeView(treeView, kdbxObject);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -189,7 +184,7 @@ class AppHome {
     }
 
     // Create a new entry in the currently selected group
-    private static void newEntry(Stage window, KdbxObject kdbxObject) {
+    private static void newEntry(Stage window,  ObservableList<EntryView> tableData, KdbxObject kdbxObject) {
         Optional<String> result = DialogNewTitle.display("Entry");
         result.ifPresent(s -> {
             Entry entry = kdbxObject.getDatabase().newEntry(s);
@@ -201,7 +196,7 @@ class AppHome {
             e.printStackTrace();
             errorMsgSave(window);
         }
-        updateTableData(currentGroup);
+        updateTableData(tableData, currentGroup);
     }
 
     // Delete the currently selected group

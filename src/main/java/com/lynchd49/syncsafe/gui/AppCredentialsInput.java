@@ -1,5 +1,6 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.gui.Preset.Buttons;
 import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;
@@ -17,7 +18,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Database;
 
 import java.io.File;
@@ -51,28 +51,17 @@ class AppCredentialsInput {
         vbox.setPadding(new Insets(25, 50, 25, 50));
         vbox.getChildren().addAll(headerLabel, pwHbox);
 
-
         // Right side button bar
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-        spacer.setMinWidth(Region.USE_PREF_SIZE);
-
-        FontIcon cancelIcon = new FontIcon("fa-close");
-        cancelIcon.setIconColor(Color.RED);
-        Button cancelBtn = new Button("Cancel", cancelIcon);
-        cancelBtn.setMinWidth(minWidth);
+        Region spacer = Buttons.getSpacerVGrow();
+        Button cancelBtn = Buttons.getCloseBtn("Cancel", minWidth);
         cancelBtn.setOnAction(e -> returnToPrevScene(window, prevScene));
-
-        FontIcon openIcon = new FontIcon("fa-check");
-        openIcon.setIconColor(Color.GREEN);
-        Button openBtn = new Button("Open", openIcon);
-        openBtn.setMinWidth(minWidth);
+        Button openBtn = Buttons.getCheckBtn("Open", minWidth);
         openBtn.setOnAction(e -> checkCredentials(pwField.getText(), file, window));
 
         ToolBar buttonBar = new ToolBar();
         buttonBar.setMinWidth(minWidth + 10);
         buttonBar.setOrientation(Orientation.VERTICAL);
-        buttonBar.getItems().addAll(spacer, cancelBtn, openBtn);
+        buttonBar.getItems().addAll(spacer, openBtn, cancelBtn);
 
         // Bottom status bar
         actionStatus = new Text();
@@ -80,13 +69,7 @@ class AppCredentialsInput {
         ToolBar statusBar = new ToolBar();
         statusBar.getItems().add(actionStatus);
 
-        // Main layout
-        BorderPane mainPane = new BorderPane();
-        mainPane.setCenter(vbox);
-        mainPane.setRight(buttonBar);
-        mainPane.setBottom(statusBar);
-
-        return new Scene(mainPane);
+        return new Scene(new BorderPane(vbox, null, buttonBar, statusBar, null));
     }
 
     private static void checkCredentials(String pwInput, File file, Stage window) {

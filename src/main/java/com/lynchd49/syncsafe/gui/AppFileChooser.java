@@ -1,5 +1,6 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.gui.Preset.Buttons;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -45,26 +46,16 @@ class AppFileChooser {
         vbox.getChildren().addAll(selectFileBtn, fileHbox);
 
         // Right side button bar
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-        spacer.setMinWidth(Region.USE_PREF_SIZE);
-
-        FontIcon openIcon = new FontIcon("fa-check");
-        openIcon.setIconColor(Color.GREEN);
-        Button openBtn = new Button("Open", openIcon);
-        openBtn.setMinWidth(minWidth);
+        Region spacer = Buttons.getSpacerVGrow();
+        Button openBtn = Buttons.getCheckBtn("Open", minWidth);
         openBtn.setOnAction(e -> openFile(window));
-
-        FontIcon quitIcon = new FontIcon("fa-close");
-        quitIcon.setIconColor(Color.RED);
-        Button quitBtn = new Button("Quit", quitIcon);
-        quitBtn.setMinWidth(minWidth);
+        Button quitBtn = Buttons.getCloseBtn("Quit", minWidth);
         quitBtn.setOnAction(e -> window.close());
 
         ToolBar buttonBar = new ToolBar();
         buttonBar.setMinWidth(minWidth + 10);
         buttonBar.setOrientation(Orientation.VERTICAL);
-        buttonBar.getItems().addAll(spacer, quitBtn, openBtn);
+        buttonBar.getItems().addAll(spacer, openBtn, quitBtn);
 
         // Bottom status bar
         actionStatus = new Text();
@@ -72,13 +63,7 @@ class AppFileChooser {
         ToolBar statusBar = new ToolBar();
         statusBar.getItems().add(actionStatus);
 
-        // Main layout
-        BorderPane mainPane = new BorderPane();
-        mainPane.setCenter(vbox);
-        mainPane.setRight(buttonBar);
-        mainPane.setBottom(statusBar);
-
-        return new Scene(mainPane);
+        return new Scene(new BorderPane(vbox, null, buttonBar, statusBar, null));
     }
 
     private static void showFileChooser(Stage window) {

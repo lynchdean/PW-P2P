@@ -1,7 +1,10 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.gui.Preset.Buttons;
+import com.lynchd49.syncsafe.utils.EntryView;
 import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -36,7 +39,7 @@ class AppEntryView {
     private final static double minWidth = 80;
 
 
-    static Scene loadScene(Stage stage, Entry entry, KdbxObject kdbxObject) {
+    static Scene loadScene(Stage stage,  ObservableList<EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
         window = stage;
         prevScene = window.getScene();
 
@@ -84,7 +87,7 @@ class AppEntryView {
         fieldsVbox.setPadding(new Insets(10));
         HBox.setHgrow(fieldsVbox, Priority.ALWAYS);
 
-        ToolBar toolBar = getToolbar(entry, kdbxObject);
+        ToolBar toolBar = getToolbar(tableData, entry, kdbxObject);
         HBox mainHbox = new HBox(10);
         mainHbox.getChildren().addAll(fieldsVbox, toolBar);
 
@@ -104,16 +107,13 @@ class AppEntryView {
         return hbox;
     }
 
-    private static ToolBar getToolbar(Entry entry, KdbxObject kdbxObject) {
+    private static ToolBar getToolbar( ObservableList<EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
         ToolBar toolBar = new ToolBar();
         toolBar.setMinWidth(minWidth + 12);
         toolBar.setOrientation(Orientation.VERTICAL);
 
         // Save
-        FontIcon saveIcon = new FontIcon("fa-check");
-        saveIcon.setIconColor(Color.GREEN);
-        Button saveBtn = new Button("Save", saveIcon);
-        saveBtn.setMinWidth(minWidth);
+        Button saveBtn = Buttons.getCheckBtn("Save", minWidth);
         saveBtn.setAlignment(Pos.CENTER);
         saveBtn.setOnAction(e -> {
             try {
@@ -128,12 +128,10 @@ class AppEntryView {
         FontIcon deleteIcon = new FontIcon("fa-trash");
         Button deleteBtn = new Button("Delete", deleteIcon);
         deleteBtn.setMinWidth(minWidth);
-        deleteBtn.setOnAction(e -> deleteEntryAndExit(entry, kdbxObject));
+        deleteBtn.setOnAction(e -> deleteEntryAndExit(tableData, entry, kdbxObject));
 
         // Spacer
-        Region spacer = new Region();
-        VBox.setVgrow(spacer, Priority.ALWAYS);
-        spacer.setMinWidth(Region.USE_PREF_SIZE);
+        Region spacer = Buttons.getSpacerVGrow();
 
         // Exit
         FontIcon exitIcon = new FontIcon("fa-close");
@@ -146,7 +144,7 @@ class AppEntryView {
         return toolBar;
     }
 
-    private static void deleteEntryAndExit(Entry entry, KdbxObject kdbxObject) {
+    private static void deleteEntryAndExit(ObservableList<EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
         if (DialogConfirm.display(window, String.format("Delete %s?", entry.getTitle()))) {
             window.setScene(prevScene);
             Group parent = entry.getParent();
@@ -157,7 +155,7 @@ class AppEntryView {
                 e1.printStackTrace();
                 errorMsgSave();
             }
-            AppHome.updateTableData(AppHome.currentGroup);
+            AppHome.updateTableData(tableData, AppHome.currentGroup);
         }
     }
 
