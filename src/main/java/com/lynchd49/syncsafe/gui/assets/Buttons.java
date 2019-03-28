@@ -1,4 +1,4 @@
-package com.lynchd49.syncsafe.gui.Preset;
+package com.lynchd49.syncsafe.gui.assets;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.Priority;

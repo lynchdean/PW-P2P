@@ -1,6 +1,6 @@
 package com.lynchd49.syncsafe.gui;
 
-import com.lynchd49.syncsafe.gui.Preset.Buttons;
+import com.lynchd49.syncsafe.gui.assets.Buttons;
 import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
 import javafx.geometry.Insets;

@@ -15,6 +15,9 @@ public class AppMain extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // Start Server
+
+        // Start GUI
         Platform.setImplicitExit(true);
         primaryStage.setTitle(titleText);
         Scene fileChooserScene = AppFileChooser.loadScene(primaryStage);

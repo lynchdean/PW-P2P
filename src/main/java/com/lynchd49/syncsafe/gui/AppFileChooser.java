@@ -1,6 +1,6 @@
 package com.lynchd49.syncsafe.gui;
 
-import com.lynchd49.syncsafe.gui.Preset.Buttons;
+import com.lynchd49.syncsafe.gui.assets.Buttons;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
