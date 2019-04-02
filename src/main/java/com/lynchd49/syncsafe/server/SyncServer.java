@@ -14,16 +14,20 @@ public class SyncServer {
     private PrintWriter out;
     private BufferedReader in;
 
-    public void start(int port) throws IOException {
-        serverSocket = new ServerSocket(port);
-        clientSocket = serverSocket.accept();
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String greeting = in.readLine();
-        if ("hello server".equals(greeting)) {
-            out.println("hello client");
-        } else {
-            out.println("unrecognised greeting");
+    public void start(int portNumber) {
+        try {
+            serverSocket = new ServerSocket(portNumber);
+            clientSocket = serverSocket.accept();
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                out.println(inputLine);
+            }
+        } catch (IOException e) {
+            System.out.printf("Exception caught when trying to listen on port %d or listening for a connection%n", portNumber);
+            System.out.println(e.getMessage());
         }
     }
 
@@ -34,8 +38,10 @@ public class SyncServer {
         serverSocket.close();
     }
 
-    public static void main(String[] args) throws IOException {
+
+    //TODO remove once testing is successful
+    public static void main(String[] args) {
         SyncServer server = new SyncServer();
-        server.start(6666);
+        server.start(4444);
     }
 }

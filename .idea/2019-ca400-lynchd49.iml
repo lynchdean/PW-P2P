@@ -45,6 +45,8 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.codehaus.groovy:groovy-sql:2.5.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.codehaus.groovy:groovy-xml:2.5.4" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.12" level="project" />
+    <orderEntry type="library" name="Maven: net.bytebuddy:byte-buddy:1.9.12" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.objenesis:objenesis:3.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.linguafranca.pwdb:KeePassJava2:2.1.4" level="project" />
     <orderEntry type="library" name="Maven: org.linguafranca.pwdb:KeePassJava2-kdb:2.1.4" level="project" />
     <orderEntry type="library" name="Maven: org.linguafranca.pwdb:database:2.1.4" level="project" />

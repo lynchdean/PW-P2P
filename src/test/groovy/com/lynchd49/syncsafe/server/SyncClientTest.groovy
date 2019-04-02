@@ -4,25 +4,32 @@ import spock.lang.Specification
 
 class SyncClientTest extends Specification {
 
-    private int port = 6666
-    private SyncServer server
+    private String hostName = "localhost"
+    private int portNumber = 4444
+
+    private SyncServer mockServer
+    private SyncClient mockClient
+
 
     def setup() {
-        server = new SyncServer()
-        server.start(port)
+//        mockServer = Mock(SyncServer.class)
+//        mockServer.start(portNumber)
+//
+//        mockClient = Mock(SyncClient.class)
     }
 
-    def cleanup() {
-        server.stop()
-    }
+//    def "isConnected() should return false if there are no active connections"() {
+//        expect:
+//        !mockClient.isConnected()
+//    }
 
-    def "Should receive correct response from server"() {
+    def "Server should echo client message: #msg"() {
         when:
         SyncClient client = new SyncClient()
-        client.startConnection("127.0.0.1", port)
-        String response = client.sendMessage("hello server")
+        client.startConnection(hostName, portNumber)
+        String msg = client.sendMessage("echo")
 
         then:
-        response == "hello client"
+        msg == "echo"
     }
 }
