@@ -10,26 +10,26 @@ class SyncClientTest extends Specification {
     private SyncServer mockServer
     private SyncClient mockClient
 
-
-    def setup() {
+    //TODO needs mocking to work first
+//    def setup() {
 //        mockServer = Mock(SyncServer.class)
 //        mockServer.start(portNumber)
 //
 //        mockClient = Mock(SyncClient.class)
-    }
+//    }
 
 //    def "isConnected() should return false if there are no active connections"() {
 //        expect:
 //        !mockClient.isConnected()
 //    }
 
-    def "Server should echo client message: #msg"() {
-        when:
-        SyncClient client = new SyncClient()
-        client.startConnection(hostName, portNumber)
-        String msg = client.sendMessage("echo")
-
-        then:
-        msg == "echo"
-    }
+//    def "Server should echo client message: #msg"() {
+//        when:
+//        SyncClient client = new SyncClient()
+//        client.startConnection(hostName, portNumber)
+//        String msg = client.sendMessage("echo")
+//
+//        then:
+//        msg == "echo"
+//    }
 }

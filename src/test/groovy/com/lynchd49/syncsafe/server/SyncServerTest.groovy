@@ -14,12 +14,12 @@ class SyncServerTest extends Specification {
         server = new SyncServer()
     }
 
-    def "Should fail given negative port number: #portNumber"() {
+    def "Should fail given negative port number: #portNum"() {
         when:
         server.start(portNum)
 
         then:
-        def ex = thrown(IllegalArgumentException)
+        def ex = thrown(expectedException)
         ex.message == String.format("%s%s", expectedMsg, portNum)
 
         where:
@@ -30,12 +30,12 @@ class SyncServerTest extends Specification {
         -9999   || IllegalArgumentException || "Port value out of range: "
     }
 
-    def "Should fail given too high port number: #portNumber"() {
+    def "Should fail given too high port number: #portNum"() {
         when:
         server.start(portNum)
 
         then:
-        def ex = thrown(IllegalArgumentException)
+        def ex = thrown(expectedException)
         ex.message == String.format("%s%s", expectedMsg, portNum)
 
         where:
@@ -43,4 +43,19 @@ class SyncServerTest extends Specification {
         65536   || IllegalArgumentException || "Port value out of range: "
         99999   || IllegalArgumentException || "Port value out of range: "
     }
+
+    //TODO needs mocking to work first
+//    def "Should fail when given port number already in use"() {
+//        when:
+//        server.start(portNumber)
+//        SyncServer server2 = new SyncServer();
+//        server2.start(portNumber)
+//
+//        then:
+//        def ex = thrown(IllegalArgumentException)
+//        ex.message == String.format("%s%s", expectedMsg, portNum)
+//
+//        cleanup:
+//        server.stop();
+//    }
 }
