@@ -1,35 +1,44 @@
 package com.lynchd49.syncsafe.gui;
 
+import com.lynchd49.syncsafe.gui.assets.Buttons;
 import com.lynchd49.syncsafe.utils.EntryView;
 import com.lynchd49.syncsafe.utils.KdbxObject;
 import com.lynchd49.syncsafe.utils.KdbxOps;
 import com.lynchd49.syncsafe.utils.KdbxTreeUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
 
 class AppHome {
 
     private final static double colMinWidth = 100;
-//    private static ObservableList<EntryView> tableData;
+    private final static double labelMinWidth = 80;
+
     static Group currentGroup;
 
-    static Scene loadScene(Stage window, KdbxObject kdbxObject) {
+    static Scene loadScene(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
         Database db = kdbxObject.getDatabase();
         currentGroup = db.getRootGroup();
 
@@ -71,14 +80,106 @@ class AppHome {
                     updateTableData(tableData, g);
                 });
 
-        // Main layout
+        // Main layout (Left main tab)
         BorderPane mainPane = new BorderPane();
         mainPane.setCenter(table);
         MenuBar menuBar = getMenuBar(window, treeView, tableData, kdbxObject);
         mainPane.setTop(menuBar);
         mainPane.setLeft(treeView);
+        Tab tabMain = new Tab();
+        tabMain.setText("Password Management");
+        tabMain.setContent(mainPane);
 
-        return new Scene(mainPane, 800, 400);
+        // Sync layout (Right main tab)
+        TabPane syncTabPane = new TabPane();
+        Tab serverTab = getServerTab();
+        Tab clientTab = getClientTab();
+        syncTabPane.getTabs().addAll(serverTab, clientTab);
+
+        Tab tabSync = new Tab();
+        tabSync.setText("Synchronisation");
+        tabSync.setContent(syncTabPane);
+
+        // Tabs
+        TabPane tabPane = new TabPane();
+        tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        tabPane.getTabs().addAll(tabMain, tabSync);
+
+        return new Scene(tabPane, 800, 400);
+    }
+
+    @NotNull
+    private static Tab getServerTab() throws UnknownHostException {
+        // Hostname
+        Label hostLabel = new Label("Hostname:");
+        hostLabel.setMinWidth(labelMinWidth);
+        hostLabel.setAlignment(Pos.CENTER_RIGHT);
+        Text hostText = new Text(InetAddress.getLocalHost().getHostAddress());
+        HBox hostHbox = new HBox(10);
+        hostHbox.getChildren().addAll(hostLabel, hostText);
+
+        // Port
+        Label portLabel = new Label("Port:");
+        portLabel.setMinWidth(labelMinWidth);
+        portLabel.setAlignment(Pos.CENTER_RIGHT);
+        TextField portField = new TextField("4444");
+        portField.setMaxWidth(60);
+        HBox portHbox = new HBox(10);
+        portHbox.getChildren().addAll(portLabel, portField);
+
+        // Buttons
+        Button startServerBtn = Buttons.getStartBtn("Start Server", 100);
+        // TODO add button functionality
+        Button stopServerBtn = Buttons.getStopBtn("Stop Server", 100);
+        // TODO add button functionality
+        HBox btnHbox = new HBox(10);
+        btnHbox.setPadding(new Insets(20, 0, 0, 0));
+        btnHbox.getChildren().addAll(startServerBtn, stopServerBtn);
+
+        // Layout
+        VBox vbox = new VBox(10);
+        vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
+        vbox.setPadding(new Insets(25, 50, 25, 50));
+        Tab serverTab = new Tab("Host connection");
+        serverTab.setContent(vbox);
+        return serverTab;
+    }
+
+    @NotNull
+    private static Tab getClientTab() {
+        // Hostname
+        Label hostLabel = new Label("Server Hostname:");
+        hostLabel.setMinWidth(labelMinWidth + 40);
+        hostLabel.setAlignment(Pos.CENTER_RIGHT);
+        TextField hostField = new TextField();
+        HBox hostHbox = new HBox(10);
+        hostHbox.getChildren().addAll(hostLabel, hostField);
+
+        // Port
+        Label portLable = new Label("Server Port:");
+        portLable.setMinWidth(labelMinWidth + 40);
+        portLable.setAlignment(Pos.CENTER_RIGHT);
+        TextField portField = new TextField("4444");
+        portField.setMaxWidth(60);
+        HBox portHbox = new HBox(10);
+        portHbox.getChildren().addAll(portLable, portField);
+
+        // Buttons
+        Button connectServerBtn = Buttons.getConnectBtn("Start Connection", 100);
+        // TODO add button functionality
+        Button stopConnectionBtn = Buttons.getStopBtn("Stop Connection", 100);
+        // TODO add button functionality
+        HBox btnHbox = new HBox(10);
+        btnHbox.setPadding(new Insets(20, 0, 0, 0));
+        btnHbox.getChildren().addAll(connectServerBtn, stopConnectionBtn);
+
+        // Layout
+        VBox vbox = new VBox(10);
+        vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
+        vbox.setPadding(new Insets(25, 50, 25, 50));
+        Tab clientTab = new Tab("Connect to another host");
+        clientTab.setContent(vbox);
+        return clientTab;
     }
 
     private static void addColumn(TableView table, String title, String propertyVal) {
