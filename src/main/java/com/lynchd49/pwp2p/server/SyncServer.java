@@ -1,4 +1,4 @@
-package com.lynchd49.syncsafe.server;
+package com.lynchd49.pwp2p.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;

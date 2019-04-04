@@ -1,6 +1,6 @@
-package com.lynchd49.syncsafe.gui;
+package com.lynchd49.pwp2p.gui;
 
-import com.lynchd49.syncsafe.gui.assets.Buttons;
+import com.lynchd49.pwp2p.gui.assets.Buttons;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -11,13 +11,12 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.io.File;
 
-class AppFileChooser {
+class FileChooser {
 
     private final static double minWidth = 70;
     private static Text actionStatus;
@@ -67,8 +66,8 @@ class AppFileChooser {
     }
 
     private static void showFileChooser(Stage window) {
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter fileExtensions = new FileChooser.ExtensionFilter("KDBX (*.kdbx)", "*.kdbx");
+        javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+        javafx.stage.FileChooser.ExtensionFilter fileExtensions = new javafx.stage.FileChooser.ExtensionFilter("KDBX (*.kdbx)", "*.kdbx");
         fileChooser.getExtensionFilters().add(fileExtensions);
         File chosenFile = fileChooser.showOpenDialog(null);
 
@@ -86,7 +85,7 @@ class AppFileChooser {
         if (selectedFile != null) {
             actionStatus.setFill(Color.FORESTGREEN);
             actionStatus.setText(String.format("Selected %s successfully.", selectedFile.getName()));
-            Scene credentialsScene = AppCredentialsInput.loadScene(window, selectedFile);
+            Scene credentialsScene = CredentialsInput.loadScene(window, selectedFile);
             window.setScene(credentialsScene);
         } else {
             actionStatus.setFill(Color.FIREBRICK);

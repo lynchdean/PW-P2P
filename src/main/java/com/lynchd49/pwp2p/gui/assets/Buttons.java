@@ -1,4 +1,4 @@
-package com.lynchd49.syncsafe.gui.assets;
+package com.lynchd49.pwp2p.gui.assets;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.Priority;

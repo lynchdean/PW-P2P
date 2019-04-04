@@ -1,9 +1,8 @@
-package com.lynchd49.syncsafe.gui;
+package com.lynchd49.pwp2p.gui;
 
-import com.lynchd49.syncsafe.gui.assets.Buttons;
-import com.lynchd49.syncsafe.utils.EntryView;
-import com.lynchd49.syncsafe.utils.KdbxObject;
-import com.lynchd49.syncsafe.utils.KdbxOps;
+import com.lynchd49.pwp2p.gui.assets.Buttons;
+import com.lynchd49.pwp2p.utils.KdbxObject;
+import com.lynchd49.pwp2p.utils.KdbxOps;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -24,7 +23,7 @@ import org.linguafranca.pwdb.Group;
 
 import java.io.IOException;
 
-class AppEntryView {
+class EntryView {
 
     private static Stage window;
     private static Scene prevScene;
@@ -39,7 +38,7 @@ class AppEntryView {
     private final static double minWidth = 80;
 
 
-    static Scene loadScene(Stage stage,  ObservableList<EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
+    static Scene loadScene(Stage stage, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
         window = stage;
         prevScene = window.getScene();
 
@@ -107,7 +106,7 @@ class AppEntryView {
         return hbox;
     }
 
-    private static ToolBar getToolbar( ObservableList<EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
+    private static ToolBar getToolbar(ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
         ToolBar toolBar = new ToolBar();
         toolBar.setMinWidth(minWidth + 12);
         toolBar.setOrientation(Orientation.VERTICAL);
@@ -144,7 +143,7 @@ class AppEntryView {
         return toolBar;
     }
 
-    private static void deleteEntryAndExit(ObservableList<EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
+    private static void deleteEntryAndExit(ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
         if (DialogConfirm.display(window, String.format("Delete %s?", entry.getTitle()))) {
             window.setScene(prevScene);
             Group parent = entry.getParent();
@@ -155,7 +154,7 @@ class AppEntryView {
                 e1.printStackTrace();
                 errorMsgSave();
             }
-            AppHome.updateTableData(tableData, AppHome.currentGroup);
+            Home.updateTableData(tableData, Home.currentGroup);
         }
     }
 

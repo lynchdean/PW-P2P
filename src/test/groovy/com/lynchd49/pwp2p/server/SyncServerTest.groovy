@@ -1,4 +1,4 @@
-package com.lynchd49.syncsafe.server
+package com.lynchd49.pwp2p.server
 
 
 import spock.lang.Specification

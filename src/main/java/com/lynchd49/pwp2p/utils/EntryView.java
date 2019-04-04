@@ -1,4 +1,4 @@
-package com.lynchd49.syncsafe.utils;
+package com.lynchd49.pwp2p.utils;
 
 import javafx.beans.property.SimpleStringProperty;
 import org.linguafranca.pwdb.Entry;

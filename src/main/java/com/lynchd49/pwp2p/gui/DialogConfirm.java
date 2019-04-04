@@ -1,4 +1,4 @@
-package com.lynchd49.syncsafe.gui;
+package com.lynchd49.pwp2p.gui;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;

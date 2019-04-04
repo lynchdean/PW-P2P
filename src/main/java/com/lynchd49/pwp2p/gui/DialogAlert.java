@@ -1,4 +1,4 @@
-package com.lynchd49.syncsafe.gui;
+package com.lynchd49.pwp2p.gui;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
