@@ -1,6 +1,7 @@
 package com.lynchd49.pwp2p.gui;
 
 import com.lynchd49.pwp2p.gui.assets.Buttons;
+import com.lynchd49.pwp2p.gui.assets.Dialogs;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -90,7 +91,7 @@ class FileChooser {
         } else {
             actionStatus.setFill(Color.FIREBRICK);
             actionStatus.setText("Failed to open: No file selected.");
-            DialogAlert.display(window, "Error: No file selected", "Please select a file first!");
+            Dialogs.displayAlert(window, "Error: No file selected", "Please select a file first!");
         }
     }
 }

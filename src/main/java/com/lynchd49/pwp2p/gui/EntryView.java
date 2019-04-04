@@ -1,6 +1,7 @@
 package com.lynchd49.pwp2p.gui;
 
 import com.lynchd49.pwp2p.gui.assets.Buttons;
+import com.lynchd49.pwp2p.gui.assets.Dialogs;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
 import javafx.collections.ObservableList;
@@ -144,7 +145,7 @@ class EntryView {
     }
 
     private static void deleteEntryAndExit(ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
-        if (DialogConfirm.display(window, String.format("Delete %s?", entry.getTitle()))) {
+        if (Dialogs.displayConfirm(window, String.format("Delete %s?", entry.getTitle()))) {
             window.setScene(prevScene);
             Group parent = entry.getParent();
             parent.removeEntry(entry);
@@ -159,7 +160,7 @@ class EntryView {
     }
 
     private static void errorMsgSave() {
-        DialogAlert.display(window, "Error!", "Error saving change to database!");
+        Dialogs.displayAlert(window, "Error!", "Error saving change to database!");
     }
 
     private static void saveEntry(Entry entry, KdbxObject kdbxObject) throws IOException {

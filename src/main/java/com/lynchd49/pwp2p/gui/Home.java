@@ -1,6 +1,7 @@
 package com.lynchd49.pwp2p.gui;
 
 import com.lynchd49.pwp2p.gui.assets.Buttons;
+import com.lynchd49.pwp2p.gui.assets.Dialogs;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
 import com.lynchd49.pwp2p.utils.KdbxTreeUtils;
@@ -215,7 +216,7 @@ class Home {
             }
         }
         if (entry == null) {
-            DialogAlert.display(window, "Error", "Error retrieving entry.");
+            Dialogs.displayAlert(window, "Error", "Error retrieving entry.");
         } else {
             Scene entryScene = EntryView.loadScene(window, tableData, entry, kdbxObject);
             window.setScene(entryScene);
@@ -257,7 +258,7 @@ class Home {
 
     // Create a new group in the currently selected group
     private static void newGroup(Stage window, TreeView<String> treeView, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, KdbxObject kdbxObject) {
-        Optional<String> result = DialogNewTitle.display("Group");
+        Optional<String> result = Dialogs.displayNewTitle("Group");
         result.ifPresent(s -> {
             Group group = kdbxObject.getDatabase().newGroup(s);
             boolean found = false;
@@ -278,14 +279,14 @@ class Home {
                     errorMsgSave(window);
                 }
             } else {
-                DialogAlert.display(window, "Error Creating Group!", "A child group with that name already exists!");
+                Dialogs.displayAlert(window, "Error Creating Group!", "A child group with that name already exists!");
             }
         });
     }
 
     // Create a new entry in the currently selected group
     private static void newEntry(Stage window, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, KdbxObject kdbxObject) {
-        Optional<String> result = DialogNewTitle.display("Entry");
+        Optional<String> result = Dialogs.displayNewTitle("Entry");
         result.ifPresent(s -> {
             Entry entry = kdbxObject.getDatabase().newEntry(s);
             currentGroup.addEntry(entry);
@@ -302,13 +303,13 @@ class Home {
     // Delete the currently selected group
     private static void deleteCurrentGroup(Stage window, TreeView<String> treeView, KdbxObject kdbxObject) {
         if (!currentGroup.equals(kdbxObject.getDatabase().getRootGroup())) {
-            if (DialogConfirm.display(window, String.format("Delete %s?", currentGroup.getName()))) {
+            if (Dialogs.displayConfirm(window, String.format("Delete %s?", currentGroup.getName()))) {
                 Group groupToRemove = currentGroup;
                 currentGroup = currentGroup.getParent();
                 currentGroup.removeGroup(groupToRemove);
             }
         } else {
-            DialogAlert.display(window, "Error: Root group!", "Cannot delete root group!");
+            Dialogs.displayAlert(window, "Error: Root group!", "Cannot delete root group!");
         }
         try {
             KdbxOps.saveKdbx(kdbxObject);
@@ -320,7 +321,7 @@ class Home {
     }
 
     private static void errorMsgSave(Stage window) {
-        DialogAlert.display(window, "Error!", "Error saving change to database!");
+        Dialogs.displayAlert(window, "Error!", "Error saving change to database!");
     }
 
     private static void updateTreeView(TreeView<String> treeView, KdbxObject kdbxObject) {
