@@ -9,6 +9,11 @@ before_script:
   # This is to allow JavaFX tests to run in headless mode
   - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dprism.order=sw"
 
+stages:
+  - build
+  - test
+  - run
+
 build:
   stage: build
   script:
@@ -17,4 +22,10 @@ build:
 test:
   stage: test
   script:
-    - mvn clean verify
+    - mvn clean test
+
+run:
+  stage: run
+  script:
+    - mvn package
+    - mvn exec:java

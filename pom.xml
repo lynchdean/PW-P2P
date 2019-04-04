@@ -14,7 +14,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <release>11</release>
+                    <source>11</source>
+                    <target>11</target>
                 </configuration>
             </plugin>
             <!--Plugin for JavaFX-->
@@ -30,7 +31,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <mainClass>com.lynchd49.syncsafe.gui.AppMain</mainClass>
+                    <mainClass>com.lynchd49.pwp2p.gui.Main</mainClass>
                 </configuration>
             </plugin>
             <!-- Plugins needed for running Spock tests -->
