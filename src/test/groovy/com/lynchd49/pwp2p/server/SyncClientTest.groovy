@@ -1,30 +1,44 @@
 package com.lynchd49.pwp2p.server
 
+import spock.lang.Shared
 import spock.lang.Specification
 
 class SyncClientTest extends Specification {
 
-//    private String hostName = "localhost"
-//    private int portNumber = 4444
-//
-//    private SyncServer server
-//
-//    def setup() {
-//        server = new EchoServer();
-//        server.start(portNumber)
-//
-//        mockClient = Mock(SyncClient.class)
-//    }
-//
-//    def "isConnected() should return false if there are no active connections"() {
-//        expect:
-//        !mockClient.isConnected()
-//    }
-//
+    @Shared
+    private int portNumber = 4444
+
+    @Shared
+    private SyncServer server
+
+    private String hostName = "127.0.0.1"
+    private SyncClient client
+
+    def setupSpec() {
+        server = new SyncServer(portNumber)
+        server.start()
+    }
+
+    def cleanupSpec() {
+        server.stop()
+    }
+
+    def setup() {
+        client = new SyncClient()
+        client.startConnection(hostName, portNumber)
+    }
+
+    def cleanup() {
+        client.stopConnection()
+    }
+
+    def "isConnected() should return true if there is an active connections"() {
+        expect:
+        client.isConnected()
+    }
+
 //    def "Server should echo client message: #msg"() {
 //        when:
-//        SyncClient client = new SyncClient()
-//        client.startConnection(hostName, portNumber)
 //        String msg = client.sendMessage("echo")
 //
 //        then:

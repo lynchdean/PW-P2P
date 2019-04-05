@@ -14,24 +14,22 @@ public class SyncClient {
 
     public void startConnection(String hostName, int portNumber) {
         try {
-            Socket echoSocket = new Socket(hostName, portNumber);
-            out = new PrintWriter(echoSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
-            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-
-            String userInput;
-            while ((userInput = stdIn.readLine()) != null) {
-                out.println(userInput);
-                System.out.println("echo: " + in.readLine());
-            }
+            clientSocket = new Socket(hostName, portNumber);
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + hostName);
+            System.err.printf("Don't know about host %s%n", hostName);
             System.exit(1);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to " +
-                    hostName);
+            System.err.printf("Couldn't get I/O for the connection to %s%n", hostName);
             System.exit(1);
         }
+    }
+
+    public void stopConnection() throws IOException {
+        in.close();
+        out.close();
+        clientSocket.close();
     }
 
     public boolean isConnected() {
@@ -43,15 +41,14 @@ public class SyncClient {
         return in.readLine();
     }
 
-    public void stopConnection() throws IOException {
-        in.close();
-        out.close();
-        clientSocket.close();
-    }
-
     //TODO remove once testing is successful
     public static void main(String[] args) {
-        SyncClient client = new SyncClient();
-        client.startConnection("localhost", 4444);
+        try {
+            SyncClient client = new SyncClient();
+            client.startConnection("localhost", 7898);
+            client.sendMessage("echo");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
