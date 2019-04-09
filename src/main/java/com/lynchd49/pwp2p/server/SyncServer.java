@@ -1,16 +1,12 @@
 package com.lynchd49.pwp2p.server;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class SyncServer implements Runnable {
 
     private Thread serverThread;
-
     private final int portNumber;
 
     public SyncServer(int portNumber) {
@@ -33,30 +29,34 @@ public class SyncServer implements Runnable {
     public void run() {
         Thread thisThread = Thread.currentThread();
         while (serverThread == thisThread) {
+            String filePath = "/home/dean/Projects/2019-ca400-lynchd49/src/test/resources/test1.kdbx";
             try {
                 ServerSocket serverSocket = new ServerSocket(portNumber);
                 Socket clientSocket = serverSocket.accept();
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                File file = new File(filePath);
+                InputStream in = new FileInputStream(file);
+                OutputStream out = clientSocket.getOutputStream();
 
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    out.println(inputLine);
-                    Thread.sleep(1000);
+                int count;
+                byte[] buffer = new byte[8192];
+                while ((count = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, count);
                 }
-
+                System.out.println("Success!");
+            } catch (FileNotFoundException e) {
+                System.out.printf("File not found: %s ", filePath);
+                e.printStackTrace();
             } catch (IOException e) {
-                System.out.printf("Exception caught when trying to listen on port %d or listening for a connection%n", portNumber);
-                System.out.println(e.getMessage());
-            } catch (InterruptedException e) {
+                System.out.printf("Exception caught when trying to listen on port %d or listening for a connection", portNumber);
                 e.printStackTrace();
             }
+            stop();
         }
     }
 
     //TODO remove once testing is successful
     public static void main(String[] args) {
-        SyncServer server = new SyncServer(7898);
+        SyncServer server = new SyncServer(4444);
         server.start();
     }
 }
