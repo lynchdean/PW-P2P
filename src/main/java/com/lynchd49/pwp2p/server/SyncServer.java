@@ -8,12 +8,14 @@ public class SyncServer implements Runnable {
 
     private Thread serverThread;
     private final int portNumber;
+    private final String filePath;
 
-    public SyncServer(int portNumber) {
+    public SyncServer(int portNumber, String filePath) {
         if (portNumber < 0 || portNumber > 65535) {
             throw new IllegalArgumentException(String.format("Port value out of range: %d", portNumber));
         }
         this.portNumber = portNumber;
+        this.filePath = filePath;
     }
 
     public void start() {
@@ -29,7 +31,6 @@ public class SyncServer implements Runnable {
     public void run() {
         Thread thisThread = Thread.currentThread();
         while (serverThread == thisThread) {
-            String filePath = "/home/dean/Projects/2019-ca400-lynchd49/src/test/resources/test1.kdbx";
             try {
                 ServerSocket serverSocket = new ServerSocket(portNumber);
                 Socket clientSocket = serverSocket.accept();
@@ -42,7 +43,11 @@ public class SyncServer implements Runnable {
                 while ((count = in.read(buffer)) > 0) {
                     out.write(buffer, 0, count);
                 }
-                System.out.println("Success!");
+
+                in.close();
+                out.close();
+                clientSocket.close();
+                serverSocket.close();
             } catch (FileNotFoundException e) {
                 System.out.printf("File not found: %s ", filePath);
                 e.printStackTrace();
@@ -56,7 +61,7 @@ public class SyncServer implements Runnable {
 
     //TODO remove once testing is successful
     public static void main(String[] args) {
-        SyncServer server = new SyncServer(4444);
+        SyncServer server = new SyncServer(4444, "/home/dean/Projects/2019-ca400-lynchd49/src/test/resources/test1.kdbx");
         server.start();
     }
 }
