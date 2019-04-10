@@ -2,6 +2,7 @@ package com.lynchd49.pwp2p.gui;
 
 import com.lynchd49.pwp2p.gui.assets.Buttons;
 import com.lynchd49.pwp2p.gui.assets.Dialogs;
+import com.lynchd49.pwp2p.server.SyncClient;
 import com.lynchd49.pwp2p.server.SyncServer;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
@@ -44,6 +45,12 @@ class Home {
     private static Button startServerBtn;
     private static Button stopServerBtn;
 
+    // Client
+    private static SyncClient client;
+    private static Button startClientBtn;
+    private static Button stopClientBtn;
+
+
     static Scene loadScene(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
         Database db = kdbxObject.getDatabase();
         currentGroup = db.getRootGroup();
@@ -52,15 +59,15 @@ class Home {
         TableView<com.lynchd49.pwp2p.utils.EntryView> table = new TableView<>();
         HBox.setHgrow(table, Priority.ALWAYS);
 
-        addColumn(table,"Title", "title");
-        addColumn(table,"Username", "username");
-        addColumn(table,"Password", "password");
-        addColumn(table,"URL", "url");
-        addColumn(table,"Notes", "notes");
-        addColumn(table,"Expires", "expires");
-        addColumn(table,"Created", "created");
-        addColumn(table,"Modified", "modified");
-        addColumn(table,"Accessed", "accessed");
+        addColumn(table, "Title", "title");
+        addColumn(table, "Username", "username");
+        addColumn(table, "Password", "password");
+        addColumn(table, "URL", "url");
+        addColumn(table, "Notes", "notes");
+        addColumn(table, "Expires", "expires");
+        addColumn(table, "Created", "created");
+        addColumn(table, "Modified", "modified");
+        addColumn(table, "Accessed", "accessed");
 
         ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData = getObsList(db.getRootGroup());
         table.setItems(tableData);
@@ -100,7 +107,7 @@ class Home {
         TabPane syncTabPane = new TabPane();
         syncTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         Tab serverTab = getSendTab(window, kdbxObject);
-        Tab clientTab = getReceiveTab();
+        Tab clientTab = getReceiveTab(window, kdbxObject);
         syncTabPane.getTabs().addAll(serverTab, clientTab);
 
         Tab tabSync = new Tab();
@@ -155,20 +162,6 @@ class Home {
         return serverTab;
     }
 
-    private static void applyPortInputLimits(TextField portField) {
-        portField.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Only allow numeric characters in port field
-            if (!newValue.matches("\\d*")) {
-                portField.setText(newValue.replaceAll("[^\\d]", ""));
-            }
-            // Limit the number of characters to 5
-            int maxLength = 5;
-            if (portField.getText().length() > maxLength) {
-                portField.setText(portField.getText().substring(0, maxLength));
-            }
-        });
-    }
-
     private static void startServer(Stage window, String portString, KdbxObject kdbxObject) {
         int portInt = Integer.parseInt(portString);
         if (portInt >= 0 && portInt <= 65535) {
@@ -190,7 +183,7 @@ class Home {
     }
 
     @NotNull
-    private static Tab getReceiveTab() {
+    private static Tab getReceiveTab(Stage window, KdbxObject kdbxObject) {
         // Hostname
         Label hostLabel = new Label("Server Hostname:");
         hostLabel.setMinWidth(labelMinWidth + 40);
@@ -200,22 +193,23 @@ class Home {
         hostHbox.getChildren().addAll(hostLabel, hostField);
 
         // Port
-        Label portLable = new Label("Server Port:");
-        portLable.setMinWidth(labelMinWidth + 40);
-        portLable.setAlignment(Pos.CENTER_RIGHT);
+        Label portLabel = new Label("Server Port:");
+        portLabel.setMinWidth(labelMinWidth + 40);
+        portLabel.setAlignment(Pos.CENTER_RIGHT);
         TextField portField = new TextField("4444");
         portField.setMaxWidth(60);
+        applyPortInputLimits(portField);
         HBox portHbox = new HBox(10);
-        portHbox.getChildren().addAll(portLable, portField);
+        portHbox.getChildren().addAll(portLabel, portField);
 
         // Buttons
-        Button connectServerBtn = Buttons.getConnectBtn("Start Connection", 100);
-        // TODO add button functionality
-        Button stopConnectionBtn = Buttons.getStopBtn("Stop Connection", 100);
-        // TODO add button functionality
+        startClientBtn = Buttons.getConnectBtn("Start Connection", 100);
+        startClientBtn.setOnAction(e -> startClient(window, hostField.getText(), portField.getText(), kdbxObject.getPath()));
+        stopClientBtn = Buttons.getStopBtn("Stop Connection", 100);
+        stopClientBtn.setOnAction(e -> stopClient());
         HBox btnHbox = new HBox(10);
         btnHbox.setPadding(new Insets(20, 0, 0, 0));
-        btnHbox.getChildren().addAll(connectServerBtn, stopConnectionBtn);
+        btnHbox.getChildren().addAll(startClientBtn, stopClientBtn);
 
         // Layout
         VBox vbox = new VBox(10);
@@ -224,6 +218,43 @@ class Home {
         Tab clientTab = new Tab("Receive");
         clientTab.setContent(vbox);
         return clientTab;
+    }
+
+    private static void applyPortInputLimits(TextField portField) {
+        portField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Only allow numeric characters in port field
+            if (!newValue.matches("\\d*")) {
+                portField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            // Limit the number of characters to 5
+            int maxLength = 5;
+            if (portField.getText().length() > maxLength) {
+                portField.setText(portField.getText().substring(0, maxLength));
+            }
+        });
+    }
+
+    private static void startClient(Stage window, String hostname, String portString, String outputFilePath) {
+        if (validHostname(hostname) || hostname.equals("localhost")) {
+            int portInt = Integer.parseInt(portString);
+            if (portInt >= 0 && portInt <= 65535) {
+                client = new SyncClient();
+                client.start(hostname, portInt, outputFilePath);
+            }
+        } else {
+            Dialogs.displayAlert(window, "Invalid Hostname", "Please enter a valid hostname.");
+        }
+    }
+
+    private static boolean validHostname(String hostname) {
+        String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+        return hostname.matches(PATTERN);
+    }
+
+    private static void stopClient() {
+        startClientBtn.setDisable(false);
+        // TODO add needed functionality once written
+        stopClientBtn.setDisable(true);
     }
 
     private static void addColumn(TableView table, String title, String propertyVal) {

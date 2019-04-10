@@ -64,10 +64,10 @@ public class SyncServer implements Runnable {
                     out.write(buffer, 0, count);
                 }
 
+                LOGGER.info("File transferred successfully.");
                 in.close();
                 out.close();
                 clientSocket.close();
-                serverSocket.close();
             } catch (SocketException e) {
                 LOGGER.warn("Socket has been closed from an external method (i.e. 'Stop Connection' button in GUI).");
             } catch (FileNotFoundException e) {
@@ -77,7 +77,7 @@ public class SyncServer implements Runnable {
                 LOGGER.error(String.format("Exception caught when trying to listen on port %s or listening for a connection", portNumber));
                 e.printStackTrace();
             }
-            this.running = false;
+            this.stop();
         }
     }
 

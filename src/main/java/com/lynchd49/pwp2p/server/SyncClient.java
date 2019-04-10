@@ -1,16 +1,24 @@
 package com.lynchd49.pwp2p.server;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class SyncClient {
-    public void sendPWDB(String hostName, int portNumber, String outputFilePath) {
-        try {
-            Socket socket = new Socket(hostName, portNumber);
-            InputStream in = socket.getInputStream();
-            OutputStream out = new FileOutputStream(outputFilePath);
 
+    private static final Logger LOGGER = LogManager.getRootLogger();
+
+    public void start(String hostname, int portNumber, String outputFilePath) {
+        LOGGER.info("Starting client");
+        try {
+            Socket socket = new Socket(hostname, portNumber);
+            InputStream in = socket.getInputStream();
+            OutputStream out = new FileOutputStream(outputFilePath.replace(".kdbx", "_new.kdbx"));
+
+            LOGGER.info("Client started.");
             int count;
             byte[] buffer = new byte[8192];
             while ((count = in.read(buffer)) > 0) {
@@ -20,19 +28,17 @@ public class SyncClient {
             in.close();
             out.close();
             socket.close();
+            LOGGER.info("Client stopped.");
         } catch (UnknownHostException e) {
-            System.err.printf("Unknown host: %s%n", hostName);
-            System.exit(1);
+            LOGGER.error(String.format("Unknown host: %s", hostname));
         } catch (IOException e) {
-            System.err.printf("Couldn't get I/O for the connection to %s%n", hostName);
-            System.exit(1);
+            LOGGER.error(String.format("Couldn't get I/O for the connection to %s", hostname));
         }
     }
 
     //TODO remove once testing is successful
     public static void main(String[] args) {
         SyncClient client = new SyncClient();
-        client.sendPWDB("localhost", 4444,"src/test/resources/output_test1.kdbx"
-        );
+        client.start("localhost", 4444,"src/test/resources/output_test1.kdbx");
     }
 }
