@@ -2,6 +2,7 @@ package com.lynchd49.pwp2p.gui;
 
 import com.lynchd49.pwp2p.gui.assets.Buttons;
 import com.lynchd49.pwp2p.gui.assets.Dialogs;
+import com.lynchd49.pwp2p.server.SyncServer;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
 import com.lynchd49.pwp2p.utils.KdbxTreeUtils;
@@ -37,6 +38,11 @@ class Home {
     private final static double labelMinWidth = 80;
 
     static Group currentGroup;
+
+    // Server
+    private static SyncServer server;
+    private static Button startServerBtn;
+    private static Button stopServerBtn;
 
     static Scene loadScene(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
         Database db = kdbxObject.getDatabase();
@@ -92,8 +98,9 @@ class Home {
 
         // Sync layout (Right main tab)
         TabPane syncTabPane = new TabPane();
-        Tab serverTab = getServerTab();
-        Tab clientTab = getClientTab();
+        syncTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        Tab serverTab = getSendTab(window, kdbxObject);
+        Tab clientTab = getReceiveTab();
         syncTabPane.getTabs().addAll(serverTab, clientTab);
 
         Tab tabSync = new Tab();
@@ -109,7 +116,7 @@ class Home {
     }
 
     @NotNull
-    private static Tab getServerTab() throws UnknownHostException {
+    private static Tab getSendTab(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
         // Hostname
         Label hostLabel = new Label("Hostname:");
         hostLabel.setMinWidth(labelMinWidth);
@@ -124,14 +131,17 @@ class Home {
         portLabel.setAlignment(Pos.CENTER_RIGHT);
         TextField portField = new TextField("4444");
         portField.setMaxWidth(60);
+        applyPortInputLimits(portField);
         HBox portHbox = new HBox(10);
         portHbox.getChildren().addAll(portLabel, portField);
 
         // Buttons
-        Button startServerBtn = Buttons.getStartBtn("Start Server", 100);
-        // TODO add button functionality
-        Button stopServerBtn = Buttons.getStopBtn("Stop Server", 100);
-        // TODO add button functionality
+        startServerBtn = Buttons.getStartBtn("Start Server", 100);
+        startServerBtn.setDisable(false);
+        startServerBtn.setOnAction(e -> startServer(window, portField.getText(), kdbxObject));
+        stopServerBtn = Buttons.getStopBtn("Stop Server", 100);
+        stopServerBtn.setDisable(true);
+        stopServerBtn.setOnAction(e -> stopServer());
         HBox btnHbox = new HBox(10);
         btnHbox.setPadding(new Insets(20, 0, 0, 0));
         btnHbox.getChildren().addAll(startServerBtn, stopServerBtn);
@@ -140,13 +150,47 @@ class Home {
         VBox vbox = new VBox(10);
         vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
         vbox.setPadding(new Insets(25, 50, 25, 50));
-        Tab serverTab = new Tab("Host connection");
+        Tab serverTab = new Tab("Send");
         serverTab.setContent(vbox);
         return serverTab;
     }
 
+    private static void applyPortInputLimits(TextField portField) {
+        portField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Only allow numeric characters in port field
+            if (!newValue.matches("\\d*")) {
+                portField.setText(newValue.replaceAll("[^\\d]", ""));
+            }
+            // Limit the number of characters to 5
+            int maxLength = 5;
+            if (portField.getText().length() > maxLength) {
+                portField.setText(portField.getText().substring(0, maxLength));
+            }
+        });
+    }
+
+    private static void startServer(Stage window, String portString, KdbxObject kdbxObject) {
+        int portInt = Integer.parseInt(portString);
+        if (portInt >= 0 && portInt <= 65535) {
+            startServerBtn.setDisable(true);
+            stopServerBtn.setDisable(false);
+            server = new SyncServer(portInt, kdbxObject.getPath());
+            server.start();
+        } else {
+            Dialogs.displayAlert(window, "Invalid Port Number", "Please enter a valid port. (0-65535)");
+        }
+    }
+
+    private static void stopServer() {
+        stopServerBtn.setDisable(true);
+        if (server != null) {
+            server.stop();
+        }
+        startServerBtn.setDisable(false);
+    }
+
     @NotNull
-    private static Tab getClientTab() {
+    private static Tab getReceiveTab() {
         // Hostname
         Label hostLabel = new Label("Server Hostname:");
         hostLabel.setMinWidth(labelMinWidth + 40);
@@ -177,7 +221,7 @@ class Home {
         VBox vbox = new VBox(10);
         vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
         vbox.setPadding(new Insets(25, 50, 25, 50));
-        Tab clientTab = new Tab("Connect to another host");
+        Tab clientTab = new Tab("Receive");
         clientTab.setContent(vbox);
         return clientTab;
     }

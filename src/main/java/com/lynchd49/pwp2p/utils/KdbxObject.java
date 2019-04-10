@@ -18,7 +18,7 @@ public class KdbxObject {
         return database;
     }
 
-    String getPath() {
+    public String getPath() {
         return path;
     }
 
