@@ -16,27 +16,4 @@ class SyncClientTest extends Specification {
 
     private String hostName = "127.0.0.1"
     private SyncClient client
-
-    def setupSpec() {
-        server = new SyncServer(portNumber, testFilePath)
-        server.start()
-    }
-
-    def cleanupSpec() {
-        server.stop()
-    }
-
-    def setup() {
-        String outputFilePath = "src/test/resources/output_test1.kdbx"
-        client = new SyncClient()
-        client.sendPWDB(hostName, portNumber, outputFilePath)
-    }
-
-//    def "Server should echo client message: #msg"() {
-//        when:
-//        String msg = client.sendMessage("echo")
-//
-//        then:
-//        msg == "echo"
-//    }
 }
