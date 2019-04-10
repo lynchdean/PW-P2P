@@ -32,10 +32,6 @@ class SyncClientTest extends Specification {
         client.sendPWDB(hostName, portNumber, outputFilePath)
     }
 
-    def cleanup() {
-        client.stopConnection()
-    }
-
 //    def "Server should echo client message: #msg"() {
 //        when:
 //        String msg = client.sendMessage("echo")
