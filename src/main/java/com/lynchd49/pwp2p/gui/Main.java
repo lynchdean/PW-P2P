@@ -13,7 +13,7 @@ public class Main extends Application {
 
         // Start GUI
         Platform.setImplicitExit(true);
-        primaryStage.setTitle("PwP2P");
+        primaryStage.setTitle("PW-P2P");
         Scene fileChooserScene = FileChooser.loadScene(primaryStage);
         primaryStage.setScene(fileChooserScene);
         primaryStage.show();

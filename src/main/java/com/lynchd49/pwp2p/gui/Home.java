@@ -10,7 +10,9 @@ import com.lynchd49.pwp2p.utils.KdbxTreeUtils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -94,44 +96,88 @@ class Home {
                 });
 
         // Main layout (Left main tab)
-        BorderPane mainPane = new BorderPane();
-        mainPane.setCenter(table);
+        BorderPane borderPaneMain = new BorderPane();
+        borderPaneMain.setCenter(table);
         MenuBar menuBar = getMenuBar(window, treeView, tableData, kdbxObject);
-        mainPane.setTop(menuBar);
-        mainPane.setLeft(treeView);
+        borderPaneMain.setTop(menuBar);
+        borderPaneMain.setLeft(treeView);
+
         Tab tabMain = new Tab();
         tabMain.setText("Password Management");
-        tabMain.setContent(mainPane);
+        tabMain.setGraphic(new FontIcon("fa-lock"));
+        tabMain.setContent(borderPaneMain);
 
         // Sync layout (Right main tab)
-        TabPane syncTabPane = new TabPane();
-        syncTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        Tab serverTab = getSendTab(window, kdbxObject);
-        Tab clientTab = getReceiveTab(window, kdbxObject);
-        syncTabPane.getTabs().addAll(serverTab, clientTab);
+        TabPane syncSideTabs = getSyncTabs(window, kdbxObject);
+        BorderPane borderPaneSync = new BorderPane();
+        borderPaneSync.setCenter(syncSideTabs);
+        ToolBar syncToolBar = new ToolBar();
+        syncToolBar.setMinHeight(30);
+        borderPaneSync.setTop(syncToolBar);
+        borderPaneSync.setRight(getMachineInfo());
 
         Tab tabSync = new Tab();
         tabSync.setText("Synchronisation");
-        tabSync.setContent(syncTabPane);
+        tabSync.setGraphic(new FontIcon("fa-exchange"));
+        tabSync.setContent(borderPaneSync);
 
         // Tabs
         TabPane tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         tabPane.getTabs().addAll(tabMain, tabSync);
+        tabPane.widthProperty().addListener((observable, oldValue, newValue) -> {
+            tabPane.setTabMinWidth(tabPane.getWidth() / 2 - 23);
+            tabPane.setTabMaxWidth(tabPane.getWidth() / 2 - 23);
+        });
 
         return new Scene(tabPane, 800, 400);
     }
 
     @NotNull
-    private static Tab getSendTab(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
-        // Hostname
-        Label hostLabel = new Label("Hostname:");
-        hostLabel.setMinWidth(labelMinWidth);
-        hostLabel.setAlignment(Pos.CENTER_RIGHT);
-        Text hostText = new Text(InetAddress.getLocalHost().getHostAddress());
-        HBox hostHbox = new HBox(10);
-        hostHbox.getChildren().addAll(hostLabel, hostText);
+    private static TabPane getSyncTabs(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
+        TabPane syncTabPane = new TabPane();
+        syncTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+        Tab serverTab = getSendTab(window, kdbxObject);
+        serverTab.setGraphic(new FontIcon("fa-upload"));
+        Tab clientTab = getReceiveTab(window, kdbxObject);
+        clientTab.setGraphic(new FontIcon("fa-download"));
+        syncTabPane.getTabs().addAll(serverTab, clientTab);
+        syncTabPane.setSide(Side.LEFT);
+        syncTabPane.heightProperty().addListener((observable, oldValue, newValue) -> {
+            syncTabPane.setTabMaxWidth(syncTabPane.getHeight() / 2 - 23);
+            syncTabPane.setTabMinWidth(syncTabPane.getHeight() / 2 - 23);
+        });
+        return syncTabPane;
+    }
 
+    @NotNull
+    private static HBox getMachineInfo() throws UnknownHostException {
+        Label titleLabel = new Label("This machine:");
+        Separator hSeparator = new Separator();
+        Label hostnameLabel = new Label("Hostname:");
+        Text hostnameText = new Text(InetAddress.getLocalHost().getHostName());
+        HBox hostnameHbox = new HBox(10);
+        hostnameHbox.getChildren().addAll(hostnameLabel, hostnameText);
+        hostnameHbox.setAlignment(Pos.CENTER_LEFT);
+
+        Label hostAddrLabel = new Label("Host Address:");
+        Text hostAddrText = new Text(InetAddress.getLocalHost().getHostAddress());
+        HBox hostAddrHbox = new HBox(10);
+        hostAddrHbox.getChildren().addAll(hostAddrLabel, hostAddrText);
+        hostAddrHbox.setAlignment(Pos.CENTER_LEFT);
+
+        Separator vSeparator = new Separator();
+        vSeparator.setOrientation(Orientation.VERTICAL);
+        VBox infoVbox = new VBox(10);
+        infoVbox.getChildren().addAll(titleLabel, hSeparator, hostnameHbox, hostAddrHbox);
+        HBox machineInfoHbox = new HBox(10);
+        machineInfoHbox.getChildren().addAll(vSeparator, infoVbox);
+        machineInfoHbox.setPadding(new Insets(25, 25, 25, 25));
+        return machineInfoHbox;
+    }
+
+    @NotNull
+    private static Tab getSendTab(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
         // Port
         Label portLabel = new Label("Port:");
         portLabel.setMinWidth(labelMinWidth);
@@ -155,7 +201,7 @@ class Home {
 
         // Layout
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
+        vbox.getChildren().addAll(portHbox, btnHbox);
         vbox.setPadding(new Insets(25, 50, 25, 50));
         Tab serverTab = new Tab("Send");
         serverTab.setContent(vbox);
