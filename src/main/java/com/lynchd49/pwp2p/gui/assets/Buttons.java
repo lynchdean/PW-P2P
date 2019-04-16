@@ -30,13 +30,19 @@ public class Buttons {
         return getButton(text, width, "fa-link", Color.GREEN);
     }
 
+    public static Button getCopyButton() {
+        FontIcon copyIcon = new FontIcon("fa-copy");
+        Button button = new Button("", copyIcon);
+        return button;
+    }
+
     @NotNull
     private static Button getButton(String text, double width, String s, Color red) {
-        FontIcon closeIcon = new FontIcon(s);
-        closeIcon.setIconColor(red);
-        Button closeBtn = new Button(text, closeIcon);
-        closeBtn.setMinWidth(width);
-        return closeBtn;
+        FontIcon fontIcon = new FontIcon(s);
+        fontIcon.setIconColor(red);
+        Button button = new Button(text, fontIcon);
+        button.setMinWidth(width);
+        return button;
     }
 
     public static Region getSpacerVGrow() {

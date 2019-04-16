@@ -11,6 +11,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -22,6 +26,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
 
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 
 class EntryView {
@@ -48,25 +55,33 @@ class EntryView {
         entryLabelHelper(titleLabel);
         titleField = new TextField(entry.getTitle());
         HBox.setHgrow(titleField, Priority.ALWAYS);
-        HBox titleHbox = entryHboxHelper(titleLabel, titleField);
+        Button copyTitleBtn = Buttons.getCopyButton();
+        copyButtonHelper(copyTitleBtn, titleField);
+        HBox titleHbox = entryHboxHelper(titleLabel, titleField, copyTitleBtn);
 
         Label usernameLabel = new Label("Username:");
         entryLabelHelper(usernameLabel);
         usernameField = new TextField(entry.getUsername());
         HBox.setHgrow(usernameField, Priority.ALWAYS);
-        HBox usernameHbox = entryHboxHelper(usernameLabel, usernameField);
+        Button copyUsernameBtn = Buttons.getCopyButton();
+        copyButtonHelper(copyUsernameBtn, usernameField);
+        HBox usernameHbox = entryHboxHelper(usernameLabel, usernameField, copyUsernameBtn);
 
         Label passwordLabel = new Label("Password:");
         entryLabelHelper(passwordLabel);
         passwordField = new TextField(entry.getPassword());
         HBox.setHgrow(passwordField, Priority.ALWAYS);
-        HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField);
+        Button copyPasswordBtn = Buttons.getCopyButton();
+        copyButtonHelper(copyPasswordBtn, passwordField);
+        HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField, copyPasswordBtn);
 
         Label urlLabel = new Label("URL:");
         entryLabelHelper(urlLabel);
         urlField = new TextField(entry.getUrl());
         HBox.setHgrow(urlField, Priority.ALWAYS);
-        HBox urlHbox = entryHboxHelper(urlLabel, urlField);
+        Button copyUrlBtn = Buttons.getCopyButton();
+        copyButtonHelper(copyUrlBtn, urlField);
+        HBox urlHbox = entryHboxHelper(urlLabel, urlField, copyUrlBtn);
 
         Label expiresLabel = new Label("Expires:");
         entryLabelHelper(expiresLabel);
@@ -79,7 +94,9 @@ class EntryView {
         entryLabelHelper(notesLabel);
         notesArea = new TextArea(entry.getNotes());
         HBox.setHgrow(notesArea, Priority.ALWAYS);
-        HBox notesHbox = entryHboxHelper(notesLabel, notesArea);
+        Button copyNotesBtn = Buttons.getCopyButton();
+        copyButtonHelper(copyNotesBtn, notesArea);
+        HBox notesHbox = entryHboxHelper(notesLabel, notesArea, copyNotesBtn);
 
         // Toolbar and layout
         VBox fieldsVbox = new VBox(10);
@@ -94,9 +111,37 @@ class EntryView {
         return new Scene(mainHbox, 800, 400);
     }
 
+    private static void copyButtonHelper(Button button, TextField textField) {
+        button.setOnAction(e -> {
+            String toCopy = textField.getText();
+            copyStringToClipboard(toCopy);
+        });
+    }
+
+    private static void copyButtonHelper(Button button, TextArea textArea) {
+        button.setOnAction(e -> {
+            String toCopy = textArea.getText();
+            copyStringToClipboard(toCopy);
+        });
+    }
+
+    private static void copyStringToClipboard(String toCopy) {
+        StringSelection stringSelection = new StringSelection(toCopy);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(stringSelection, null);
+    }
+
     private static void entryLabelHelper(Label titleLabel) {
         titleLabel.setMinWidth(minWidth);
         titleLabel.setAlignment(Pos.CENTER_RIGHT);
+    }
+
+    @NotNull
+    private static HBox entryHboxHelper(Label label, Node field, Button button) {
+        HBox hbox = new HBox(10);
+        hbox.getChildren().addAll(label, field, button);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        return hbox;
     }
 
     @NotNull
