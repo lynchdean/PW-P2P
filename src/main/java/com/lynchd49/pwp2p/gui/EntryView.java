@@ -78,7 +78,7 @@ class EntryView {
         Button copyPasswordBtn = Buttons.getCopyButton();
         copyButtonHelper(copyPasswordBtn, passwordField);
         Button visibilityBtn = Buttons.getVisibilityButton();
-        visibilityBtnHelper(visibilityBtn, passwordField, entry);
+        visibilityBtnHelper(visibilityBtn, entry);
         HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField, visibilityBtn, copyPasswordBtn);
 
         // URL
@@ -120,19 +120,18 @@ class EntryView {
         return new Scene(mainHbox, 800, 400);
     }
 
-    private static void visibilityBtnHelper(Button button, TextField textField, Entry entry) {
+    private static void visibilityBtnHelper(Button button, Entry entry) {
         button.setOnAction(e -> {
-            if (passwordVisible) {
-                passwordVisible = false;
+            if (!passwordVisible) {
                 Button button1 = (Button) e.getSource();
                 button1.setGraphic(new FontIcon("fa-eye-slash"));
-                textField.setText(entry.getPassword());
+                passwordField.setText(entry.getPassword());
             } else {
-                passwordVisible = true;
                 Button button1 = (Button) e.getSource();
                 button1.setGraphic(new FontIcon("fa-eye"));
-                textField.setText(getObscuredPw(entry.getPassword()));
+                passwordField.setText(getObscuredPw(entry.getPassword()));
             }
+            passwordVisible = !passwordVisible;
         });
     }
 
