@@ -1,6 +1,7 @@
 package com.lynchd49.pwp2p.gui.assets;
 
 import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -26,18 +27,28 @@ public class Buttons {
         return getButton(text, width, "fa-stop", Color.RED);
     }
 
+    public static Button getSaveBtn(String text, double width) {
+        return getButton(text, width, "fa-save", Color.GREEN);
+    }
+
     public static Button getConnectBtn(String text, double width) {
         return getButton(text, width, "fa-link", Color.GREEN);
     }
 
-    public static Button getCopyButton() {
-        FontIcon copyIcon = new FontIcon("fa-copy");
-        return new Button("", copyIcon);
+    public static Button getGenerateBtn(String text, double width) {
+        return getButton(text, width, "fa-random", Color.CORNFLOWERBLUE);
+    }
+
+    public static Button getClipboardButton() {
+        return getIconButton("fa-clipboard");
     }
 
     public static Button getVisibilityButton() {
-        FontIcon eyeIcon = new FontIcon("fa-eye");
-        return new Button("", eyeIcon);
+        return getIconButton("fa-eye");
+    }
+
+    public static Button getWrenchButton() {
+        return getIconButton("fa-wrench");
     }
 
     @NotNull
@@ -49,9 +60,22 @@ public class Buttons {
         return button;
     }
 
+    @NotNull
+    private static Button getIconButton(String s) {
+        FontIcon eyeIcon = new FontIcon(s);
+        return new Button("", eyeIcon);
+    }
+
     public static Region getSpacerVGrow() {
         Region spacer = new Region();
         VBox.setVgrow(spacer, Priority.ALWAYS);
+        spacer.setMinWidth(Region.USE_PREF_SIZE);
+        return spacer;
+    }
+
+    public static Region getSpacerHGrow() {
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         spacer.setMinWidth(Region.USE_PREF_SIZE);
         return spacer;
     }

@@ -56,7 +56,7 @@ class EntryView {
         entryLabelHelper(titleLabel);
         titleField = new TextField(entry.getTitle());
         HBox.setHgrow(titleField, Priority.ALWAYS);
-        Button copyTitleBtn = Buttons.getCopyButton();
+        Button copyTitleBtn = Buttons.getClipboardButton();
         copyButtonHelper(copyTitleBtn, titleField);
         HBox titleHbox = entryHboxHelper(titleLabel, titleField, copyTitleBtn);
 
@@ -65,7 +65,7 @@ class EntryView {
         entryLabelHelper(usernameLabel);
         usernameField = new TextField(entry.getUsername());
         HBox.setHgrow(usernameField, Priority.ALWAYS);
-        Button copyUsernameBtn = Buttons.getCopyButton();
+        Button copyUsernameBtn = Buttons.getClipboardButton();
         copyButtonHelper(copyUsernameBtn, usernameField);
         HBox usernameHbox = entryHboxHelper(usernameLabel, usernameField, copyUsernameBtn);
 
@@ -75,18 +75,20 @@ class EntryView {
         String passwordHidden = getObscuredPw(entry.getPassword());
         passwordField = new TextField(passwordHidden);
         HBox.setHgrow(passwordField, Priority.ALWAYS);
-        Button copyPasswordBtn = Buttons.getCopyButton();
-        copyButtonHelper(copyPasswordBtn, passwordField);
         Button visibilityBtn = Buttons.getVisibilityButton();
         visibilityBtnHelper(visibilityBtn, entry);
-        HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField, visibilityBtn, copyPasswordBtn);
+        Button copyPasswordBtn = Buttons.getClipboardButton();
+        copyButtonHelper(copyPasswordBtn, passwordField);
+        Button changePasswordBtn = Buttons.getWrenchButton();
+        changePwBtnHelper(changePasswordBtn);
+        HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField, changePasswordBtn, visibilityBtn, copyPasswordBtn);
 
         // URL
         Label urlLabel = new Label("URL:");
         entryLabelHelper(urlLabel);
         urlField = new TextField(entry.getUrl());
         HBox.setHgrow(urlField, Priority.ALWAYS);
-        Button copyUrlBtn = Buttons.getCopyButton();
+        Button copyUrlBtn = Buttons.getClipboardButton();
         copyButtonHelper(copyUrlBtn, urlField);
         HBox urlHbox = entryHboxHelper(urlLabel, urlField, copyUrlBtn);
 
@@ -103,7 +105,7 @@ class EntryView {
         entryLabelHelper(notesLabel);
         notesArea = new TextArea(entry.getNotes());
         HBox.setHgrow(notesArea, Priority.ALWAYS);
-        Button copyNotesBtn = Buttons.getCopyButton();
+        Button copyNotesBtn = Buttons.getClipboardButton();
         copyButtonHelper(copyNotesBtn, notesArea);
         HBox notesHbox = entryHboxHelper(notesLabel, notesArea, copyNotesBtn);
 
@@ -118,6 +120,12 @@ class EntryView {
         mainHbox.getChildren().addAll(fieldsVbox, toolBar);
 
         return new Scene(mainHbox, 800, 400);
+    }
+
+    private static void changePwBtnHelper(Button button) {
+        button.setOnAction(e -> {
+            Dialogs.displayNewPassword(window);
+        });
     }
 
     private static void visibilityBtnHelper(Button button, Entry entry) {
@@ -166,17 +174,12 @@ class EntryView {
     }
 
     @NotNull
-    private static HBox entryHboxHelper(Label label, Node field, Button btn1, Button btn2) {
+    private static HBox entryHboxHelper(Label label, Node field, Button ... buttons) {
         HBox hbox = new HBox(10);
-        hbox.getChildren().addAll(label, field, btn1, btn2);
-        hbox.setAlignment(Pos.CENTER_LEFT);
-        return hbox;
-    }
-
-    @NotNull
-    private static HBox entryHboxHelper(Label label, Node field, Button button) {
-        HBox hbox = new HBox(10);
-        hbox.getChildren().addAll(label, field, button);
+        hbox.getChildren().addAll(label, field);
+        for(Button button : buttons) {
+            hbox.getChildren().add(button);
+        }
         hbox.setAlignment(Pos.CENTER_LEFT);
         return hbox;
     }
@@ -195,7 +198,7 @@ class EntryView {
         toolBar.setOrientation(Orientation.VERTICAL);
 
         // Save
-        Button saveBtn = Buttons.getCheckBtn("Save", minWidth);
+        Button saveBtn = Buttons.getSaveBtn("Save", minWidth);
         saveBtn.setAlignment(Pos.CENTER);
         saveBtn.setOnAction(e -> {
             try {
