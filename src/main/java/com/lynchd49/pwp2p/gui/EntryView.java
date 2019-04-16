@@ -10,11 +10,11 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -43,14 +43,15 @@ class EntryView {
     private static TextField expiresField;
     private static TextArea notesArea;
 
-    private final static double minWidth = 80;
+    private static boolean passwordVisible = false;
 
+    private final static double minWidth = 80;
 
     static Scene loadScene(Stage stage, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
         window = stage;
         prevScene = window.getScene();
 
-        // Entry Items
+        // Title
         Label titleLabel = new Label("Title:");
         entryLabelHelper(titleLabel);
         titleField = new TextField(entry.getTitle());
@@ -59,6 +60,7 @@ class EntryView {
         copyButtonHelper(copyTitleBtn, titleField);
         HBox titleHbox = entryHboxHelper(titleLabel, titleField, copyTitleBtn);
 
+        // Username
         Label usernameLabel = new Label("Username:");
         entryLabelHelper(usernameLabel);
         usernameField = new TextField(entry.getUsername());
@@ -67,14 +69,19 @@ class EntryView {
         copyButtonHelper(copyUsernameBtn, usernameField);
         HBox usernameHbox = entryHboxHelper(usernameLabel, usernameField, copyUsernameBtn);
 
+        // Password
         Label passwordLabel = new Label("Password:");
         entryLabelHelper(passwordLabel);
-        passwordField = new TextField(entry.getPassword());
+        String passwordHidden = getObscuredPw(entry.getPassword());
+        passwordField = new TextField(passwordHidden);
         HBox.setHgrow(passwordField, Priority.ALWAYS);
         Button copyPasswordBtn = Buttons.getCopyButton();
         copyButtonHelper(copyPasswordBtn, passwordField);
-        HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField, copyPasswordBtn);
+        Button visibilityBtn = Buttons.getVisibilityButton();
+        visibilityBtnHelper(visibilityBtn, passwordField, entry);
+        HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField, visibilityBtn, copyPasswordBtn);
 
+        // URL
         Label urlLabel = new Label("URL:");
         entryLabelHelper(urlLabel);
         urlField = new TextField(entry.getUrl());
@@ -83,6 +90,7 @@ class EntryView {
         copyButtonHelper(copyUrlBtn, urlField);
         HBox urlHbox = entryHboxHelper(urlLabel, urlField, copyUrlBtn);
 
+        // Expires
         Label expiresLabel = new Label("Expires:");
         entryLabelHelper(expiresLabel);
         expiresField = new TextField(entry.getExpiryTime().toString());
@@ -90,6 +98,7 @@ class EntryView {
         expiresField.setDisable(true);
         HBox expiresHbox = entryHboxHelper(expiresLabel, expiresField);
 
+        // Notes
         Label notesLabel = new Label("Notes:");
         entryLabelHelper(notesLabel);
         notesArea = new TextArea(entry.getNotes());
@@ -109,6 +118,27 @@ class EntryView {
         mainHbox.getChildren().addAll(fieldsVbox, toolBar);
 
         return new Scene(mainHbox, 800, 400);
+    }
+
+    private static void visibilityBtnHelper(Button button, TextField textField, Entry entry) {
+        button.setOnAction(e -> {
+            if (passwordVisible) {
+                passwordVisible = false;
+                Button button1 = (Button) e.getSource();
+                button1.setGraphic(new FontIcon("fa-eye-slash"));
+                textField.setText(entry.getPassword());
+            } else {
+                passwordVisible = true;
+                Button button1 = (Button) e.getSource();
+                button1.setGraphic(new FontIcon("fa-eye"));
+                textField.setText(getObscuredPw(entry.getPassword()));
+            }
+        });
+    }
+
+    private static String getObscuredPw(String password) {
+        char bullet = '\u2022';
+        return String.valueOf(bullet).repeat(password.length());
     }
 
     private static void copyButtonHelper(Button button, TextField textField) {
@@ -134,6 +164,14 @@ class EntryView {
     private static void entryLabelHelper(Label titleLabel) {
         titleLabel.setMinWidth(minWidth);
         titleLabel.setAlignment(Pos.CENTER_RIGHT);
+    }
+
+    @NotNull
+    private static HBox entryHboxHelper(Label label, Node field, Button btn1, Button btn2) {
+        HBox hbox = new HBox(10);
+        hbox.getChildren().addAll(label, field, btn1, btn2);
+        hbox.setAlignment(Pos.CENTER_LEFT);
+        return hbox;
     }
 
     @NotNull

@@ -32,8 +32,12 @@ public class Buttons {
 
     public static Button getCopyButton() {
         FontIcon copyIcon = new FontIcon("fa-copy");
-        Button button = new Button("", copyIcon);
-        return button;
+        return new Button("", copyIcon);
+    }
+
+    public static Button getVisibilityButton() {
+        FontIcon eyeIcon = new FontIcon("fa-eye");
+        return new Button("", eyeIcon);
     }
 
     @NotNull
