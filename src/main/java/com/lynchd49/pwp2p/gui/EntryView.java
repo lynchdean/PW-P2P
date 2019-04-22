@@ -40,7 +40,6 @@ class EntryView {
     private static TextField usernameField;
     private static TextField passwordField;
     private static TextField urlField;
-    private static TextField expiresField;
     private static TextArea notesArea;
 
     private static boolean passwordVisible = false;
@@ -95,7 +94,7 @@ class EntryView {
         // Expires
         Label expiresLabel = new Label("Expires:");
         entryLabelHelper(expiresLabel);
-        expiresField = new TextField(entry.getExpiryTime().toString());
+        TextField expiresField = new TextField(entry.getExpiryTime().toString());
         HBox.setHgrow(expiresField, Priority.ALWAYS);
         expiresField.setDisable(true);
         HBox expiresHbox = entryHboxHelper(expiresLabel, expiresField);
@@ -123,9 +122,7 @@ class EntryView {
     }
 
     private static void changePwBtnHelper(Button button, KdbxObject kdbxObject, Entry entry) {
-        button.setOnAction(e -> {
-            Dialogs.displayNewPassword(window, kdbxObject, entry);
-        });
+        button.setOnAction(e -> Dialogs.displayNewPassword(window, kdbxObject, entry));
     }
 
     private static void visibilityBtnHelper(Button button, Entry entry) {
@@ -200,9 +197,7 @@ class EntryView {
         // Save
         Button saveBtn = Buttons.getSaveBtn("Save", minWidth);
         saveBtn.setAlignment(Pos.CENTER);
-        saveBtn.setOnAction(e -> {
-            saveEntry(entry, kdbxObject);
-        });
+        saveBtn.setOnAction(e -> saveEntry(entry, kdbxObject));
 
         // Delete Entry
         FontIcon deleteIcon = new FontIcon("fa-trash");

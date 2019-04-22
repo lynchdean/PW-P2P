@@ -80,10 +80,4 @@ public class SyncServer implements Runnable {
             this.stop();
         }
     }
-
-    //TODO remove once testing is successful
-    public static void main(String[] args) {
-        SyncServer server = new SyncServer(4444, "/home/dean/Projects/2019-ca400-lynchd49/src/test/resources/test1.kdbx");
-        server.start();
-    }
 }

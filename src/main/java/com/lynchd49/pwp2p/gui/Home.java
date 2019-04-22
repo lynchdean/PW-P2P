@@ -47,8 +47,6 @@ class Home {
     private static Button startServerBtn;
     private static Button stopServerBtn;
 
-    // Client
-    private static SyncClient client;
     private static Button startClientBtn;
     private static Button stopClientBtn;
 
@@ -134,7 +132,7 @@ class Home {
     }
 
     @NotNull
-    private static TabPane getSyncTabs(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
+    private static TabPane getSyncTabs(Stage window, KdbxObject kdbxObject) {
         TabPane syncTabPane = new TabPane();
         syncTabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
         Tab serverTab = getSendTab(window, kdbxObject);
@@ -177,7 +175,7 @@ class Home {
     }
 
     @NotNull
-    private static Tab getSendTab(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
+    private static Tab getSendTab(Stage window, KdbxObject kdbxObject) {
         // Port
         Label portLabel = new Label("Port:");
         portLabel.setMinWidth(labelMinWidth);
@@ -284,7 +282,8 @@ class Home {
         if (validHostname(hostname) || hostname.equals("localhost")) {
             int portInt = Integer.parseInt(portString);
             if (portInt >= 0 && portInt <= 65535) {
-                client = new SyncClient();
+                // Client
+                SyncClient client = new SyncClient();
                 client.start(hostname, portInt, outputFilePath);
             }
         } else {
@@ -369,7 +368,7 @@ class Home {
         // Entry Items
         Menu entryMenu = new Menu("Entries");
         MenuItem newEntryItem = new MenuItem("New entry", plusIcon);
-        newEntryItem.setOnAction(e -> newEntry(window, tableData, kdbxObject));
+        newEntryItem.setOnAction(e -> newEntry(tableData, kdbxObject));
         entryMenu.getItems().addAll(newEntryItem);
 
         MenuBar menuBar = new MenuBar();
@@ -401,7 +400,7 @@ class Home {
     }
 
     // Create a new entry in the currently selected group
-    private static void newEntry(Stage window, ObservableList<EntryTableView> tableData, KdbxObject kdbxObject) {
+    private static void newEntry(ObservableList<EntryTableView> tableData, KdbxObject kdbxObject) {
         Optional<String> result = Dialogs.displayNewTitle("Entry");
         result.ifPresent(s -> {
             Entry entry = kdbxObject.getDatabase().newEntry(s);
@@ -424,10 +423,6 @@ class Home {
         }
         KdbxOps.saveKdbx(kdbxObject);
         updateTreeView(treeView, kdbxObject);
-    }
-
-    private static void errorMsgSave(Stage window) {
-        Dialogs.displayAlert(window, "Error!", "Error saving change to database!");
     }
 
     private static void updateTreeView(TreeView<String> treeView, KdbxObject kdbxObject) {

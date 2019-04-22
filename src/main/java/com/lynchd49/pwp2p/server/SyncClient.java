@@ -35,10 +35,4 @@ public class SyncClient {
             LOGGER.error(String.format("Couldn't get I/O for the connection to %s", hostname));
         }
     }
-
-    //TODO remove once testing is successful
-    public static void main(String[] args) {
-        SyncClient client = new SyncClient();
-        client.start("localhost", 4444,"src/test/resources/output_test1.kdbx");
-    }
 }
