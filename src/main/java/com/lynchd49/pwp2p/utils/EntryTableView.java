@@ -3,7 +3,7 @@ package com.lynchd49.pwp2p.utils;
 import javafx.beans.property.SimpleStringProperty;
 import org.linguafranca.pwdb.Entry;
 
-public class EntryView {
+public class EntryTableView {
 
     private final SimpleStringProperty title;
     private final SimpleStringProperty username;
@@ -15,7 +15,7 @@ public class EntryView {
     private final SimpleStringProperty modified;
     private final SimpleStringProperty accessed;
 
-    public EntryView(Entry e) {
+    public EntryTableView(Entry e) {
         this.title = new SimpleStringProperty(e.getTitle());
         this.username = new SimpleStringProperty(e.getUsername());
 //        this.password = new SimpleStringProperty(e.getPassword());

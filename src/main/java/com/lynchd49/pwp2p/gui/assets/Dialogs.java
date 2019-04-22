@@ -1,5 +1,8 @@
 package com.lynchd49.pwp2p.gui.assets;
 
+import com.lynchd49.pwp2p.utils.KdbxObject;
+import com.lynchd49.pwp2p.utils.KdbxOps;
+import com.lynchd49.pwp2p.utils.PasswordGeneration;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -11,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.linguafranca.pwdb.Entry;
 
 import java.util.Optional;
 
@@ -54,7 +58,7 @@ public class Dialogs {
         return dialog.showAndWait();
     }
 
-    public static void displayNewPassword(Stage ownerWindow) {
+    public static void displayNewPassword(Stage ownerWindow, KdbxObject kdbxObject, Entry entry) {
         Stage alertWindow = new Stage();
         alertWindow.initOwner(ownerWindow);
         alertWindow.initModality(Modality.APPLICATION_MODAL);
@@ -82,24 +86,25 @@ public class Dialogs {
         optionsHbox.setAlignment(Pos.CENTER_LEFT);
         optionsHbox.getChildren().addAll(alphaUpperCb, alphaLowerCb, numericCb, specialCb, hSpacer, spinnerHbox);
 
-        Button generateBtn = Buttons.getGenerateBtn("Generate", 80);
-        generateBtn.setAlignment(Pos.CENTER);
-        generateBtn.setOnAction(e -> {
-            // TODO add functionality
-            System.out.println("Generate");
-        });
-
+        // Pw Field and Generate Button
         TextField newPwField = new TextField();
         newPwField.setMinWidth(400);
         HBox.setHgrow(newPwField, Priority.ALWAYS);
+        Button generateBtn = Buttons.getGenerateBtn("Generate", 80);
+        generateBtn.setAlignment(Pos.CENTER);
+        generateBtn.setOnAction(e -> generateBtnAction(ownerWindow, alphaUpperCb, alphaLowerCb, numericCb, specialCb, lengthSpinner, newPwField));
         HBox generateHbox = new HBox(10);
         generateHbox.getChildren().addAll(generateBtn, newPwField);
 
         // Save & Cancel Buttons
-        Button saveBtn = Buttons.getSaveBtn("Save", 80);
+        Button saveBtn = Buttons.getSaveBtn("Replace & Save", 80);
         saveBtn.setOnAction(e -> {
-            // TODO add functionality
-            System.out.println("save");
+            if (newPwField.getText().length() > 0) {
+                entry.setPassword(newPwField.getText());
+                KdbxOps.saveKdbx(kdbxObject);
+            } else {
+                Dialogs.displayAlert(ownerWindow, "Can't Replace Password!", "Please generate a password first!");
+            }
             alertWindow.close();
         });
         Button cancelBtn = Buttons.getCloseBtn("Cancel", 80);
@@ -115,5 +120,19 @@ public class Dialogs {
         Scene scene = new Scene(mainVbox);
         alertWindow.setScene(scene);
         alertWindow.showAndWait();
+    }
+
+    private static void generateBtnAction(Stage ownerWindow, CheckBox alphaUpperCb, CheckBox alphaLowerCb, CheckBox numericCb, CheckBox specialCb, Spinner<Integer> lengthSpinner, TextField newPwField) {
+        boolean hasLower = alphaLowerCb.isSelected();
+        boolean hasUpper = alphaUpperCb.isSelected();
+        boolean hasNumeric = numericCb.isSelected();
+        boolean hasSpecial = specialCb.isSelected();
+
+        if (!hasLower && !hasUpper && !hasNumeric && !hasSpecial) {
+            displayAlert(ownerWindow, "No requirements selected!", "Please select at least one character rule!");
+        } else {
+            String newPassword = PasswordGeneration.getNew(lengthSpinner.getValue(), hasLower, hasUpper, hasNumeric, hasSpecial);
+            newPwField.setText(newPassword);
+        }
     }
 }

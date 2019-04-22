@@ -2,6 +2,7 @@ package com.lynchd49.pwp2p.gui;
 
 import com.lynchd49.pwp2p.gui.assets.Buttons;
 import com.lynchd49.pwp2p.gui.assets.Dialogs;
+import com.lynchd49.pwp2p.utils.EntryTableView;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
 import javafx.collections.ObservableList;
@@ -29,7 +30,6 @@ import org.linguafranca.pwdb.Group;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.io.IOException;
 
 class EntryView {
 
@@ -47,7 +47,7 @@ class EntryView {
 
     private final static double minWidth = 80;
 
-    static Scene loadScene(Stage stage, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
+    static Scene loadScene(Stage stage, ObservableList<EntryTableView> tableData, Entry entry, KdbxObject kdbxObject) {
         window = stage;
         prevScene = window.getScene();
 
@@ -80,7 +80,7 @@ class EntryView {
         Button copyPasswordBtn = Buttons.getClipboardButton();
         copyButtonHelper(copyPasswordBtn, passwordField);
         Button changePasswordBtn = Buttons.getWrenchButton();
-        changePwBtnHelper(changePasswordBtn);
+        changePwBtnHelper(changePasswordBtn, kdbxObject, entry);
         HBox passwordHbox = entryHboxHelper(passwordLabel, passwordField, changePasswordBtn, visibilityBtn, copyPasswordBtn);
 
         // URL
@@ -122,9 +122,9 @@ class EntryView {
         return new Scene(mainHbox, 800, 400);
     }
 
-    private static void changePwBtnHelper(Button button) {
+    private static void changePwBtnHelper(Button button, KdbxObject kdbxObject, Entry entry) {
         button.setOnAction(e -> {
-            Dialogs.displayNewPassword(window);
+            Dialogs.displayNewPassword(window, kdbxObject, entry);
         });
     }
 
@@ -192,7 +192,7 @@ class EntryView {
         return hbox;
     }
 
-    private static ToolBar getToolbar(ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
+    private static ToolBar getToolbar(ObservableList<EntryTableView> tableData, Entry entry, KdbxObject kdbxObject) {
         ToolBar toolBar = new ToolBar();
         toolBar.setMinWidth(minWidth + 12);
         toolBar.setOrientation(Orientation.VERTICAL);
@@ -201,12 +201,7 @@ class EntryView {
         Button saveBtn = Buttons.getSaveBtn("Save", minWidth);
         saveBtn.setAlignment(Pos.CENTER);
         saveBtn.setOnAction(e -> {
-            try {
-                saveEntry(entry, kdbxObject);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                errorMsgSave();
-            }
+            saveEntry(entry, kdbxObject);
         });
 
         // Delete Entry
@@ -229,17 +224,12 @@ class EntryView {
         return toolBar;
     }
 
-    private static void deleteEntryAndExit(ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Entry entry, KdbxObject kdbxObject) {
+    private static void deleteEntryAndExit(ObservableList<EntryTableView> tableData, Entry entry, KdbxObject kdbxObject) {
         if (Dialogs.displayConfirm(window, String.format("Delete %s?", entry.getTitle()))) {
             window.setScene(prevScene);
             Group parent = entry.getParent();
             parent.removeEntry(entry);
-            try {
-                KdbxOps.saveKdbx(kdbxObject);
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                errorMsgSave();
-            }
+            KdbxOps.saveKdbx(kdbxObject);
             Home.updateTableData(tableData, Home.currentGroup);
         }
     }
@@ -248,7 +238,7 @@ class EntryView {
         Dialogs.displayAlert(window, "Error!", "Error saving change to database!");
     }
 
-    private static void saveEntry(Entry entry, KdbxObject kdbxObject) throws IOException {
+    private static void saveEntry(Entry entry, KdbxObject kdbxObject) {
         boolean altered = false;
         if (!entry.getTitle().equals(titleField.getText())) {
             entry.setTitle(titleField.getText());

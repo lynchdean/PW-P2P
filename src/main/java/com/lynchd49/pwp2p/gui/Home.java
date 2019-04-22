@@ -4,6 +4,7 @@ import com.lynchd49.pwp2p.gui.assets.Buttons;
 import com.lynchd49.pwp2p.gui.assets.Dialogs;
 import com.lynchd49.pwp2p.server.SyncClient;
 import com.lynchd49.pwp2p.server.SyncServer;
+import com.lynchd49.pwp2p.utils.EntryTableView;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
 import com.lynchd49.pwp2p.utils.KdbxTreeUtils;
@@ -29,7 +30,6 @@ import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -58,7 +58,7 @@ class Home {
         currentGroup = db.getRootGroup();
 
         // Table
-        TableView<com.lynchd49.pwp2p.utils.EntryView> table = new TableView<>();
+        TableView<EntryTableView> table = new TableView<>();
         HBox.setHgrow(table, Priority.ALWAYS);
 
         addColumn(table, "Title", "title");
@@ -71,13 +71,13 @@ class Home {
         addColumn(table, "Modified", "modified");
         addColumn(table, "Accessed", "accessed");
 
-        ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData = getObsList(db.getRootGroup());
+        ObservableList<EntryTableView> tableData = getObsList(db.getRootGroup());
         table.setItems(tableData);
         table.setRowFactory(tv -> {
-            TableRow<com.lynchd49.pwp2p.utils.EntryView> row = new TableRow<>();
+            TableRow<EntryTableView> row = new TableRow<>();
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (!row.isEmpty())) {
-                    com.lynchd49.pwp2p.utils.EntryView rowData = row.getItem();
+                    EntryTableView rowData = row.getItem();
                     showEntryScene(window, tableData, rowData.getTitle(), kdbxObject);
                 }
             });
@@ -304,30 +304,30 @@ class Home {
     }
 
     private static void addColumn(TableView table, String title, String propertyVal) {
-        TableColumn<com.lynchd49.pwp2p.utils.EntryView, String> col = new TableColumn<>(title);
+        TableColumn<EntryTableView, String> col = new TableColumn<>(title);
         col.setMinWidth(colMinWidth);
         col.setCellValueFactory(new PropertyValueFactory<>(propertyVal));
         table.getColumns().add(col);
     }
 
-    static void updateTableData(ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, Group g) {
+    static void updateTableData(ObservableList<EntryTableView> tableData, Group g) {
         tableData.clear();
         tableData.addAll(getObsList(g));
     }
 
-    private static ObservableList<com.lynchd49.pwp2p.utils.EntryView> getObsList(Group g) {
-        ObservableList<com.lynchd49.pwp2p.utils.EntryView> entryViewList = FXCollections.observableArrayList();
+    private static ObservableList<EntryTableView> getObsList(Group g) {
+        ObservableList<EntryTableView> entryViewList = FXCollections.observableArrayList();
         if (g.getEntriesCount() > 0) {
             for (Object entryObj : g.getEntries()) {
                 Entry entry = (Entry) entryObj;
-                com.lynchd49.pwp2p.utils.EntryView entryView = new com.lynchd49.pwp2p.utils.EntryView(entry);
+                EntryTableView entryView = new EntryTableView(entry);
                 entryViewList.add(entryView);
             }
         }
         return entryViewList;
     }
 
-    private static void showEntryScene(Stage window, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, String entryTitle, KdbxObject kdbxObject) {
+    private static void showEntryScene(Stage window, ObservableList<EntryTableView> tableData, String entryTitle, KdbxObject kdbxObject) {
         List entries = currentGroup.getEntries();
         Entry entry = null;
         for (Object entryObj : entries) {
@@ -344,7 +344,7 @@ class Home {
         }
     }
 
-    private static MenuBar getMenuBar(Stage window, TreeView<String> treeView, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, KdbxObject kdbxObject) {
+    private static MenuBar getMenuBar(Stage window, TreeView<String> treeView, ObservableList<EntryTableView> tableData, KdbxObject kdbxObject) {
         FontIcon plusIcon = new FontIcon("fa-plus");
         plusIcon.setIconColor(Color.GREEN);
         FontIcon minusIcon = new FontIcon("fa-minus");
@@ -378,7 +378,7 @@ class Home {
     }
 
     // Create a new group in the currently selected group
-    private static void newGroup(Stage window, TreeView<String> treeView, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, KdbxObject kdbxObject) {
+    private static void newGroup(Stage window, TreeView<String> treeView, ObservableList<EntryTableView> tableData, KdbxObject kdbxObject) {
         Optional<String> result = Dialogs.displayNewTitle("Group");
         result.ifPresent(s -> {
             Group group = kdbxObject.getDatabase().newGroup(s);
@@ -391,14 +391,9 @@ class Home {
             }
             if (!found) {
                 currentGroup.addGroup(group);
-                try {
-                    KdbxOps.saveKdbx(kdbxObject);
-                    updateTableData(tableData, currentGroup);
-                    updateTreeView(treeView, kdbxObject);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    errorMsgSave(window);
-                }
+                KdbxOps.saveKdbx(kdbxObject);
+                updateTableData(tableData, currentGroup);
+                updateTreeView(treeView, kdbxObject);
             } else {
                 Dialogs.displayAlert(window, "Error Creating Group!", "A child group with that name already exists!");
             }
@@ -406,18 +401,13 @@ class Home {
     }
 
     // Create a new entry in the currently selected group
-    private static void newEntry(Stage window, ObservableList<com.lynchd49.pwp2p.utils.EntryView> tableData, KdbxObject kdbxObject) {
+    private static void newEntry(Stage window, ObservableList<EntryTableView> tableData, KdbxObject kdbxObject) {
         Optional<String> result = Dialogs.displayNewTitle("Entry");
         result.ifPresent(s -> {
             Entry entry = kdbxObject.getDatabase().newEntry(s);
             currentGroup.addEntry(entry);
         });
-        try {
-            KdbxOps.saveKdbx(kdbxObject);
-        } catch (IOException e) {
-            e.printStackTrace();
-            errorMsgSave(window);
-        }
+        KdbxOps.saveKdbx(kdbxObject);
         updateTableData(tableData, currentGroup);
     }
 
@@ -432,13 +422,8 @@ class Home {
         } else {
             Dialogs.displayAlert(window, "Error: Root group!", "Cannot delete root group!");
         }
-        try {
-            KdbxOps.saveKdbx(kdbxObject);
-            updateTreeView(treeView, kdbxObject);
-        } catch (IOException e) {
-            e.printStackTrace();
-            errorMsgSave(window);
-        }
+        KdbxOps.saveKdbx(kdbxObject);
+        updateTreeView(treeView, kdbxObject);
     }
 
     private static void errorMsgSave(Stage window) {
