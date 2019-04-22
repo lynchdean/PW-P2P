@@ -42,19 +42,18 @@ class KdbxOpsTest extends Specification {
         KdbxOps.loadKdbx(file, creds)
 
         then:
-        def ex = thrown(expectedException)
-        ex.message == expectedMsg
+        thrown(expectedException)
 
         where:
-        file      || creds   || expectedException     || expectedMsg
-        dbFile1   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        dbFile2   || wrongPw || IllegalStateException || "Incorrect credentials or invalid file."
-        null      || wrongPw || NullPointerException  || "File or credentials are null."
-        dbFile1   || null    || NullPointerException  || "File or credentials are null."
-        null      || null    || NullPointerException  || "File or credentials are null."
-        wrongFile || dbPw1   || FileNotFoundException || "File is missing or has been deleted."
-        wrongFile || wrongPw || FileNotFoundException || "File is missing or has been deleted."
-        wrongFile || null    || FileNotFoundException || "File is missing or has been deleted."
+        file      || creds   || expectedException
+        dbFile1   || wrongPw || IllegalStateException
+        dbFile2   || wrongPw || IllegalStateException
+        null      || wrongPw || NullPointerException
+        dbFile1   || null    || NullPointerException
+        null      || null    || NullPointerException
+        wrongFile || dbPw1   || FileNotFoundException
+        wrongFile || wrongPw || FileNotFoundException
+        wrongFile || null    || FileNotFoundException
 
     }
 
@@ -114,15 +113,14 @@ class KdbxOpsTest extends Specification {
         KdbxOps.loadKdbx(newFile, creds)
 
         then:
-        def ex = thrown(IllegalStateException)
-        ex.message == expectedMsg
+        thrown(IllegalStateException)
 
         cleanup:
         newFile.delete()
 
         where:
-        dbPath  || newPath      || creds    || newCreds || expectedMsg
-        dbPath1 || "test1.kdbx" || dbPw1    || "new1"   || "Incorrect credentials or invalid file."
-        dbPath2 || "test2.kdbx" || dbPw2    || "new2"   || "Incorrect credentials or invalid file."
+        dbPath  || newPath      || creds    || newCreds
+        dbPath1 || "test1.kdbx" || dbPw1    || "new1"
+        dbPath2 || "test2.kdbx" || dbPw2    || "new2"
     }
 }
