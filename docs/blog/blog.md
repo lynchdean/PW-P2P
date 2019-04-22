@@ -93,3 +93,41 @@ It turns out that some UNIX systems use /dev/random for random number generation
 It was quite straightforward to fix this issue on my own machine, but was also causing problems in my CI pipeline.
 Since the execution time was long and inconsistent, this issue would sometimes cause the pipeline to run over the 10 minute timeout.
 I explored a couple of different ways to solve this, like a specialised docker container, but found a simple solution to the problem by creating a symbolic link from /dev/random to /dev/urandom when the pipeline in the setup script for the pipeline.
+
+## Blog Entry 15 - Thurs 21st February:
+After using the solution to the /dev/random problem mentioned in the previous blog for over a weeks now, 
+I'm happy with the solution as the times operations take to complete have not once gone back to taking minutes to complete!
+I've now started working on the 'homepage' of the application, where the user will be able to view, manage and save their passwords.
+
+I've also discussed GDPR and ethics requirements with Brian, 
+and we have decided that it is necessary for me to complete an ethics notification form so that user-testing can be carried out to get feedback on the usability of the GUI of the application.
+
+## Blog Entry 16 - Thurs 21st March:
+Since the last meeting and blog, I've completed the ethics application and have been approved by two members of the Ethics Committee.
+Brian has been unwell for the past couple of weeks, so I have not had a meeting with him since the 21st of February, but I have kept him up to date with the progress of my project through via email.
+
+I have since added the main features for the homepage of the GUI. This includes the 'tree view' of the folder groups contained inside of the database. 
+This was a lot more work than I expected it to be!
+I had to traverse the database recursively when the application starts up in order to generate this graphical representation of the folder structure.
+The graphical tree is also quite limited in what can be attached to each node assigned to it. It can only be assigned a title and icon to be displayed.
+
+This was a problem because I need to be able to display each of a folders password entries when a user selects the corresponding node in the tree,
+ and because of the limitations of what can be assigned to the graphical node, there was no way to store which folder inside the actual database the node was actually representing.
+
+To solve this problem, I had to build up a path string each time a graphical node was clicked.
+This would give me a way of finding the exact folder inside the password database.
+One consequence of this however was that it forced me to prevent users from creating two folders with the same title inside the same folder.
+This is already standard practice in most operating systems, so it isn't a just a lazy workaround my problem!
+
+Once this was solved, when a node was clicked on the tree, 
+I was able to display each of the password entries associated with that specific folder in a table. This covers the two main features of the homepage GUI,  
+and the next major graphical feature needed to be added is a full view of a password entries details.
+
+## Blog Entry 17 - Thurs 28th March:
+Since last week I've added the ability to view each of the details inside a password entry.
+Alongside this, I've also added the abilities to save and edit the entries.
+
+I've also made overall improvements to the GUI to make it cleaner and more dynamic. 
+I've now started working on the synchronisation aspect of the application.
+
+ 

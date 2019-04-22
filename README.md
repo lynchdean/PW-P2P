@@ -1,1 +1,1 @@
-# SyncSafe - Password Manager with P2P Synchronization
+# PW-P2P - Password Manager with P2P Synchronization

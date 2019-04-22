@@ -1,8 +1,8 @@
-package com.lynchd49.syncsafe.gui;
+package com.lynchd49.pwp2p.gui;
 
-import com.lynchd49.syncsafe.gui.Preset.Buttons;
-import com.lynchd49.syncsafe.utils.KdbxObject;
-import com.lynchd49.syncsafe.utils.KdbxOps;
+import com.lynchd49.pwp2p.gui.assets.Buttons;
+import com.lynchd49.pwp2p.utils.KdbxObject;
+import com.lynchd49.pwp2p.utils.KdbxOps;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -23,7 +23,7 @@ import org.linguafranca.pwdb.Database;
 import java.io.File;
 import java.io.IOException;
 
-class AppCredentialsInput {
+class CredentialsInput {
 
     private final static double minWidth = 80;
     private static Text actionStatus;
@@ -78,7 +78,7 @@ class AppCredentialsInput {
             KdbxObject kdbxObject = new KdbxObject(db, file.getPath(), pwInput);
             actionStatus.setText("Correct credentials!");
             actionStatus.setFill(Color.GREEN);
-            Scene homeScene = AppHome.loadScene(window, kdbxObject);
+            Scene homeScene = Home.loadScene(window, kdbxObject);
             window.setScene(homeScene);
         } catch (IOException e) {
             actionStatus.setText("Error accessing file");
