@@ -8,26 +8,8 @@ import java.io.*;
 import java.security.KeyStore;
 
 class SSLSocketClientWithClientAuth {
-    public static void main(String[] args) {
-        String host = null;
-        int port = -1;
-        String path = null;
-        for (String arg : args) System.out.println(arg);
 
-        if (args.length < 3) {
-            System.out.println("USAGE: java SSLSocketClientWithClientAuth host port requestedFilePath");
-            System.exit(-1);
-        }
-
-        try {
-            host = args[0];
-            port = Integer.parseInt(args[1]);
-            path = args[2];
-        } catch (IllegalArgumentException e) {
-            System.out.println("USAGE: java SSLSocketClientWithClientAuth host port requestedFilePath");
-            System.exit(-1);
-        }
-
+    public static void start(String host, int port, String path) {
         try {
             /*
              * Set up a key manager for client authentication
@@ -45,7 +27,10 @@ class SSLSocketClientWithClientAuth {
                 kmf = KeyManagerFactory.getInstance("SunX509");
                 ks = KeyStore.getInstance("JKS");
 
-                ks.load(new FileInputStream("testkeys"), passphrase);
+                System.out.println("Working Directory = " +
+                        System.getProperty("user.dir"));
+
+                ks.load(new FileInputStream("src/test/resources/testkeys"), passphrase);
                 kmf.init(ks, passphrase);
                 ctx.init(kmf.getKeyManagers(), null, null);
 
@@ -89,5 +74,9 @@ class SSLSocketClientWithClientAuth {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        start("localhost", 4444, "test2.kdbx");
     }
 }

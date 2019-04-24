@@ -8,7 +8,6 @@ import javax.net.ssl.SSLServerSocketFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.security.KeyStore;
-import java.util.Objects;
 
 /* ClassFileServer.java -- a simple file server that can server
  * Http get request in both clear and secure channel
@@ -18,20 +17,24 @@ import java.util.Objects;
  * doc for the "Main" method for how to run this
  * server.
  */
+
 public class ClassFileServer extends ClassServer {
 
-    private final int serverPort;
-    private final String docRoot;
+    private static int serverPort;
+    private static String docRoot;
+    private static boolean authenticate;
 
     /**
      * Constructs a ClassFileServer.
      *
+     * @param serverPort the port the server will be run on
      * @param docRoot the path where the server locates files
      */
-    private ClassFileServer(ServerSocket ss, int serverPort, String docRoot) {
+    public ClassFileServer(ServerSocket ss, int serverPort, String docRoot, boolean authenticate) {
         super(ss);
         this.serverPort = serverPort;
         this.docRoot = docRoot;
+        this.authenticate = authenticate;
     }
 
     /**
@@ -39,24 +42,23 @@ public class ClassFileServer extends ClassServer {
      * the file represented by the argument <b>path</b>.
      *
      * @return the bytes for the file
-     * @exception FileNotFoundException if the file corresponding
-     * to <b>path</b> could not be loaded.
+     * @throws FileNotFoundException if the file corresponding
+     *                               to <b>path</b> could not be loaded.
      */
     public byte[] getBytes(String path)
-            throws IOException
-    {
+            throws IOException {
         System.out.println("reading: " + path);
         File f = new File(docRoot + File.separator + path);
-        int length = (int)(f.length());
+        int length = (int) (f.length());
         if (length == 0) {
             throw new IOException("File length is zero: " + path);
         } else {
             FileInputStream fin = new FileInputStream(f);
             DataInputStream in = new DataInputStream(fin);
 
-            byte[] byteCodes = new byte[length];
-            in.readFully(byteCodes);
-            return byteCodes;
+            byte[] bytecodes = new byte[length];
+            in.readFully(bytecodes);
+            return bytecodes;
         }
     }
 
@@ -72,40 +74,28 @@ public class ClassFileServer extends ClassServer {
      * <code>   new ClassFileServer(port, docRoot);
      * </code>
      */
-    public void main(String[] args)
-    {
-        System.out.println("USAGE: java ClassFileServer port docRoot [TLS [true]]");
-        System.out.println();
-        System.out.println("If the third argument is TLS, it will start as\n" +
+    public static void start() {
+        System.out.println(
+                "USAGE: java ClassFileServer port docRoot [TLS [true]]\n\n" +
+                "If the third argument is TLS, it will start as\n" +
                 "a TLS/SSL file server, otherwise, it will be\n" +
                 "an ordinary file server. \n" +
                 "If the fourth argument is true,it will require\n" +
                 "client authentication as well.");
 
+        String docPath = docRoot;
         int port = serverPort;
-        String docRoot = "";
+        String type = "TLS";
 
-        if (args.length >= 1) {
-            port = Integer.parseInt(args[0]);
-        }
-
-        if (args.length >= 2) {
-            docRoot = args[1];
-        }
-        String type = "PlainSocket";
-        if (args.length >= 3) {
-            type = args[2];
-        }
         try {
             ServerSocketFactory ssf = ClassFileServer.getServerSocketFactory(type);
-            ServerSocket ss = Objects.requireNonNull(ssf).createServerSocket(port);
-            if (args.length >= 4 && args[3].equals("true")) {
-                ((SSLServerSocket)ss).setNeedClientAuth(true);
+            ServerSocket ss = ssf.createServerSocket(port);
+            if (authenticate) {
+                ((SSLServerSocket) ss).setNeedClientAuth(true);
             }
-            new ClassFileServer(ss, serverPort, docRoot);
+            new ClassFileServer(ss, port, docPath, authenticate);
         } catch (IOException e) {
-            System.out.println("Unable to start ClassServer: " +
-                    e.getMessage());
+            System.out.printf("Unable to start ClassServer: %s%n", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -137,5 +127,11 @@ public class ClassFileServer extends ClassServer {
             return ServerSocketFactory.getDefault();
         }
         return null;
+    }
+
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(4444);
+        ClassFileServer server = new ClassFileServer(serverSocket, 4444, "test2.kdbx", true);
+        server.start();
     }
 }

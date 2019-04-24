@@ -1,4 +1,5 @@
 package com.lynchd49.pwp2p.server;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,17 +9,16 @@ import java.net.Socket;
  * Http get request in both clear and secure channel
  */
 
-abstract class ClassServer implements Runnable {
+public abstract class ClassServer implements Runnable {
 
-    private final ServerSocket server;
-
+    private ServerSocket server;
     /**
-     * Constructs a ClassServer based on <b>ss</b> and
-     * obtains a file's byteCodes using the method <b>getBytes</b>.
+     * Constructs a ClassServer based on <b>serverSocket</b> and
+     * obtains a file's bytecodes using the method <b>getBytes</b>.
      *
      */
-    ClassServer(ServerSocket ss) {
-        server = ss;
+    ClassServer(ServerSocket serverSocket) {
+        server = serverSocket;
         newListener();
     }
 
@@ -31,7 +31,7 @@ abstract class ClassServer implements Runnable {
      * to <b>path</b> could not be loaded.
      * @exception IOException if error occurs reading the class
      */
-    protected abstract byte[] getBytes(String path) throws IOException;
+    public abstract byte[] getBytes(String path) throws IOException;
 
     /**
      * The "listen" thread that accepts a connection to the
@@ -53,15 +53,13 @@ abstract class ClassServer implements Runnable {
 
         // create a new thread to accept the next connection
         newListener();
-
         try {
             OutputStream rawOut = socket.getOutputStream();
             PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(rawOut)));
+
             try {
-                // get path to class file from header
-                BufferedReader in =
-                        new BufferedReader(
-                                new InputStreamReader(socket.getInputStream()));
+                // get path to class file from byteCodes header
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String path = getPath(in);
                 // retrieve byteCodes
                 byte[] byteCodes = getBytes(path);
@@ -103,9 +101,8 @@ abstract class ClassServer implements Runnable {
     /**
      * Create a new thread to listen.
      */
-    private void newListener()
-    {
-        (new Thread(this)).start();
+    private void newListener() {
+        new Thread(this).start();
     }
 
     /**
@@ -115,6 +112,7 @@ abstract class ClassServer implements Runnable {
     private static String getPath(BufferedReader in) throws IOException {
         String line = in.readLine();
         String path = "";
+
         // extract class from GET line
         if (line.startsWith("GET /")) {
             line = line.substring(5, line.length()-1).trim();
@@ -125,8 +123,10 @@ abstract class ClassServer implements Runnable {
         }
 
         // eat the rest of header
-        do {line = in.readLine();
-        } while ((line.length() != 0) && (line.charAt(0) != '\r') && (line.charAt(0) != '\n'));
+        line = in.readLine();
+        while ((line.length() != 0) && (line.charAt(0) != '\r') && (line.charAt(0) != '\n')) {
+            line = in.readLine();
+        }
 
         if (path.length() != 0) {
             return path;
@@ -135,4 +135,3 @@ abstract class ClassServer implements Runnable {
         }
     }
 }
-
