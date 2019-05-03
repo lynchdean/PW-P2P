@@ -10,19 +10,24 @@ import java.net.SocketException;
 
 public class SyncServer implements Runnable {
 
+
     private static final Logger LOGGER = LogManager.getRootLogger();
 
     private final int portNumber;
+    private final String recipientHostname;
     private final String filePath;
 
     private ServerSocket serverSocket;
     private volatile boolean running;
 
-    public SyncServer(int portNumber, String filePath) {
+    private boolean transferSuccess = false;
+
+    public SyncServer(int portNumber, String recipientHostname, String filePath) {
         if (portNumber < 0 || portNumber > 65535) {
             throw new IllegalArgumentException(String.format("Port value out of range: %d", portNumber));
         }
         this.portNumber = portNumber;
+        this.recipientHostname = recipientHostname;
         this.filePath = filePath;
     }
 
@@ -39,12 +44,12 @@ public class SyncServer implements Runnable {
         if (!serverSocket.isClosed()) {
             try {
                 serverSocket.close();
-                LOGGER.info("Server stopped.");
             } catch (IOException e) {
                 e.printStackTrace();
                 LOGGER.warn(String.format("Server stopped, but failed to close port: %d", portNumber));
             }
         }
+        LOGGER.info("Server stopped.");
     }
 
     @Override
@@ -54,20 +59,24 @@ public class SyncServer implements Runnable {
             try {
                 serverSocket = new ServerSocket(portNumber);
                 Socket clientSocket = serverSocket.accept();
-                File file = new File(filePath);
-                InputStream in = new FileInputStream(file);
-                OutputStream out = clientSocket.getOutputStream();
+//                if (serverSocket.getInetAddress().getHostAddress().equals(recipientHostname) ||
+//                        recipientHostname.equals("localhost") || recipientHostname.equals("127.0.0.1")) {
+                    File file = new File(filePath);
+                    InputStream in = new FileInputStream(file);
+                    OutputStream out = clientSocket.getOutputStream();
 
-                int count;
-                byte[] buffer = new byte[8192];
-                while ((count = in.read(buffer)) > 0) {
-                    out.write(buffer, 0, count);
-                }
+                    int count;
+                    byte[] buffer = new byte[8192];
+                    while ((count = in.read(buffer)) > 0) {
+                        out.write(buffer, 0, count);
+                    }
 
-                LOGGER.info("File transferred successfully.");
-                in.close();
-                out.close();
-                clientSocket.close();
+                    LOGGER.info("File transferred successfully.");
+                    in.close();
+                    out.close();
+                    clientSocket.close();
+                    transferSuccess = true;
+//                }
             } catch (SocketException e) {
                 LOGGER.warn("Socket has been closed from an external method (i.e. 'Stop Connection' button in GUI).");
             } catch (FileNotFoundException e) {
@@ -79,5 +88,13 @@ public class SyncServer implements Runnable {
             }
             this.stop();
         }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public boolean isSuccessful() {
+        return transferSuccess;
     }
 }

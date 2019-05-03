@@ -23,16 +23,8 @@ public class Buttons {
         return getButton(text, width, "fa-play", Color.GREEN);
     }
 
-    public static Button getStopBtn(String text, double width) {
-        return getButton(text, width, "fa-stop", Color.RED);
-    }
-
     public static Button getSaveBtn(String text, double width) {
         return getButton(text, width, "fa-save", Color.GREEN);
-    }
-
-    public static Button getConnectBtn(String text, double width) {
-        return getButton(text, width, "fa-link", Color.GREEN);
     }
 
     public static Button getGenerateBtn(String text, double width) {

@@ -10,7 +10,7 @@ class KdbxOpsTest extends Specification {
     final static String dir = System.getProperty("user.dir") + "/src/test/resources/"
 
     final static String dbPath1 = dir + "test1.kdbx"
-    final static File dbFile1 = new File(dir + "test1.kdbx")
+    final static File dbFile1 = new File(dbPath1)
     final static String dbPw1 = "test1"
 
     final static String dbPath2 = dir + "test2.kdbx"
@@ -103,12 +103,12 @@ class KdbxOpsTest extends Specification {
 
     def "Should save and change database password, and check old password doesn't work: #newPath"() {
         when:
-        // Save database
+        // Save receivedDatabase
         Database database = KdbxOps.loadKdbx(new File(dbPath), creds)
         KdbxObject kdbxObject = new KdbxObject(database, newPath, newCreds)
         KdbxOps.saveKdbx(kdbxObject)
 
-        // Try to access database with old password
+        // Try to access receivedDatabase with old password
         def newFile = new File(newPath)
         KdbxOps.loadKdbx(newFile, creds)
 
