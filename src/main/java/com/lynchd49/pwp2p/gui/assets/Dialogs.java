@@ -217,7 +217,7 @@ public class Dialogs {
         if (!client.isRunning() && client.isTransferSuccess()) {
             message.setText("File received successfully!");
             stopBtn.setText("Close");
-        } else if (!client.isRunning() && !client.isConnectionSuccess()) {
+        } else if (!client.isConnectionSuccess()) {
             message.setText("Host not found. Please ensure the server is running first try again");
         }
 

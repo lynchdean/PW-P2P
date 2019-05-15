@@ -240,6 +240,15 @@ class Home {
         HBox portHbox = new HBox(10);
         portHbox.getChildren().addAll(portLabel, portField);
 
+        // File name
+        Label nameLabel = new Label("Save as:");
+        nameLabel.setMinWidth(minWidth);
+        nameLabel.setAlignment(Pos.CENTER_RIGHT);
+        TextField nameField = new TextField();
+        Label appendLabel = new Label(".kdbx");
+        HBox nameHbox = new HBox(10);
+        nameHbox.getChildren().addAll(nameLabel, nameField, appendLabel);
+
         // Buttons
         Label runLabel = new Label("Start Client:");
         runLabel.setMinWidth(minWidth);
@@ -252,7 +261,7 @@ class Home {
 
         // Layout
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
+        vbox.getChildren().addAll(hostHbox, portHbox, nameHbox, btnHbox);
         vbox.setPadding(new Insets(25, 50, 25, 50));
         Tab clientTab = new Tab("Receive");
         clientTab.setContent(vbox);
