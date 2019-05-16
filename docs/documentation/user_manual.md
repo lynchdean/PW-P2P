@@ -1,4 +1,4 @@
-![Logo](images/logo.png) 
+![Logo](images/logo_circle.png)
 
 # Password Manager with P2P Synchronisation
 ## User Manual
