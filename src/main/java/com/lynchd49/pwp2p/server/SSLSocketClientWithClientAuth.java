@@ -27,10 +27,7 @@ class SSLSocketClientWithClientAuth {
                 kmf = KeyManagerFactory.getInstance("SunX509");
                 ks = KeyStore.getInstance("JKS");
 
-                System.out.println("Working Directory = " +
-                        System.getProperty("user.dir"));
-
-                ks.load(new FileInputStream("src/test/resources/testkeys"), passphrase);
+                ks.load(new FileInputStream("src/main/resources/clientkeys/testkeys"), passphrase);
                 kmf.init(ks, passphrase);
                 ctx.init(kmf.getKeyManagers(), null, null);
 
@@ -77,6 +74,6 @@ class SSLSocketClientWithClientAuth {
     }
 
     public static void main(String[] args) {
-        start("localhost", 4444, "test2.kdbx");
+        start("localhost", 1234, "/test2.kdbx");
     }
 }

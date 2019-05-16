@@ -84,6 +84,7 @@ public class ClassFileServer extends ClassServer {
                 "client authentication as well.");
 
         String docPath = docRoot;
+
         int port = serverPort;
         String type = "TLS";
 
@@ -114,7 +115,7 @@ public class ClassFileServer extends ClassServer {
                 kmf = KeyManagerFactory.getInstance("SunX509");
                 ks = KeyStore.getInstance("JKS");
 
-                ks.load(new FileInputStream("testkeys"), passphrase);
+                ks.load(new FileInputStream("src/main/resources/serverkeys/testkeys"), passphrase);
                 kmf.init(ks, passphrase);
                 ctx.init(kmf.getKeyManagers(), null, null);
 
@@ -130,8 +131,9 @@ public class ClassFileServer extends ClassServer {
     }
 
     public static void main(String[] args) throws IOException {
+        int port = 1234;
         ServerSocket serverSocket = new ServerSocket(4444);
-        ClassFileServer server = new ClassFileServer(serverSocket, 4444, "test2.kdbx", true);
-        server.start();
+        ClassFileServer server = new ClassFileServer(serverSocket, port, "src/test/resources/", false);
+        start();
     }
 }
