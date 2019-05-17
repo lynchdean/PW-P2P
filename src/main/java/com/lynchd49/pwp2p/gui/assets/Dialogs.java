@@ -1,7 +1,7 @@
 package com.lynchd49.pwp2p.gui.assets;
 
-import com.lynchd49.pwp2p.server.SyncClient;
-import com.lynchd49.pwp2p.server.SyncServer;
+import com.lynchd49.pwp2p.server.ClientSSL;
+import com.lynchd49.pwp2p.server.FileServerSSL;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
 import com.lynchd49.pwp2p.utils.PasswordGeneration;
@@ -144,9 +144,8 @@ public class Dialogs {
         }
     }
 
-    public static void displayServerStatus(Stage ownerWindow, SyncServer server) {
+    public static void displayServerStatus(Stage ownerWindow, FileServerSSL server) {
         Stage serverWindow = new Stage();
-        serverWindow.setOnCloseRequest(e -> server.stop());
         serverWindow.initOwner(ownerWindow);
         serverWindow.initModality(Modality.APPLICATION_MODAL);
         serverWindow.setTitle("Server Status");
@@ -164,7 +163,8 @@ public class Dialogs {
         vbox.getChildren().addAll(message, stopBtn);
         vbox.setAlignment(Pos.CENTER);
 
-        // Check for changes in the SyncServer class and update the dialog accordingly
+        //  Check for changes in the SyncServer class and update the dialog accordingly
+        // TODO fix
         Task task = new Task() {
             @Override
             protected Object call() {
@@ -196,25 +196,19 @@ public class Dialogs {
         serverWindow.showAndWait();
     }
 
-    public static void displayClientStatus(Stage ownerWindow, SyncClient client) {
+    public static void displayClientStatus(Stage ownerWindow, ClientSSL client) {
         Stage clientWindow = new Stage();
-        clientWindow.setOnCloseRequest(e -> client.stop());
         clientWindow.initOwner(ownerWindow);
         clientWindow.initModality(Modality.APPLICATION_MODAL);
         clientWindow.setTitle("Client Status");
 
         // Stop button (button text is changed below)
         Button stopBtn = Buttons.getCloseBtn("Stop Client", 100);
-        stopBtn.setOnAction(e -> {
-            if (client.isRunning()) {
-                client.stop();
-            }
-            clientWindow.close();
-        });
+        stopBtn.setOnAction(e -> clientWindow.close());
 
         // Message depending on the outcome of the transfer
         Text message = new Text();
-        if (!client.isRunning() && client.isTransferSuccess()) {
+        if (client.isTransferSuccess()) {
             message.setText("File received successfully!");
             stopBtn.setText("Close");
         } else if (!client.isConnectionSuccess()) {

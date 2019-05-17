@@ -1,139 +1,139 @@
 package com.lynchd49.pwp2p.server;
 
-import javax.net.ServerSocketFactory;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLServerSocketFactory;
+
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.net.ServerSocket;
-import java.security.KeyStore;
+import java.net.Socket;
 
-/* ServerSSL.java -- a simple file server that can server
- * Http get request in both clear and secure channel
- *
- * The ServerSSL implements a ClassServer that
- * reads files from the file system. See the
- * doc for the "Main" method for how to run this
- * server.
- */
+public abstract class ServerSSL implements Runnable {
 
-public class ServerSSL extends ClassServer {
+    private static final Logger LOGGER = LogManager.getRootLogger();
 
-    private static int serverPort;
-    private static String docRoot;
-    private static boolean authenticate;
+    private volatile boolean running;
+    private boolean transferSuccess = false;
+    private ServerSocket serverSocket;
 
-    /**
-     * Constructs a ServerSSL.
-     *
-     * @param serverPort the port the server will be run on
-     * @param docRoot the path where the server locates files
-     */
-    public ServerSSL(ServerSocket ss, int serverPort, String docRoot, boolean authenticate) {
-        super(ss);
-        ServerSSL.serverPort = serverPort;
-        ServerSSL.docRoot = docRoot;
-        ServerSSL.authenticate = authenticate;
+    ServerSSL(ServerSocket ss) {
+        serverSocket = ss;
     }
 
-    /**
-     * Returns an array of bytes containing the bytes for
-     * the file represented by the argument <b>path</b>.
-     *
-     * @return the bytes for the file
-     * @throws FileNotFoundException if the file corresponding
-     *                               to <b>path</b> could not be loaded.
-     */
-    public byte[] getBytes(String path)
-            throws IOException {
-        System.out.println("reading: " + path);
-        File f = new File(docRoot + File.separator + path);
-        int length = (int) (f.length());
-        if (length == 0) {
-            throw new IOException("File length is zero: " + path);
-        } else {
-            FileInputStream fin = new FileInputStream(f);
-            DataInputStream in = new DataInputStream(fin);
+    public abstract byte[] getBytes(String path) throws IOException;
 
-            byte[] bytecodes = new byte[length];
-            in.readFully(bytecodes);
-            return bytecodes;
-        }
+    public void start() {
+        LOGGER.info("Starting server...");
+        Thread waiter = new Thread(this);
+        waiter.start();
+        LOGGER.info("Server running.");
     }
 
-    /**
-     * Main method to create the class server that reads
-     * files. This takes two command line arguments, the
-     * port on which the server accepts requests and the
-     * root of the path. To start up the server: <br><br>
-     *
-     * <code>   java ServerSSL <port> <path>
-     * </code><br><br>
-     *
-     * <code>   new ServerSSL(port, docRoot);
-     * </code>
-     */
-    public static void start() {
-        System.out.println(
-                "USAGE: java ServerSSL port docRoot [TLS [true]]\n\n" +
-                "If the third argument is TLS, it will start as\n" +
-                "a TLS/SSL file server, otherwise, it will be\n" +
-                "an ordinary file server. \n" +
-                "If the fourth argument is true,it will require\n" +
-                "client authentication as well.");
-
-        String docPath = docRoot;
-
-        int port = serverPort;
-        String type = "TLS";
-
-        try {
-            ServerSocketFactory ssf = ServerSSL.getServerSocketFactory(type);
-            ServerSocket ss = ssf.createServerSocket(port);
-            if (authenticate) {
-                ((SSLServerSocket) ss).setNeedClientAuth(true);
-            }
-            new ServerSSL(ss, port, docPath, authenticate);
-        } catch (IOException e) {
-            System.out.printf("Unable to start ClassServer: %s%n", e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private static ServerSocketFactory getServerSocketFactory(String type) {
-        if (type.equals("TLS")) {
-            SSLServerSocketFactory ssf;
+    public void stop() {
+        LOGGER.info("Stopping server...");
+        this.running = false;
+        if (!serverSocket.isClosed()) {
             try {
-                // set up key manager to do server authentication
-                SSLContext ctx;
-                KeyManagerFactory kmf;
-                KeyStore ks;
-                char[] passphrase = "passphrase".toCharArray();
-
-                ctx = SSLContext.getInstance("TLS");
-                kmf = KeyManagerFactory.getInstance("SunX509");
-                ks = KeyStore.getInstance("JKS");
-
-                ks.load(new FileInputStream("src/main/resources/serverkeys/testkeys"), passphrase);
-                kmf.init(ks, passphrase);
-                ctx.init(kmf.getKeyManagers(), null, null);
-
-                ssf = ctx.getServerSocketFactory();
-                return ssf;
-            } catch (Exception e) {
+                serverSocket.close();
+            } catch (IOException e) {
                 e.printStackTrace();
+                LOGGER.warn(String.format("Server stopped, but failed to close port"));
             }
-        } else {
-            return ServerSocketFactory.getDefault();
         }
-        return null;
+        LOGGER.info("Server stopped.");
     }
 
-    public static void main(String[] args) throws IOException {
-        int port = 1235;
-        ServerSocket serverSocket = new ServerSocket(4445);
-        ServerSSL server = new ServerSSL(serverSocket, port, "src/test/resources/", false);
-        start();
+    @Override
+    public void run() {
+        this.running = true;
+        while (this.running) {
+            Socket socket;
+
+            // Accept connection from client
+            try {
+                socket = serverSocket.accept();
+            } catch (IOException e) {
+                System.out.println("Class Server died: " + e.getMessage());
+                e.printStackTrace();
+                return;
+            }
+
+            try {
+                OutputStream rawOut = socket.getOutputStream();
+                PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(rawOut)));
+                try {
+                    // Get path to class file from header
+                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    String path = getPath(in);
+
+                    // Retrieve bytecodes
+                    byte[] bytecodes = getBytes(path);
+
+                    // Send bytecodes in response
+                    try {
+                        out.print("HTTP/1.0 200 OK\r\n");
+                        out.print("Content-Length: " + bytecodes.length +
+                                "\r\n");
+                        out.print("Content-Type: text/html\r\n\r\n");
+                        out.flush();
+                        rawOut.write(bytecodes);
+                        rawOut.flush();
+                        transferSuccess = true;
+                        LOGGER.info(String.format("File %s sent successfully.", path));
+                    } catch (IOException ie) {
+                        ie.printStackTrace();
+                        return;
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error transferring file", e);
+                    out.println(String.format("HTTP/1.0 400 %s\r\n", e.getMessage()));
+                    out.println("Content-Type: text/html\r\n\r\n");
+                    out.flush();
+                }
+
+            } catch (IOException ex) {
+                LOGGER.error(String.format("error writing response: %s", ex.getMessage()));
+            } finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    LOGGER.error("Error trying to close server socket.", e);
+                }
+            }
+            this.stop();
+        }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public boolean isSuccessful() {
+        return transferSuccess;
+    }
+
+    private static String getPath(BufferedReader in) throws IOException {
+        String line = in.readLine();
+        String path = "";
+
+        // Extract class
+        if (line.startsWith("GET /")) {
+            line = line.substring(5, line.length() - 1).trim();
+            int index = line.indexOf(' ');
+            if (index != -1) {
+                path = line.substring(0, index);
+            }
+        }
+
+        // Eat the rest of header
+        do {
+            line = in.readLine();
+        } while ((line.length() != 0) && (line.charAt(0) != '\r') && (line.charAt(0) != '\n'));
+
+        if (path.length() != 0) {
+            return path;
+        } else {
+            throw new IOException("Malformed Header");
+        }
     }
 }

@@ -2,8 +2,8 @@ package com.lynchd49.pwp2p.gui;
 
 import com.lynchd49.pwp2p.gui.assets.Buttons;
 import com.lynchd49.pwp2p.gui.assets.Dialogs;
-import com.lynchd49.pwp2p.server.SyncClient;
-import com.lynchd49.pwp2p.server.SyncServer;
+import com.lynchd49.pwp2p.server.ClientSSL;
+import com.lynchd49.pwp2p.server.FileServerSSL;
 import com.lynchd49.pwp2p.utils.EntryTableView;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
@@ -24,18 +24,24 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.linguafranca.pwdb.Database;
 import org.linguafranca.pwdb.Entry;
 import org.linguafranca.pwdb.Group;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
 
 class Home {
+
+    private static final Logger LOGGER = LogManager.getRootLogger();
 
     private final static double colMinWidth = 100;
     private final static double labelMinWidth = 80;
@@ -193,7 +199,13 @@ class Home {
         runLabel.setAlignment(Pos.CENTER_RIGHT);
         Button startServerBtn = Buttons.getStartBtn("Run", 60);
         startServerBtn.setDisable(false);
-        startServerBtn.setOnAction(e -> startServer(window, portField.getText(), hostField.getText(), kdbxObject));
+        startServerBtn.setOnAction(e -> {
+            try {
+                startServer(window, portField.getText(), hostField.getText(), kdbxObject);
+            } catch (IOException ex) {
+                LOGGER.error("Unable to start server", ex);
+            }
+        });
         HBox btnHbox = new HBox(10);
         btnHbox.setPadding(new Insets(20, 0, 0, 0));
         btnHbox.getChildren().addAll(runLabel, startServerBtn);
@@ -207,10 +219,15 @@ class Home {
         return serverTab;
     }
 
-    private static void startServer(Stage window, String portString, String recipientHostname, KdbxObject kdbxObject) {
+    private static void startServer(Stage window, String portString, String recipientHostname, KdbxObject kdbxObject) throws IOException {
+        String databasePath = kdbxObject.getPath();
+        String docRoot = databasePath.substring(0, databasePath.lastIndexOf("/"));
         int portInt = Integer.parseInt(portString);
-        if (portInt >= 0 && portInt <= 65535) {
-            SyncServer server = new SyncServer(portInt, recipientHostname, kdbxObject.getPath());
+        if ((portInt >= 0) && (portInt <= 65535)) {
+            // TODO cleanup here
+            System.out.println("test server");
+            ServerSocket ss = FileServerSSL.getServerSocket(portInt);
+            FileServerSSL server = new FileServerSSL(ss, docRoot);
             server.start();
             Dialogs.displayServerStatus(window, server);
         } else {
@@ -282,12 +299,14 @@ class Home {
         });
     }
 
-    private static void startClient(Stage window, String hostname, String portString, String outputFilePath) {
+    private static void startClient(Stage window, String hostname, String portString, String requestedFile) {
         if (validHostname(hostname) || hostname.equals("localhost")) {
             int portInt = Integer.parseInt(portString);
             if (portInt >= 0 && portInt <= 65535) {
-                SyncClient client = new SyncClient();
-                client.start(hostname, portInt, outputFilePath);
+                // TODO cleanup here
+                System.out.println("test client");
+                ClientSSL client = new ClientSSL();
+                client.start(hostname, portInt, requestedFile);
                 Dialogs.displayClientStatus(window, client);
             }
         } else {
@@ -296,10 +315,11 @@ class Home {
     }
 
     private static boolean validHostname(String hostname) {
-        String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
-        return hostname.matches(PATTERN);
+        String pattern = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
+        return hostname.matches(pattern);
     }
 
+    @SuppressWarnings("unchecked")
     private static void addColumn(TableView table, String title, String propertyVal) {
         TableColumn<EntryTableView, String> col = new TableColumn<>(title);
         col.setMinWidth(colMinWidth);
@@ -375,6 +395,7 @@ class Home {
     }
 
     // Create a new group in the currently selected group
+    @SuppressWarnings("unchecked")
     private static void newGroup(Stage window, TreeView<String> treeView, ObservableList<EntryTableView> tableData, KdbxObject kdbxObject) {
         Optional<String> result = Dialogs.displayNewTitle("Group");
         result.ifPresent(s -> {
@@ -398,6 +419,7 @@ class Home {
     }
 
     // Create a new entry in the currently selected group
+    @SuppressWarnings("unchecked")
     private static void newEntry(ObservableList<EntryTableView> tableData, KdbxObject kdbxObject) {
         Optional<String> result = Dialogs.displayNewTitle("Entry");
         result.ifPresent(s -> {
@@ -409,6 +431,7 @@ class Home {
     }
 
     // Delete the currently selected group
+    @SuppressWarnings("unchecked")
     private static void deleteCurrentGroup(Stage window, TreeView<String> treeView, KdbxObject kdbxObject) {
         if (!currentGroup.equals(kdbxObject.getDatabase().getRootGroup())) {
             if (Dialogs.displayConfirm(window, String.format("Delete %s?", currentGroup.getName()))) {
