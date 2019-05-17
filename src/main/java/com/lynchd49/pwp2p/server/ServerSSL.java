@@ -9,32 +9,32 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.security.KeyStore;
 
-/* ClassFileServer.java -- a simple file server that can server
+/* ServerSSL.java -- a simple file server that can server
  * Http get request in both clear and secure channel
  *
- * The ClassFileServer implements a ClassServer that
+ * The ServerSSL implements a ClassServer that
  * reads files from the file system. See the
  * doc for the "Main" method for how to run this
  * server.
  */
 
-public class ClassFileServer extends ClassServer {
+public class ServerSSL extends ClassServer {
 
     private static int serverPort;
     private static String docRoot;
     private static boolean authenticate;
 
     /**
-     * Constructs a ClassFileServer.
+     * Constructs a ServerSSL.
      *
      * @param serverPort the port the server will be run on
      * @param docRoot the path where the server locates files
      */
-    public ClassFileServer(ServerSocket ss, int serverPort, String docRoot, boolean authenticate) {
+    public ServerSSL(ServerSocket ss, int serverPort, String docRoot, boolean authenticate) {
         super(ss);
-        this.serverPort = serverPort;
-        this.docRoot = docRoot;
-        this.authenticate = authenticate;
+        ServerSSL.serverPort = serverPort;
+        ServerSSL.docRoot = docRoot;
+        ServerSSL.authenticate = authenticate;
     }
 
     /**
@@ -68,15 +68,15 @@ public class ClassFileServer extends ClassServer {
      * port on which the server accepts requests and the
      * root of the path. To start up the server: <br><br>
      *
-     * <code>   java ClassFileServer <port> <path>
+     * <code>   java ServerSSL <port> <path>
      * </code><br><br>
      *
-     * <code>   new ClassFileServer(port, docRoot);
+     * <code>   new ServerSSL(port, docRoot);
      * </code>
      */
     public static void start() {
         System.out.println(
-                "USAGE: java ClassFileServer port docRoot [TLS [true]]\n\n" +
+                "USAGE: java ServerSSL port docRoot [TLS [true]]\n\n" +
                 "If the third argument is TLS, it will start as\n" +
                 "a TLS/SSL file server, otherwise, it will be\n" +
                 "an ordinary file server. \n" +
@@ -89,12 +89,12 @@ public class ClassFileServer extends ClassServer {
         String type = "TLS";
 
         try {
-            ServerSocketFactory ssf = ClassFileServer.getServerSocketFactory(type);
+            ServerSocketFactory ssf = ServerSSL.getServerSocketFactory(type);
             ServerSocket ss = ssf.createServerSocket(port);
             if (authenticate) {
                 ((SSLServerSocket) ss).setNeedClientAuth(true);
             }
-            new ClassFileServer(ss, port, docPath, authenticate);
+            new ServerSSL(ss, port, docPath, authenticate);
         } catch (IOException e) {
             System.out.printf("Unable to start ClassServer: %s%n", e.getMessage());
             e.printStackTrace();
@@ -131,9 +131,9 @@ public class ClassFileServer extends ClassServer {
     }
 
     public static void main(String[] args) throws IOException {
-        int port = 1234;
-        ServerSocket serverSocket = new ServerSocket(4444);
-        ClassFileServer server = new ClassFileServer(serverSocket, port, "src/test/resources/", false);
+        int port = 1235;
+        ServerSocket serverSocket = new ServerSocket(4445);
+        ServerSSL server = new ServerSSL(serverSocket, port, "src/test/resources/", false);
         start();
     }
 }
