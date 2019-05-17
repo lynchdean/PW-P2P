@@ -42,15 +42,6 @@ class Home {
 
     static Group currentGroup;
 
-    // Server
-    private static SyncServer server;
-    private static Button startServerBtn;
-    private static Button stopServerBtn;
-
-    private static Button startClientBtn;
-    private static Button stopClientBtn;
-
-
     static Scene loadScene(Stage window, KdbxObject kdbxObject) throws UnknownHostException {
         Database db = kdbxObject.getDatabase();
         currentGroup = db.getRootGroup();
@@ -176,9 +167,19 @@ class Home {
 
     @NotNull
     private static Tab getSendTab(Stage window, KdbxObject kdbxObject) {
+        double minWidth = labelMinWidth + 60;
+
+        // Recipient Hostname
+        Label hostLabel = new Label("Recipient Hostname:");
+        hostLabel.setMinWidth(minWidth);
+        hostLabel.setAlignment(Pos.CENTER_RIGHT);
+        TextField hostField = new TextField();
+        HBox hostHbox = new HBox(10);
+        hostHbox.getChildren().addAll(hostLabel, hostField);
+
         // Port
         Label portLabel = new Label("Port:");
-        portLabel.setMinWidth(labelMinWidth);
+        portLabel.setMinWidth(minWidth);
         portLabel.setAlignment(Pos.CENTER_RIGHT);
         TextField portField = new TextField("4444");
         portField.setMaxWidth(60);
@@ -186,51 +187,44 @@ class Home {
         HBox portHbox = new HBox(10);
         portHbox.getChildren().addAll(portLabel, portField);
 
-        // Buttons
-        startServerBtn = Buttons.getStartBtn("Start Server", 100);
+        // Run
+        Label runLabel = new Label("Start Server:");
+        runLabel.setMinWidth(minWidth);
+        runLabel.setAlignment(Pos.CENTER_RIGHT);
+        Button startServerBtn = Buttons.getStartBtn("Run", 60);
         startServerBtn.setDisable(false);
-        startServerBtn.setOnAction(e -> startServer(window, portField.getText(), kdbxObject));
-        stopServerBtn = Buttons.getStopBtn("Stop Server", 100);
-        stopServerBtn.setDisable(true);
-        stopServerBtn.setOnAction(e -> stopServer());
+        startServerBtn.setOnAction(e -> startServer(window, portField.getText(), hostField.getText(), kdbxObject));
         HBox btnHbox = new HBox(10);
         btnHbox.setPadding(new Insets(20, 0, 0, 0));
-        btnHbox.getChildren().addAll(startServerBtn, stopServerBtn);
+        btnHbox.getChildren().addAll(runLabel, startServerBtn);
 
         // Layout
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(portHbox, btnHbox);
+        vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
         vbox.setPadding(new Insets(25, 50, 25, 50));
         Tab serverTab = new Tab("Send");
         serverTab.setContent(vbox);
         return serverTab;
     }
 
-    private static void startServer(Stage window, String portString, KdbxObject kdbxObject) {
+    private static void startServer(Stage window, String portString, String recipientHostname, KdbxObject kdbxObject) {
         int portInt = Integer.parseInt(portString);
         if (portInt >= 0 && portInt <= 65535) {
-            startServerBtn.setDisable(true);
-            stopServerBtn.setDisable(false);
-            server = new SyncServer(portInt, kdbxObject.getPath());
+            SyncServer server = new SyncServer(portInt, recipientHostname, kdbxObject.getPath());
             server.start();
+            Dialogs.displayServerStatus(window, server);
         } else {
             Dialogs.displayAlert(window, "Invalid Port Number", "Please enter a valid port. (0-65535)");
         }
     }
 
-    private static void stopServer() {
-        stopServerBtn.setDisable(true);
-        if (server != null) {
-            server.stop();
-        }
-        startServerBtn.setDisable(false);
-    }
-
     @NotNull
     private static Tab getReceiveTab(Stage window, KdbxObject kdbxObject) {
-        // Hostname
-        Label hostLabel = new Label("Server Hostname:");
-        hostLabel.setMinWidth(labelMinWidth + 40);
+        double minWidth = labelMinWidth + 60;
+
+        // Sender Hostname
+        Label hostLabel = new Label("Sender Hostname:");
+        hostLabel.setMinWidth(minWidth);
         hostLabel.setAlignment(Pos.CENTER_RIGHT);
         TextField hostField = new TextField();
         HBox hostHbox = new HBox(10);
@@ -238,7 +232,7 @@ class Home {
 
         // Port
         Label portLabel = new Label("Server Port:");
-        portLabel.setMinWidth(labelMinWidth + 40);
+        portLabel.setMinWidth(minWidth);
         portLabel.setAlignment(Pos.CENTER_RIGHT);
         TextField portField = new TextField("4444");
         portField.setMaxWidth(60);
@@ -246,18 +240,28 @@ class Home {
         HBox portHbox = new HBox(10);
         portHbox.getChildren().addAll(portLabel, portField);
 
+        // File name
+        Label nameLabel = new Label("Save as:");
+        nameLabel.setMinWidth(minWidth);
+        nameLabel.setAlignment(Pos.CENTER_RIGHT);
+        TextField nameField = new TextField();
+        Label appendLabel = new Label(".kdbx");
+        HBox nameHbox = new HBox(10);
+        nameHbox.getChildren().addAll(nameLabel, nameField, appendLabel);
+
         // Buttons
-        startClientBtn = Buttons.getConnectBtn("Start Connection", 100);
+        Label runLabel = new Label("Start Client:");
+        runLabel.setMinWidth(minWidth);
+        runLabel.setAlignment(Pos.CENTER_RIGHT);
+        Button startClientBtn = Buttons.getStartBtn("Run", 60);
         startClientBtn.setOnAction(e -> startClient(window, hostField.getText(), portField.getText(), kdbxObject.getPath()));
-        stopClientBtn = Buttons.getStopBtn("Stop Connection", 100);
-        stopClientBtn.setOnAction(e -> stopClient());
         HBox btnHbox = new HBox(10);
         btnHbox.setPadding(new Insets(20, 0, 0, 0));
-        btnHbox.getChildren().addAll(startClientBtn, stopClientBtn);
+        btnHbox.getChildren().addAll(runLabel, startClientBtn);
 
         // Layout
         VBox vbox = new VBox(10);
-        vbox.getChildren().addAll(hostHbox, portHbox, btnHbox);
+        vbox.getChildren().addAll(hostHbox, portHbox, nameHbox, btnHbox);
         vbox.setPadding(new Insets(25, 50, 25, 50));
         Tab clientTab = new Tab("Receive");
         clientTab.setContent(vbox);
@@ -282,9 +286,9 @@ class Home {
         if (validHostname(hostname) || hostname.equals("localhost")) {
             int portInt = Integer.parseInt(portString);
             if (portInt >= 0 && portInt <= 65535) {
-                // Client
                 SyncClient client = new SyncClient();
                 client.start(hostname, portInt, outputFilePath);
+                Dialogs.displayClientStatus(window, client);
             }
         } else {
             Dialogs.displayAlert(window, "Invalid Hostname", "Please enter a valid hostname.");
@@ -294,12 +298,6 @@ class Home {
     private static boolean validHostname(String hostname) {
         String PATTERN = "^((0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)\\.){3}(0|1\\d?\\d?|2[0-4]?\\d?|25[0-5]?|[3-9]\\d?)$";
         return hostname.matches(PATTERN);
-    }
-
-    private static void stopClient() {
-        startClientBtn.setDisable(false);
-        // TODO add needed functionality once written
-        stopClientBtn.setDisable(true);
     }
 
     private static void addColumn(TableView table, String title, String propertyVal) {

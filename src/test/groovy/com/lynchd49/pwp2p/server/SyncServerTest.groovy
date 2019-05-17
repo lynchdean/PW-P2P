@@ -8,11 +8,12 @@ import spock.lang.Unroll
 class SyncServerTest extends Specification {
     String testFilePath = "test1.kdbx"
     int portNumber = 4444
+    String recipient = "localhost"
     SyncServer server
 
     def "Should fail given negative port number: #portNum"() {
         when:
-        server = new SyncServer(portNum, testFilePath)
+        server = new SyncServer(portNum, recipient, testFilePath)
         server.start()
 
         then:
@@ -29,7 +30,7 @@ class SyncServerTest extends Specification {
 
     def "Should fail given too high port number: #portNum"() {
         when:
-        server = new SyncServer(portNum, testFilePath)
+        server = new SyncServer(portNum, recipient, testFilePath)
         server.start()
 
         then:
