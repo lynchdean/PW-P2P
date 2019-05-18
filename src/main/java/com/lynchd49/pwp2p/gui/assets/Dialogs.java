@@ -4,7 +4,7 @@ import com.lynchd49.pwp2p.server.ClientSSL;
 import com.lynchd49.pwp2p.server.FileServerSSL;
 import com.lynchd49.pwp2p.utils.KdbxObject;
 import com.lynchd49.pwp2p.utils.KdbxOps;
-import com.lynchd49.pwp2p.utils.PasswordGeneration;
+import com.lynchd49.pwp2p.utils.PasswordGen;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -82,7 +82,7 @@ public class Dialogs {
         CheckBox specialCb = new CheckBox("!\"#...");
 
         Label spinnerLabel = new Label("Length: ");
-        Spinner<Integer> lengthSpinner = new Spinner<>(1, 999, 1);
+        Spinner<Integer> lengthSpinner = new Spinner<>(4, 999, 1);
         lengthSpinner.getValueFactory().setValue(16);
         lengthSpinner.setMaxWidth(70);
         HBox spinnerHbox = new HBox(10);
@@ -139,7 +139,7 @@ public class Dialogs {
         if (!hasLower && !hasUpper && !hasNumeric && !hasSpecial) {
             displayAlert(ownerWindow, "No requirements selected!", "Please select at least one character rule!");
         } else {
-            String newPassword = PasswordGeneration.getNew(lengthSpinner.getValue(), hasLower, hasUpper, hasNumeric, hasSpecial);
+            String newPassword = PasswordGen.getNew(lengthSpinner.getValue(), hasLower, hasUpper, hasNumeric, hasSpecial);
             newPwField.setText(newPassword);
         }
     }

@@ -79,6 +79,15 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Maven plugin for JavaFx for packaging -->
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.2</version>
+                <configuration>
+                    <mainClass>hellofx/org.openjfx.App</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>

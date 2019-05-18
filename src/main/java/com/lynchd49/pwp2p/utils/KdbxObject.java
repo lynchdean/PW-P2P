@@ -23,7 +23,7 @@ public class KdbxObject {
     }
 
     public String getFileName() {
-        return path.substring(path.lastIndexOf("/"));
+        return path.substring(path.lastIndexOf("/") + 1);
     }
 
     String getCredentials() {

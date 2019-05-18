@@ -8,7 +8,7 @@ import org.passay.PasswordGenerator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PasswordGeneration {
+public class PasswordGen {
 
     public static String getNew(int length, boolean hasLower, boolean hasUpper, boolean hasDigits, boolean hasSpecial) {
         List<CharacterRule> rules = new ArrayList<>();

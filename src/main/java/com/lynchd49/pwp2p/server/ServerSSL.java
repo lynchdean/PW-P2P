@@ -24,7 +24,7 @@ public abstract class ServerSSL implements Runnable {
     ServerSSL(ServerSocket ss, String expectedClientAddr, String currentDbName) {
         this.serverSocket = ss;
         this.expectedClientAddr = expectedClientAddr;
-        this.currentDbName = currentDbName;
+        this.currentDbName = "/" + currentDbName;
     }
 
     public abstract byte[] getBytes(String path) throws IOException;
@@ -44,7 +44,7 @@ public abstract class ServerSSL implements Runnable {
                 serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
-                LOGGER.warn(String.format("Server stopped, but failed to close port"));
+                LOGGER.warn("Server stopped, but failed to close port");
             }
         }
         LOGGER.info("Server stopped.");

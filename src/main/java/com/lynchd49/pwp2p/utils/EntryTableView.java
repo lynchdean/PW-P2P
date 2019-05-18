@@ -18,7 +18,6 @@ public class EntryTableView {
     public EntryTableView(Entry e) {
         this.title = new SimpleStringProperty(e.getTitle());
         this.username = new SimpleStringProperty(e.getUsername());
-//        this.password = new SimpleStringProperty(e.getPassword());
         this.url = new SimpleStringProperty(e.getUrl());
         this.notes = new SimpleStringProperty(e.getNotes());
         this.expires = new SimpleStringProperty(Boolean.toString(e.getExpires()));
