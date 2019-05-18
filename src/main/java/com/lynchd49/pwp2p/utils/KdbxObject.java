@@ -22,6 +22,10 @@ public class KdbxObject {
         return path;
     }
 
+    public String getFileName() {
+        return path.substring(path.lastIndexOf("/"));
+    }
+
     String getCredentials() {
         return credentials;
     }

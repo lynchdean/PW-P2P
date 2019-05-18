@@ -19,16 +19,17 @@ public class FileServerSSL extends ServerSSL {
 
     private static String docRoot;
 
-    public FileServerSSL(ServerSocket ss, String docRoot) {
-        super(ss);
+    public FileServerSSL(int port, String docRoot, String clientAddress, String currentDbName) throws IOException {
+        super(getServerSocket(port), clientAddress, currentDbName);
         FileServerSSL.docRoot = docRoot;
     }
 
     public byte[] getBytes(String path) throws IOException {
-        System.out.println("reading: " + path);
+        LOGGER.info("reading: " + path);
         File f = new File(docRoot + File.separator + path);
         int length = (int) (f.length());
         if (length == 0) {
+            LOGGER.error("Incorrect file requested.");
             throw new IOException("File length is zero: " + path);
         } else {
             FileInputStream fin = new FileInputStream(f);
@@ -72,11 +73,11 @@ public class FileServerSSL extends ServerSSL {
         return null;
     }
 
-    // TODO remove this when implemented into GUI
-    public static void main(String[] args) throws IOException {
-        int port = 1235;
-        ServerSocket ss = FileServerSSL.getServerSocket(port);
-        FileServerSSL server = new FileServerSSL(ss, "src/test/resources/");
-        server.start();
-    }
+    // Main method for manual testing purposes
+//    public static void main(String[] args) throws IOException {
+//        int port = 1235;
+//        ServerSocket ss = FileServerSSL.getServerSocket(port);
+//        FileServerSSL server = new FileServerSSL(ss, "src/test/resources/");
+//        server.start();
+//    }
 }

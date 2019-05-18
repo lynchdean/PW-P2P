@@ -13,11 +13,18 @@ public abstract class ServerSSL implements Runnable {
     private static final Logger LOGGER = LogManager.getRootLogger();
 
     private volatile boolean running;
-    private boolean transferSuccess = false;
     private ServerSocket serverSocket;
 
-    ServerSSL(ServerSocket ss) {
-        serverSocket = ss;
+    private final String expectedClientAddr;
+    private final String currentDbName;
+
+    private boolean transferSuccess = false;
+    private boolean isMismatch = false;
+
+    ServerSSL(ServerSocket ss, String expectedClientAddr, String currentDbName) {
+        this.serverSocket = ss;
+        this.expectedClientAddr = expectedClientAddr;
+        this.currentDbName = currentDbName;
     }
 
     public abstract byte[] getBytes(String path) throws IOException;
@@ -58,49 +65,64 @@ public abstract class ServerSSL implements Runnable {
                 return;
             }
 
-            try {
-                OutputStream rawOut = socket.getOutputStream();
-                PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(rawOut)));
+
+            String socketAddress = socket.getInetAddress().getHostAddress();
+            String socketHostname = socket.getInetAddress().getHostName();
+            if (socketAddress.equals(expectedClientAddr) || socketHostname.equals(expectedClientAddr)
+                    || expectedClientAddr.equals(("localhost")) || expectedClientAddr.equals("127.0.0.1")) {
                 try {
-                    // Get path to class file from header
-                    BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    String path = getPath(in);
-
-                    // Retrieve bytecodes
-                    byte[] bytecodes = getBytes(path);
-
-                    // Send bytecodes in response
+                    OutputStream rawOut = socket.getOutputStream();
+                    PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(rawOut)));
                     try {
-                        out.print("HTTP/1.0 200 OK\r\n");
-                        out.print("Content-Length: " + bytecodes.length +
-                                "\r\n");
-                        out.print("Content-Type: text/html\r\n\r\n");
-                        out.flush();
-                        rawOut.write(bytecodes);
-                        rawOut.flush();
-                        transferSuccess = true;
-                        LOGGER.info(String.format("File %s sent successfully.", path));
-                    } catch (IOException ie) {
-                        ie.printStackTrace();
-                        return;
-                    }
-                } catch (Exception e) {
-                    LOGGER.error("Error transferring file", e);
-                    out.println(String.format("HTTP/1.0 400 %s\r\n", e.getMessage()));
-                    out.println("Content-Type: text/html\r\n\r\n");
-                    out.flush();
-                }
+                        // Get path to class file from header
+                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        String path = getPath(in);
 
-            } catch (IOException ex) {
-                LOGGER.error(String.format("error writing response: %s", ex.getMessage()));
-            } finally {
+                        // Retrieve bytecodes
+                        byte[] bytecodes = getBytes(path);
+
+                        // Send bytecodes in response
+                        try {
+                            out.print("HTTP/1.0 200 OK\r\n");
+                            out.print("Content-Length: " + bytecodes.length +
+                                    "\r\n");
+                            out.print("Content-Type: text/html\r\n\r\n");
+                            out.flush();
+                            rawOut.write(bytecodes);
+                            rawOut.flush();
+                            transferSuccess = true;
+                            LOGGER.info(String.format("File %s sent successfully.", path));
+                        } catch (IOException ie) {
+                            ie.printStackTrace();
+                            return;
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("Error transferring file", e);
+                        out.println(String.format("HTTP/1.0 400 %s\r\n", e.getMessage()));
+                        out.println("Content-Type: text/html\r\n\r\n");
+                        out.flush();
+                    }
+
+                } catch (IOException ex) {
+                    LOGGER.error(String.format("error writing response: %s", ex.getMessage()));
+                } finally {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        LOGGER.error("Error trying to close server socket.", e);
+                    }
+                }
+                this.stop();
+            } else {
                 try {
                     socket.close();
+                    LOGGER.error("Client address doesn't match");
+                    isMismatch = true;
+                    this.stop();
                 } catch (IOException e) {
                     LOGGER.error("Error trying to close server socket.", e);
                 }
             }
-            this.stop();
         }
     }
 
@@ -110,6 +132,10 @@ public abstract class ServerSSL implements Runnable {
 
     public boolean isSuccessful() {
         return transferSuccess;
+    }
+
+    public boolean isMismatch() {
+        return isMismatch;
     }
 
     private static String getPath(BufferedReader in) throws IOException {

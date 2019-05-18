@@ -34,7 +34,6 @@ import org.linguafranca.pwdb.Group;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Optional;
@@ -224,10 +223,7 @@ class Home {
         String docRoot = databasePath.substring(0, databasePath.lastIndexOf("/"));
         int portInt = Integer.parseInt(portString);
         if ((portInt >= 0) && (portInt <= 65535)) {
-            // TODO cleanup here
-            System.out.println("test server");
-            ServerSocket ss = FileServerSSL.getServerSocket(portInt);
-            FileServerSSL server = new FileServerSSL(ss, docRoot);
+            FileServerSSL server = new FileServerSSL(portInt, docRoot, recipientHostname, kdbxObject.getFileName());
             server.start();
             Dialogs.displayServerStatus(window, server);
         } else {
@@ -251,14 +247,14 @@ class Home {
         Label portLabel = new Label("Server Port:");
         portLabel.setMinWidth(minWidth);
         portLabel.setAlignment(Pos.CENTER_RIGHT);
-        TextField portField = new TextField("4444");
+        TextField portField = new TextField("");
         portField.setMaxWidth(60);
         applyPortInputLimits(portField);
         HBox portHbox = new HBox(10);
         portHbox.getChildren().addAll(portLabel, portField);
 
         // File name
-        Label nameLabel = new Label("Save as:");
+        Label nameLabel = new Label("File to request:");
         nameLabel.setMinWidth(minWidth);
         nameLabel.setAlignment(Pos.CENTER_RIGHT);
         TextField nameField = new TextField();
@@ -267,11 +263,14 @@ class Home {
         nameHbox.getChildren().addAll(nameLabel, nameField, appendLabel);
 
         // Buttons
-        Label runLabel = new Label("Start Client:");
+        Label runLabel = new Label("Request file:");
         runLabel.setMinWidth(minWidth);
         runLabel.setAlignment(Pos.CENTER_RIGHT);
         Button startClientBtn = Buttons.getStartBtn("Run", 60);
-        startClientBtn.setOnAction(e -> startClient(window, hostField.getText(), portField.getText(), kdbxObject.getPath()));
+        String writeDirectory = kdbxObject.getPath().substring(0, kdbxObject.getPath().lastIndexOf("/"));
+        startClientBtn.setOnAction(e -> {
+            startClient(window, hostField.getText(), portField.getText(), nameField.getText());
+        });
         HBox btnHbox = new HBox(10);
         btnHbox.setPadding(new Insets(20, 0, 0, 0));
         btnHbox.getChildren().addAll(runLabel, startClientBtn);
@@ -299,14 +298,13 @@ class Home {
         });
     }
 
-    private static void startClient(Stage window, String hostname, String portString, String requestedFile) {
+    private static void startClient(Stage window, String hostname, String portString, String requestedFileName) {
         if (validHostname(hostname) || hostname.equals("localhost")) {
             int portInt = Integer.parseInt(portString);
+            String validFileString = "/" + requestedFileName + ".kdbx";
             if (portInt >= 0 && portInt <= 65535) {
-                // TODO cleanup here
-                System.out.println("test client");
                 ClientSSL client = new ClientSSL();
-                client.start(hostname, portInt, requestedFile);
+                client.start(hostname, portInt, validFileString);
                 Dialogs.displayClientStatus(window, client);
             }
         } else {

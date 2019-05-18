@@ -152,7 +152,7 @@ public class Dialogs {
         Text message = new Text("Server is running, waiting for a connection");
 
         // Close dialog and ensure server has stopped
-        Button stopBtn = Buttons.getCloseBtn("Stop Server", 100);
+        Button stopBtn = Buttons.getCloseBtn("Stop", 100);
         stopBtn.setOnAction(e -> {
             server.stop();
             serverWindow.close();
@@ -164,7 +164,6 @@ public class Dialogs {
         vbox.setAlignment(Pos.CENTER);
 
         //  Check for changes in the SyncServer class and update the dialog accordingly
-        // TODO fix
         Task task = new Task() {
             @Override
             protected Object call() {
@@ -172,11 +171,12 @@ public class Dialogs {
                 while (running) {
                     if (server.isSuccessful()) {
                         message.setText("File transferred successfully!");
-                        stopBtn.setText("Close");
+                        running = false;
+                    } else if (server.isMismatch()) {
+                        message.setText("Recipient address does not match");
                         running = false;
                     } else if (!server.isRunning()) {
                         message.setText("There was an error transferring the KDBX file.");
-                        stopBtn.setText("Close");
                         running = false;
                     }
                     try {
@@ -203,17 +203,40 @@ public class Dialogs {
         clientWindow.setTitle("Client Status");
 
         // Stop button (button text is changed below)
-        Button stopBtn = Buttons.getCloseBtn("Stop Client", 100);
+        Button stopBtn = Buttons.getCloseBtn("Stop", 100);
         stopBtn.setOnAction(e -> clientWindow.close());
 
-        // Message depending on the outcome of the transfer
+        //  Check for changes in the Client class and update the dialog accordingly
         Text message = new Text();
-        if (client.isTransferSuccess()) {
-            message.setText("File received successfully!");
-            stopBtn.setText("Close");
-        } else if (!client.isConnectionSuccess()) {
-            message.setText("Host not found. Please ensure the server is running first try again");
-        }
+        Task task = new Task() {
+            @Override
+            protected Object call() {
+                boolean running = true;
+                while (running) {
+                    if (client.isTransferSuccess()) {
+                        message.setText("File received successfully!");
+                        running = false;
+                    } else if (!client.isConnectionSuccess()) {
+                        message.setText("Host not found. Please ensure the server is running first try again");
+                        running = false;
+                    }
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        LOGGER.error("Error attempting to to sleep thread for client dialog updates.", e);
+                        running = false;
+                    }
+                }
+                return null;
+            }
+        };
+        new Thread(task).start();
+//        if (client.isTransferSuccess()) {
+//            message.setText("File received successfully!");
+//            stopBtn.setText("Close");
+//        } else if (!client.isConnectionSuccess()) {
+//            message.setText("Host not found. Please ensure the server is running first try again");
+//        }
 
         // Layout
         VBox vbox = new VBox(10);
