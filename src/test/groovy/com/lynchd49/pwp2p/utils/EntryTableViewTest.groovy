@@ -64,15 +64,4 @@ class EntryTableViewTest extends Specification {
         then:
         expiry
     }
-
-    def "GetCreated"() {
-    }
-
-    def "Get created from Entry table view"() {
-        when:
-        String created = etv.getCreated()
-
-        then:
-        created == "Thu Feb 21 15:30:17 GMT 2019"
-    }
 }
