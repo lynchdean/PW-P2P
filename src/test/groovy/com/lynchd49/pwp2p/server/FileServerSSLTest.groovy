@@ -8,10 +8,10 @@ class FileServerSSLTest extends Specification {
 
     def "Get SSL server socket given port"() {
         when:
-        ServerSocket ss = FileServerSSL.getServerSocket(4444)
+        ServerSocket ss = FileServerSSL.getServerSocket(4446)
 
         then:
-        ss.localPort == 4444
+        ss.localPort == 4446
 
         cleanup:
         ss.close()
