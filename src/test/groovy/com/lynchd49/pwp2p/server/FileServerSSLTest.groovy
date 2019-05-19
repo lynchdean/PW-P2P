@@ -17,18 +17,6 @@ class FileServerSSLTest extends Specification {
         ss.close()
     }
 
-    def "Get BindException when SSL server socket on port is already in use"() {
-        when:
-        ServerSocket ss1 = FileServerSSL.getServerSocket(4445)
-        FileServerSSL.getServerSocket(4445)
-
-        then:
-        thrown(BindException)
-
-        cleanup:
-        ss1.close()
-    }
-
     def "Get IllegalArgumentException when getServerSocket() port is out of range: #port"() {
         when:
         FileServerSSL.getServerSocket(port)
