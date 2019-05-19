@@ -180,6 +180,17 @@ as there is plenty more features that I would love to include.
 
 Lectures are now coming to an end and exams are hastily approaching, meaning that exam study must take a priority for the next few weeks.
 
+## Blog Entry 21 - Sun 19th May:
+Today is the final day before the big project deadline.
+Due to exams for the past few weeks and the following mad rush to work on my project before the deadline,
+I have neglected my blog! 
 
+I've now finished working on the project and I'm preparing for the final submission of the last couple of 
+documents. While I'm very happy with the resulting application, there's so much more I would have loved to 
+include. This project has been a great learning experience and I'll be a sad to see it come to and end.
+
+After today I will continue preparations for my final demonstration of the project. I hope you have enjoyed 
+reading this blog, and hope it gives you a better understanding of the different stages of development I went through 
+over the course of working on this project.
 
  
