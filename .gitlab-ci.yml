@@ -27,4 +27,4 @@ test:
 run:
   stage: run
   script:
-    - mvn package
+    - mvn clean install
